@@ -5,12 +5,18 @@
 class Penguin : public GameObject
 {
 private:
-	GLuint VAO;
-	int penguinVertexCount;
+	GLint m_worldLoc;
+	GLint m_colorLoc;
+
+	GLint m_viewLoc;
+	GLint m_projLoc;
+	GLint m_lightPosLoc;
 
 	float x, y, z;
 	float rangeLimit;
-	float moveSpeed;
+
+	const float LEG_ROTATE_SPEED = 90.0f;
+	float MOVE_SPEED;
 
 	float XDir;
 	float ZDir;
@@ -28,18 +34,17 @@ private:
 	bool isNear;
 	int feedNum;
 
+	int penguinNum;
 public:
-	Penguin();
+	Penguin(int num);
 	virtual ~Penguin();
 
-	virtual void initilize() override;
+	virtual void initialize() override;
 	virtual void update(float elapseTime)override;
-	virtual void draw() const override;
+	virtual void draw(const glm::mat4& viewMatrix, 
+		const glm::mat4& projMatrix, 
+		const glm::vec3& lightPos) const override;	
 	virtual void release() override;
-
-	float movePenguinX;
-	float movePenguinZ;
-	
 
 };
 

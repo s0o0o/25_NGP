@@ -6,155 +6,147 @@ Fox::Fox()
 {
 	float x = -8.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 6.f));
 	float z = -3.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
-	
+	MOVE_SPEED = 1.0f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 0.3f));
+
 	isBaby = true;
 	rangeLimit = 1.f;
 
 	foxXDir = (rand() % 2 == 0) ? 1.f : -1.f;
 	foxZDir = (rand() % 2 == 0) ? 1.f : -1.f;
-	moveSpeed = 0.5f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 1.f));
 
-	moveFoxX = x;
-	moveFoxZ = z;
+	if (foxXDir > 0 && foxZDir > 0)
+	{
+		rotateFaceFox = 45.f;
+		std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
+	}
+	else if (foxXDir > 0 && foxZDir < 0) {
+		rotateFaceFox = 135.f;
+		std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
+	}
+	else if (foxXDir < 0 && foxZDir > 0) {
+		rotateFaceFox = -45.f;
+		std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
+	}
+	else if (foxXDir < 0 && foxZDir < 0) {
+		rotateFaceFox = -135.f; // 225 -> -135
+		std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
+	}
+	rotateY(rotateFaceFox);
 
 	rotateFoxLeftLeg = 0.f;
 	rotateFoxRightLeg = 0.f;
-	rotateFaceFox = 0.f;
 	adultY = 0.f;
 	adultScale = 1.f;
-
-	/*rotateBabyLeftLeg = 0.f;
-	rotateBabyRightLeg = 0.f;
-	rotateFaceBaby = 0.f;*/
-
 	isMaxRotateFox = false; // 각도 제한
-	/*isMaxRotatePig = false;*/
 
-	initBuffer(&foxVAO, &foxVertexCount, "./OBJ/cube.obj");
-
-	rotateSpeed = 0.05f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 0.2f));
+	setPosition(x, 0.f, z);
 }
 
 Fox::~Fox()
 {
 }
 
-void Fox::initilize()
+void Fox::initialize()
 {
+	std::cout << "Fox init, shader : " << shader << std::endl;
+	if (shader == 0) {
+		std::cerr << "Error: Fox shader has not been set before calling initialize!\n";
+		return;
+	}
+
+	m_worldLoc = glGetUniformLocation(shader, "modelTransform");
+	m_colorLoc = glGetUniformLocation(shader, "colorTransform");
+
+	std::cout << "Fox m_worldLoc : " << m_worldLoc << std::endl;
+	std::cout << "Fox m_colorLoc : " << m_colorLoc << std::endl;
+
+	if (m_worldLoc < 0) std::cerr << "Error: Fox modelTransform uniform not found!\n";
+	if (m_colorLoc < 0) std::cerr << "Error: Fox colorTransform uniform not found!\n";
+
+	m_viewLoc = glGetUniformLocation(shader, "viewTransform");
+	m_projLoc = glGetUniformLocation(shader, "projTransform");
+	m_lightPosLoc = glGetUniformLocation(shader, "lightPos");
 }
 
 void Fox::update(float elapseTime)
 {
-	glm::vec3 dir(0.f);
-
-	glm::vec3 newPosition = worldTransform[3]; // 현재 위치를 복사
-	newPosition += getLook();
-
-	//const glm::vec3 playerPosition = player->getPosition();
-
-	//if (player->playerX >= worldTransform[3][0] - 1.f and
-	//	player->playerX <= worldTransform[3][0] + 1.f and
-	//	player->playerZ >= worldTransform[3][2] - 1.f and
-	//	player->playerZ <= worldTransform[3][2] + 1.f) {
-	//	std::cout << " 가까이에 있다!!!! " << std::endl;
-	//}
-
-	//rotateY(90.f);
-
-	worldTransform[3][0] = moveFoxX;
-	worldTransform[3][2] = moveFoxZ;
-
 	//여우 다리 각도 회전
 	if (isMaxRotateFox)
 	{
-		rotateFoxLeftLeg -= rotateSpeed;
-		rotateFoxRightLeg += rotateSpeed;
+		rotateFoxLeftLeg -= LEG_ROTATE_SPEED * elapseTime;;
+		rotateFoxRightLeg += LEG_ROTATE_SPEED * elapseTime;;
 		if (rotateFoxLeftLeg <= -30.f) {
 			isMaxRotateFox = false;
 		}
 	}
 	else if (not isMaxRotateFox) {
-		rotateFoxLeftLeg += rotateSpeed;
-		rotateFoxRightLeg -= rotateSpeed;
+		rotateFoxLeftLeg += LEG_ROTATE_SPEED * elapseTime;;;
+		rotateFoxRightLeg -= LEG_ROTATE_SPEED * elapseTime;;;
 		if (rotateFoxLeftLeg >= 30.f) {
 			isMaxRotateFox = true;
 		}
 	}
 
-	if (moveFoxX > -15.f and moveFoxX < -1.f
-		and moveFoxZ > -8.f and moveFoxZ < 9.f) {
+	// 위치 변경
+	glm::vec3 currentPos = getPosition();
+	float deltaX = foxXDir * MOVE_SPEED * elapseTime;
+	float deltaZ = foxZDir * MOVE_SPEED * elapseTime;
+	glm::vec3 nextPos = currentPos + glm::vec3(deltaX, 0.f, deltaZ);
 
+	bool directionChanged = false;
+	if (nextPos.x <= -15.f + rangeLimit) { nextPos.x = -15.f + rangeLimit; foxXDir = 1.f; directionChanged = true; }	// x왼쪽끝
+	if (nextPos.x >= -1.f - rangeLimit) { nextPos.x = -1.f - rangeLimit;  foxXDir = -1.f; directionChanged = true; }	// x오른쪽끝
+	if (nextPos.z <= -8.f + rangeLimit) { nextPos.z = -8.f + rangeLimit;  foxZDir = 1.f; directionChanged = true; }		// z나무쪽
+	if (nextPos.z >= 9.f - rangeLimit) { nextPos.z = 9.f - rangeLimit;  foxZDir = -1.f; directionChanged = true; }		// z카메라쪽
 
-		if (foxXDir > 0) {
-			moveFoxX += 0.001f;
-		}
-		if (foxXDir < 0) {
-			moveFoxX -= 0.001f;
-		}
-		if (foxZDir > 0) {
-			moveFoxZ += 0.001f;
-		}
-		if (foxZDir < 0) {
-			moveFoxZ -= 0.001f;
-		}
+	setPosition(nextPos);
+	float currentFace = rotateFaceFox;
 
-		if (moveFoxX <= -15.f + rangeLimit) {
-			foxXDir = 1.f;
-
-			std::cout << foxXDir << std::endl;
-		}
-		if (moveFoxX >= -1.f - rangeLimit) {
-			foxXDir = -1.f;
-
-			std::cout << foxXDir << std::endl;
-		}
-		if (moveFoxZ <= -8.f + rangeLimit) {
-			foxZDir = 1.f;
-
-			std::cout << foxZDir << std::endl;
-		}
-		if (moveFoxZ >= 9.f - rangeLimit) {
-			foxZDir = -1.f;
-
-			std::cout << foxZDir << std::endl;
-		}
-
-		if (foxXDir > 0 and foxZDir > 0) {
+	// 벽 부딪혓을때
+	if (directionChanged)
+	{
+		if (foxXDir > 0 && foxZDir > 0)
+		{
 			rotateFaceFox = 45.f;
+			std::cout << "부딪힘, 오른쪽가면서 카메라앞으로" << std::endl;
 		}
-		if (foxXDir > 0 and foxZDir < 0) {
+		else if (foxXDir > 0 && foxZDir < 0) {
 			rotateFaceFox = 135.f;
+			std::cout << "부딪힘, 오른쪽가면서 뒤쪽으로" << std::endl;
 		}
-		if (foxXDir < 0 and foxZDir > 0) {
+		else if (foxXDir < 0 && foxZDir > 0) {
 			rotateFaceFox = -45.f;
+			std::cout << "부딪힘 왼쪽으로, 카메라쪽으로" << std::endl;
 		}
-		if (foxXDir < 0 and foxZDir < 0) {
-			rotateFaceFox = 225.f;
+		else if (foxXDir < 0 && foxZDir < 0) {
+			rotateFaceFox = -135.f;
+			std::cout << "부딪힘, 왼쪽, 뒤쪽으로" << std::endl;
 		}
+		rotateY(-currentFace + rotateFaceFox);
 	}
 
 	if (not isBaby) {
 		adultY = 0.2f;
 		adultScale = 2.f;
 	}
+
 }
 
-void Fox::draw() const
+void Fox::draw(const glm::mat4& viewMatrix, 
+	const glm::mat4& projMatrix, const glm::vec3& lightPos) const
 {
 	glUseProgram(shader);
-	glBindVertexArray(foxVAO);
+	glBindVertexArray(VAO);
+	glUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(m_projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
+	glUniform3f(m_lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
 
-	GLint worldLoc = glGetUniformLocation(shader, "modelTransform");
-	GLint colorLoc = glGetUniformLocation(shader, "colorTransform");
+	glm::mat4 finalMat;
+	glm::mat4 baseTransform = worldTransform;
 
 	if (not isBaby) {
-
-
 		// 아기 여우
 		const glm::mat4 unitMat(1.f);
-		glm::mat4 moveFinal = glm::translate(unitMat, glm::vec3(moveFoxX, 0.0f + adultY, moveFoxZ));
-		glm::mat4 rotateDir = glm::rotate(unitMat, glm::radians(rotateFaceFox), glm::vec3(0.f, 1.f, 0.f));
-		//glm::mat4 scaleAllMat = glm::scale(unitMat, glm::vec3(adultScale));
 		//다리 그리기
 		{
 			glm::mat4 moveYMat = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.f));	// 고정값..
@@ -165,20 +157,20 @@ void Fox::draw() const
 			glm::mat4 rotateleftleg = glm::rotate(unitMat, glm::radians(rotateFoxLeftLeg), glm::vec3(1.f, 0.f, 0.f));
 			glm::mat4 rotaterightleg = glm::rotate(unitMat, glm::radians(rotateFoxRightLeg), glm::vec3(1.f, 0.f, 0.f));
 
-			//scaleMat = scaleMat * scaleAllMat;
-
-			glm::mat4 finalMat;
-
 			//왼쪽
-			finalMat = moveFinal * rotateDir * moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f)) * rotateleftleg * glm::translate(unitMat, glm::vec3(0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			glm::mat4 partTransform = moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f))
+				* rotateleftleg * glm::translate(unitMat, glm::vec3(0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 
 			//오른쪽
-			finalMat = moveFinal * rotateDir * moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f)) * rotaterightleg * glm::translate(unitMat, glm::vec3(-0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			partTransform = moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f))
+				* rotaterightleg * glm::translate(unitMat, glm::vec3(-0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//몸통 그리기
@@ -187,10 +179,10 @@ void Fox::draw() const
 			glm::mat4 scaleMat = glm::scale(unitMat, glm::vec3(0.55f, 0.55f, 0.8f));
 			glm::mat4 moveBottomUp = glm::translate(unitMat, glm::vec3(0.f, 0.25f, 0.f));
 
-			glm::mat4 finalMat = moveFinal * rotateDir * moveBottomUp * scaleMat * moveYMat;
-
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.9f, 0.7f, 0.2f);
+			glm::mat4 partTransform = moveBottomUp * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.9f, 0.7f, 0.2f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		{
@@ -203,17 +195,20 @@ void Fox::draw() const
 			glm::mat4 rotateleftleg = glm::rotate(unitMat, glm::radians(rotateFoxLeftLeg), glm::vec3(1.f, 0.f, 0.f));
 			glm::mat4 rotaterightleg = glm::rotate(unitMat, glm::radians(rotateFoxRightLeg), glm::vec3(1.f, 0.f, 0.f));
 
-			glm::mat4 finalMat;
+			glm::mat4 partTransform = moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f))
+				* rotateleftleg * glm::translate(unitMat, glm::vec3(0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
 
 			//왼쪽
-			finalMat = moveFinal * rotateDir * moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f)) * rotateleftleg * glm::translate(unitMat, glm::vec3(0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			//오른쪽
-			finalMat = moveFinal * rotateDir * moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f)) * rotaterightleg * glm::translate(unitMat, glm::vec3(-0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			partTransform = moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f))
+				* rotaterightleg * glm::translate(unitMat, glm::vec3(-0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//머리 그리기
@@ -222,9 +217,10 @@ void Fox::draw() const
 			glm::mat4 scaleMat = glm::scale(unitMat, glm::vec3(0.45f, 0.45f, 0.45f));
 			glm::mat4 moveBottomUp = glm::translate(unitMat, glm::vec3(0.f, 0.4f, 0.5f));
 
-			glm::mat4 finalMat = moveFinal * rotateDir * moveBottomUp * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.9f, 0.7f, 0.2f);
+			glm::mat4 partTransform = moveBottomUp * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.9f, 0.7f, 0.2f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//주둥이 그리기
@@ -233,9 +229,10 @@ void Fox::draw() const
 			glm::mat4 scaleMat = glm::scale(unitMat, glm::vec3(0.2f, 0.1f, 0.1f));
 			glm::mat4 moveBottomUp = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.75f));
 
-			glm::mat4 finalMat = moveFinal * rotateDir * moveBottomUp * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.97f, 0.8f, 0.5f);
+			glm::mat4 partTransform = moveBottomUp * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.97f, 0.8f, 0.5f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//코
@@ -244,11 +241,11 @@ void Fox::draw() const
 			glm::mat4 scaleMat = glm::scale(unitMat, glm::vec3(0.1f, 0.05f, 0.05f));
 			glm::mat4 moveleftPos = glm::translate(unitMat, glm::vec3(0.f, 0.55f, 0.8f));
 
-			glm::mat4 finalMat;
+			glm::mat4 partTransform = moveleftPos * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
 
-			finalMat = moveFinal * rotateDir * moveleftPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//눈 그리기
@@ -259,17 +256,17 @@ void Fox::draw() const
 			glm::mat4 moveleftPos = glm::translate(unitMat, glm::vec3(-0.15f, 0.6f, 0.75f));
 			glm::mat4 moveRightPos = glm::translate(unitMat, glm::vec3(0.15f, 0.6f, 0.75f));
 
-			glm::mat4 finalMat;
-
+			glm::mat4 partTransform = moveleftPos * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
 			//왼쪽
-			finalMat = moveFinal * rotateDir * moveleftPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			//오른쪽
-			finalMat = moveFinal * rotateDir * moveRightPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			partTransform = moveRightPos * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//안광 그리기
@@ -280,47 +277,45 @@ void Fox::draw() const
 			glm::mat4 moveleftPos = glm::translate(unitMat, glm::vec3(-0.2f, 0.6f, 0.75f));
 			glm::mat4 moveRightPos = glm::translate(unitMat, glm::vec3(0.2f, 0.6f, 0.75f));
 
-			glm::mat4 finalMat;
-
 			//왼쪽
-			finalMat = moveFinal * rotateDir * moveleftPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 1.f, 1.f, 1.f);
+			glm::mat4 partTransform = moveleftPos * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 1.f, 1.f, 1.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			//오른쪽
-			finalMat = moveFinal * rotateDir * moveRightPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 1.f, 1.f, 1.f);
+			partTransform = moveRightPos * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 1.f, 1.f, 1.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//귀 그리기
 		{
-
 			glm::mat4 moveYMat = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.f));	// 고정값..
 			glm::mat4 scaleMat = glm::scale(unitMat, glm::vec3(0.08f, 0.09f, 0.1f));
 			glm::mat4 moveleftPos = glm::translate(unitMat, glm::vec3(-0.15f, 0.85f, 0.6f));
 			glm::mat4 moveRightPos = glm::translate(unitMat, glm::vec3(0.15f, 0.85f, 0.6f));
 
-			glm::mat4 finalMat;
-
 			//왼쪽
-			finalMat = moveFinal * rotateDir * moveleftPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			glm::mat4 partTransform = moveleftPos * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			//오른쪽
-			finalMat = moveFinal * rotateDir * moveRightPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			partTransform = moveRightPos * scaleMat * moveYMat;
+			finalMat = baseTransform * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 	}
 	else if (isBaby) {
 		//아기여우
 		const glm::mat4 unitMat(1.f);
-		glm::mat4 moveFinal = glm::translate(unitMat, glm::vec3(moveFoxX, 0.0f + adultY, moveFoxZ));
-		glm::mat4 rotateDir = glm::rotate(unitMat, glm::radians(rotateFaceFox), glm::vec3(0.f, 1.f, 0.f));
-		
+
+		glm::mat4 adultMoveMat = glm::translate(unitMat, glm::vec3(0.f,adultY, 0.f));
 		float scaleFactor = 0.5f;
 		//다리 그리기
 		{
@@ -334,18 +329,21 @@ void Fox::draw() const
 
 			//scaleMat = scaleMat * scaleAllMat;
 
-			glm::mat4 finalMat;
-
+			glm::mat4 partTransform = moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f)
+				* scaleFactor) * rotateleftleg * glm::translate(unitMat, glm::vec3(0.0625f, -0.15f, 0.f) * scaleFactor)
+				* scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
 			//왼쪽
-			finalMat = moveFinal * rotateDir * moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f) * scaleFactor) * rotateleftleg * glm::translate(unitMat, glm::vec3(0.0625f, -0.15f, 0.f) * scaleFactor) * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 
 			//오른쪽
-			finalMat = moveFinal * rotateDir * moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f) * scaleFactor) * rotaterightleg * glm::translate(unitMat, glm::vec3(-0.0625f, -0.15f, 0.f) * scaleFactor) * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			partTransform = moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f) * scaleFactor)
+				* rotaterightleg * glm::translate(unitMat, glm::vec3(-0.0625f, -0.15f, 0.f) * scaleFactor) * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//몸통 그리기
@@ -354,10 +352,10 @@ void Fox::draw() const
 			glm::mat4 scaleMat = glm::scale(unitMat, glm::vec3(0.55f, 0.55f, 0.8f) * scaleFactor);
 			glm::mat4 moveBottomUp = glm::translate(unitMat, glm::vec3(0.f, 0.25f, 0.f) * scaleFactor);
 
-			glm::mat4 finalMat = moveFinal * rotateDir * moveBottomUp * scaleMat * moveYMat;
-
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.9f, 0.7f, 0.2f);
+			glm::mat4 partTransform = moveBottomUp * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.9f, 0.7f, 0.2f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		{
@@ -370,17 +368,21 @@ void Fox::draw() const
 			glm::mat4 rotateleftleg = glm::rotate(unitMat, glm::radians(rotateFoxLeftLeg), glm::vec3(1.f, 0.f, 0.f));
 			glm::mat4 rotaterightleg = glm::rotate(unitMat, glm::radians(rotateFoxRightLeg), glm::vec3(1.f, 0.f, 0.f));
 
-			glm::mat4 finalMat;
-
 			//왼쪽
-			finalMat = moveFinal * rotateDir * moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f) * scaleFactor) * rotateleftleg * glm::translate(unitMat, glm::vec3(0.0625f, -0.15f, 0.f) * scaleFactor) * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			glm::mat4 partTransform = moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f) * scaleFactor)
+				* rotateleftleg * glm::translate(unitMat, glm::vec3(0.0625f, -0.15f, 0.f) * scaleFactor) * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			//오른쪽
-			finalMat = moveFinal * rotateDir * moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f) * scaleFactor) * rotaterightleg * glm::translate(unitMat, glm::vec3(-0.0625f, -0.15f, 0.f) * scaleFactor) * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			partTransform = moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f) * scaleFactor)
+				* rotaterightleg * glm::translate(unitMat, glm::vec3(-0.0625f, -0.15f, 0.f) * scaleFactor) * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//머리 그리기
@@ -389,9 +391,10 @@ void Fox::draw() const
 			glm::mat4 scaleMat = glm::scale(unitMat, glm::vec3(0.45f, 0.45f, 0.45f) * scaleFactor);
 			glm::mat4 moveBottomUp = glm::translate(unitMat, glm::vec3(0.f, 0.4f, 0.5f) * scaleFactor);
 
-			glm::mat4 finalMat = moveFinal * rotateDir * moveBottomUp * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.9f, 0.7f, 0.2f);
+			glm::mat4 partTransform = moveBottomUp * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.9f, 0.7f, 0.2f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//주둥이 그리기
@@ -400,9 +403,10 @@ void Fox::draw() const
 			glm::mat4 scaleMat = glm::scale(unitMat, glm::vec3(0.2f, 0.1f, 0.1f) * scaleFactor);
 			glm::mat4 moveBottomUp = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.75f) * scaleFactor);
 
-			glm::mat4 finalMat = moveFinal * rotateDir * moveBottomUp * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.97f, 0.8f, 0.5f);
+			glm::mat4 partTransform = moveBottomUp * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.97f, 0.8f, 0.5f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//코
@@ -411,11 +415,11 @@ void Fox::draw() const
 			glm::mat4 scaleMat = glm::scale(unitMat, glm::vec3(0.1f, 0.05f, 0.05f) * scaleFactor);
 			glm::mat4 moveleftPos = glm::translate(unitMat, glm::vec3(0.f, 0.55f, 0.8f) * scaleFactor);
 
-			glm::mat4 finalMat;
+			glm::mat4 partTransform = moveleftPos * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
 
-			finalMat = moveFinal * rotateDir * moveleftPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//눈 그리기
@@ -426,17 +430,17 @@ void Fox::draw() const
 			glm::mat4 moveleftPos = glm::translate(unitMat, glm::vec3(-0.15f, 0.6f, 0.75f) * scaleFactor);
 			glm::mat4 moveRightPos = glm::translate(unitMat, glm::vec3(0.15f, 0.6f, 0.75f) * scaleFactor);
 
-			glm::mat4 finalMat;
-
+			glm::mat4 partTransform = moveleftPos * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
 			//왼쪽
-			finalMat = moveFinal * rotateDir * moveleftPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			//오른쪽
-			finalMat = moveFinal * rotateDir * moveRightPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			partTransform = moveRightPos * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//안광 그리기
@@ -447,38 +451,37 @@ void Fox::draw() const
 			glm::mat4 moveleftPos = glm::translate(unitMat, glm::vec3(-0.2f, 0.6f, 0.75f) * scaleFactor);
 			glm::mat4 moveRightPos = glm::translate(unitMat, glm::vec3(0.2f, 0.6f, 0.75f) * scaleFactor);
 
-			glm::mat4 finalMat;
-
 			//왼쪽
-			finalMat = moveFinal * rotateDir * moveleftPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 1.f, 1.f, 1.f);
+			glm::mat4 partTransform = moveleftPos * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 1.f, 1.f, 1.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			//오른쪽
-			finalMat = moveFinal * rotateDir * moveRightPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 1.f, 1.f, 1.f);
+			partTransform = moveRightPos * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 1.f, 1.f, 1.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//귀 그리기
 		{
-
 			glm::mat4 moveYMat = glm::translate(unitMat, glm::vec3(0.f, 0.5f, 0.f) * scaleFactor);   // 고정값..
 			glm::mat4 scaleMat = glm::scale(unitMat, glm::vec3(0.08f, 0.09f, 0.1f) * scaleFactor);
 			glm::mat4 moveleftPos = glm::translate(unitMat, glm::vec3(-0.15f, 0.8f, 0.6f) * scaleFactor);
 			glm::mat4 moveRightPos = glm::translate(unitMat, glm::vec3(0.15f, 0.8f, 0.6f) * scaleFactor);
 
-			glm::mat4 finalMat;
-
 			//왼쪽
-			finalMat = moveFinal * rotateDir * moveleftPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			glm::mat4 partTransform = moveleftPos * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			//오른쪽
-			finalMat = moveFinal * rotateDir * moveRightPos * scaleMat * moveYMat;
-			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
-			glUniform3f(colorLoc, 0.f, 0.f, 0.f);
+			partTransform = moveRightPos * scaleMat * moveYMat;
+			finalMat = baseTransform * adultMoveMat * partTransform;
+			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
+			glUniform3f(m_colorLoc, 0.f, 0.f, 0.f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 	}

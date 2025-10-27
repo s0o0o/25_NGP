@@ -25,11 +25,17 @@
     <Filter Include="GameObject\Animal">
       <UniqueIdentifier>{f326870b-91ae-4661-b6b5-9a233e56e9d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Scene">
+      <UniqueIdentifier>{8dd9cea4-6c07-4d35-ad23-572012bbda12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Resource">
+      <UniqueIdentifier>{0a0b71ce-a3eb-4c27-9597-dfdd1c3b2031}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Scene">
+      <UniqueIdentifier>{7e9435f6-e1b1-4218-9403-00d1995fa37d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Scene.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="library.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -38,9 +44,6 @@
     </ClInclude>
     <ClInclude Include="PlayerObject.h">
       <Filter>GameObject\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="startScene.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Pig.h">
       <Filter>GameObject\Animal</Filter>
@@ -57,19 +60,28 @@
     <ClInclude Include="Fox.h">
       <Filter>GameObject\Animal</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>헤더 파일\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="gameScene.h">
+      <Filter>헤더 파일\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneManager.h">
+      <Filter>헤더 파일\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="startScene.h">
+      <Filter>헤더 파일\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="MyScene.h">
+      <Filter>헤더 파일\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="PlayerObject.cpp">
       <Filter>GameObject\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="startScene.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Pig.cpp">
       <Filter>GameObject\Animal</Filter>
@@ -88,6 +100,18 @@
     </ClCompile>
     <ClCompile Include="Fox.cpp">
       <Filter>GameObject\Animal</Filter>
+    </ClCompile>
+    <ClCompile Include="sceneManager.cpp">
+      <Filter>소스 파일\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>리소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="startScene.cpp">
+      <Filter>소스 파일\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="gameScene.cpp">
+      <Filter>소스 파일\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -5,13 +5,17 @@
 class Alpaca : public GameObject
 {
 private:
-	GLuint alpacaVAO;
-	int alpacaVertexCount;
+	GLint m_worldLoc;
+	GLint m_colorLoc;
 
-	float x, y, z;
+	GLint m_viewLoc;
+	GLint m_projLoc;
+	GLint m_lightPosLoc;
+
 	float rangeLimit;
-	float moveSpeed;
 
+	const float LEG_ROTATE_SPEED = 90.0f;
+	float MOVE_SPEED;
 
 	float alpacaXDir;
 	float alpacaZDir;
@@ -19,29 +23,24 @@ private:
 	float rangeX;
 	float rangeZ;
 
-	
 	float rotateAlpaLeftLeg;
 	float rotateAlpaRightLeg;
 	float rotateFaceAlpa;
 
 	bool isMaxRotateAlpa;
-	float rotateSpeed;
 
 	bool isNear;
 	int feedNum;
-
 public:
 	Alpaca();
 	virtual ~Alpaca();
 
-	virtual void initilize() override;
+	virtual void initialize() override;
 	virtual void update(float elapseTime)override;
-	virtual void draw() const override;
+	virtual void draw(const glm::mat4& viewMatrix,
+		const glm::mat4& projMatrix,
+		const glm::vec3& lightPos) const override;
 	virtual void release() override;
-
-	float moveAlpaX;
-	float moveAlpaZ;
-	
 
 };
 

@@ -5,12 +5,17 @@
 class Chic : public GameObject
 {
 private:
-	GLuint chicVAO;
-	int chicVertexCount;
+	GLint m_worldLoc;
+	GLint m_colorLoc;
 
-	float x, y, z;
+	GLint m_viewLoc;
+	GLint m_projLoc;
+	GLint m_lightPosLoc;
+
 	float rangeLimit;
-	float moveSpeed;
+
+	const float LEG_ROTATE_SPEED = 90.0f;
+	float MOVE_SPEED;
 
 	float chicXDir;
 	float chicZDir;
@@ -18,32 +23,26 @@ private:
 	float rangeX;
 	float rangeZ;
 
-
 	float rotateChicLeftLeg;
 	float rotateChicRightLeg;
 	float rotateFaceChic;
 
-
 	float rotateAdultChicLeftLeg;
 	float rotateAdultChicRightLeg;
-	float rotateFaceAdultChic;
 
 	bool isMaxRotateChic;
 	bool isMaxRotateAdultChic;
 
-	float rotateSpeed;
 	int feedNum;
-
 public:
 	Chic();
 	virtual ~Chic();
 
-	virtual void initilize() override;
+	virtual void initialize() override;
 	virtual void update(float elapseTime)override;
-	virtual void draw() const override;
+	virtual void draw(const glm::mat4& viewMatrix,
+		const glm::mat4& projMatrix,
+		const glm::vec3& lightPos) const override;
 	virtual void release() override;
-
-	float moveChicX;
-	float moveChicZ;
 };
 

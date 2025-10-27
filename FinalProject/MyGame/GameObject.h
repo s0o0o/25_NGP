@@ -19,9 +19,11 @@ public:
 	GameObject();
 	virtual ~GameObject();
 
-	virtual void initilize();
+	virtual void initialize();
 	virtual void update(float elapsedTime);
-	virtual void draw() const;
+	virtual void draw(const glm::mat4& viewMatrix, 
+		const glm::mat4& projMatrix, 
+		const glm::vec3& lightPos) const;
 	virtual void release();
 
 	void setShader(GLuint shader);
@@ -30,7 +32,6 @@ public:
 	glm::vec3 getPosition() const;
 	void setPosition(glm::vec3 position);
 	void setPosition(float x, float y, float z);	// 오버로딩
-
 
 	glm::vec3 getLook() const;
 	glm::vec3 getRight() const;
@@ -45,10 +46,5 @@ public:
 	int feedNum;
 	bool isBaby;
 	bool isExist;
-
-protected:
-	static void initBuffer(GLuint* VAO, GLsizei* vertexCount, std::string objFilename);
-public:
-	static std::vector<glm::vec3> readOBJ(std::string filename);
 };
 

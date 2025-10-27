@@ -17,17 +17,19 @@ PlayerObject::PlayerObject()
 
 	moveSpeed = 6.f;
 
-	initilize();
+	initialize();
 
 	playerX = worldTransform[3][0];
 	playerZ = worldTransform[3][2];
+
+	rotateY(0.f);
 }
 
 PlayerObject::~PlayerObject()
 {
 }
 
-void PlayerObject::initilize()
+void PlayerObject::initialize()
 {
 	setVAO(0, 0);
 	setShader(0);
@@ -38,10 +40,8 @@ float limitX = 22.f;
 
 void PlayerObject::update(float elapseTime)
 {
-
 	glm::vec3 dir(0.f);
 	if (isWPressed) {
-
 		glm::vec3 newPosition = worldTransform[3]; // 현재 위치를 복사
 		newPosition += getLook(); // 이동 방향 추가
 
@@ -61,7 +61,6 @@ void PlayerObject::update(float elapseTime)
 			newPosition.x > -15.f && newPosition.x < 1.f) {
 			//std::cout << "농장안에 들어옴" << std::endl;
 			isInFarm = true;
-
 		}
 		else {
 			isInFarm = false;
@@ -147,12 +146,9 @@ void PlayerObject::update(float elapseTime)
 		}
 	}
 
-
 	// 상점에 왔는지 체크
-
 	{
 		glm::vec3 newPosition = worldTransform[3];
-
 		if (newPosition.x > 6.f and newPosition.x <= 12.f and
 			newPosition.z > 3.f and newPosition.z < 5.f) {
 			//std::cout << "상점 앞에 옴" << std::endl;
@@ -173,7 +169,8 @@ void PlayerObject::update(float elapseTime)
 		move(dir, moveSpeed * elapseTime);
 }
 
-void PlayerObject::draw() const
+void PlayerObject::draw(const glm::mat4& viewMatrix,
+	const glm::mat4& projMatrix, const glm::vec3& lightPos) const
 {
 }
 
@@ -203,7 +200,6 @@ void PlayerObject::keyboard(unsigned char key, bool isPressed)
 		case'D':
 		case'd':
 			isDPressed = true;
-
 			break;
 		case'g':
 		{
@@ -215,6 +211,9 @@ void PlayerObject::keyboard(unsigned char key, bool isPressed)
 				", Z :" << tempZ << std::endl;
 		}
 		break;
+		case 27:
+			glutSetCursor(GLUT_CURSOR_INHERIT);
+			break;
 		default:
 			break;
 		}
@@ -245,7 +244,6 @@ void PlayerObject::keyboard(unsigned char key, bool isPressed)
 
 void PlayerObject::mouse(int button, int state, int x, int y)
 {
-
 	if (button == GLUT_LEFT_BUTTON) {
 		if (state == GLUT_DOWN) {
 			std::cout << "클릭" << std::endl;
@@ -258,38 +256,42 @@ void PlayerObject::mouse(int button, int state, int x, int y)
 			isLeftMousePressed = false;
 		}
 	}
-
 }
 
 void PlayerObject::mouseMove(int x, int y)
 {
 	int moveXValue = x - befMousePosX;
 	int moveYValue = y - befMousePosY;
-
-	int limitRange = 20;
-	if (moveXValue > limitRange) {
-		moveXValue = limitRange;
+	float yawAngle = static_cast<float>(moveXValue) * MOUSE_SENSITIVITY;
+	float pitchAngle = static_cast<float>(moveYValue) * MOUSE_SENSITIVITY;
+	float nextPitch = m_currentPitch + pitchAngle;
+	if (nextPitch > MAX_PITCH) {
+		pitchAngle = MAX_PITCH - m_currentPitch; 
+		m_currentPitch = MAX_PITCH;          
 	}
-	else if (moveXValue < -limitRange) {
-		moveXValue = -limitRange;
+	else if (nextPitch < MIN_PITCH) {
+		pitchAngle = MIN_PITCH - m_currentPitch; 
+		m_currentPitch = MIN_PITCH;          
+	}
+	else {
+		m_currentPitch = nextPitch;
 	}
 
-	if (moveYValue > limitRange) {
-		moveYValue = limitRange;
+	if (abs(yawAngle) > 0.001f) {
+		rotateY(yawAngle);
 	}
-	else if (moveYValue < -limitRange) {
-		moveYValue = -limitRange;
+	if (abs(pitchAngle) > 0.001f) { 
+		rotateX(pitchAngle);
+	}
+	befMousePosX = x;
+	befMousePosY = y;
+
+	int windowCenterX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+	int windowCenterY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+	if (x != windowCenterX || y != windowCenterY) {
+		glutWarpPointer(windowCenterX, windowCenterY);
+		befMousePosX = windowCenterX; // 워프된 위치로 last 업데이트
+		befMousePosY = windowCenterY;
 	}
 
-
-	rotateX(float(moveYValue / 160.f));
-	rotateY(float(moveXValue / 80.f));
-
-
-	std::cout << "moveXValue : " << moveXValue << std::endl;
-	std::cout << "moveYValue : " << moveYValue << std::endl;
-
-
-	moveXValue = x;
-	moveYValue = y;
 }
