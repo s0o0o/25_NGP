@@ -49,7 +49,22 @@ Alpaca::~Alpaca()
 
 void Alpaca::initialize()
 {
-	//player = new PlayerObject;
+	std::cout << "Alpaca init, shader : " << shader << std::endl;
+	if (shader == 0) {
+		std::cerr << "Error: Chic shader has not been set before calling initialize!\n";
+		return;
+	}
+	m_worldLoc = glGetUniformLocation(shader, "modelTransform");
+	m_colorLoc = glGetUniformLocation(shader, "colorTransform");
+	std::cout << "Alpaca m_worldLoc : " << m_worldLoc << std::endl;
+	std::cout << "Alpaca m_colorLoc : " << m_colorLoc << std::endl;
+
+	if (m_worldLoc < 0) std::cerr << "Error: Alpaca modelTransform uniform not found!\n";
+	if (m_colorLoc < 0) std::cerr << "Error: Alpaca colorTransform uniform not found!\n";
+
+	m_viewLoc = glGetUniformLocation(shader, "viewTransform");
+	m_projLoc = glGetUniformLocation(shader, "projTransform");
+	m_lightPosLoc = glGetUniformLocation(shader, "lightPos");
 }
 
 // Ææ½º ½Ç ¹üÀ§
