@@ -17,7 +17,7 @@ class PlayerObject : public GameObject{
 	float befMousePosY;
 	float m_currentPitch = 0.0f;
 	const float MAX_PITCH = 60.0f; // 최대 올림각
-	const float MIN_PITCH = -30.0f; // 최대 내림각
+	const float MIN_PITCH = -60.0f; // 최대 내림각
 	const float MOUSE_SENSITIVITY = 0.15f;
 public :
 	PlayerObject();

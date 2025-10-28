@@ -278,11 +278,12 @@ void PlayerObject::mouseMove(int x, int y)
 	}
 
 	if (abs(yawAngle) > 0.001f) {
-		rotateY(yawAngle);
+		rotateY(-yawAngle);
 	}
 	if (abs(pitchAngle) > 0.001f) { 
 		rotateX(pitchAngle);
 	}
+
 	befMousePosX = x;
 	befMousePosY = y;
 
@@ -293,5 +294,4 @@ void PlayerObject::mouseMove(int x, int y)
 		befMousePosX = windowCenterX; // 워프된 위치로 last 업데이트
 		befMousePosY = windowCenterY;
 	}
-
 }

@@ -103,7 +103,8 @@ void GameObject::rotateX(float degrees)
 {
 	glm::vec3 originPos = getPosition();
 	setPosition(0.f, 0.f, 0.f);
-	worldTransform = glm::rotate(glm::mat4(1.f), glm::radians(degrees), glm::vec3(1.f, 0.f, 0.f)) * worldTransform;
+	glm::vec3 right = glm::vec3(worldTransform[0]); // ∑Œƒ√ right ∫§≈Õ
+	worldTransform = glm::rotate(glm::mat4(1.f), glm::radians(degrees), right) * worldTransform;
 	setPosition(originPos);
 }
 
