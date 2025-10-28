@@ -1094,6 +1094,7 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 				pigs[pigCount] = new Pig(pigCount);
 				pigs[pigCount]->setShader(animalShader);
 				pigs[pigCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+				pigs[pigCount]->initialize();
 				++pigCount;
 				std::cout << "돼지 구매.. " << pigCount << "마리" << std::endl;
 				nowCoin -= 2;
@@ -1106,6 +1107,7 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 				chics[chickenCount] = new Chic;
 				chics[chickenCount]->setShader(animalShader);
 				chics[chickenCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+				chics[chickenCount]->initialize();
 
 				++chickenCount;
 				std::cout << "병아리 구매 " << std::endl;
@@ -1119,6 +1121,7 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 				alpacas[alpacaCount] = new Alpaca;
 				alpacas[alpacaCount]->setShader(animalShader);
 				alpacas[alpacaCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+				alpacas[alpacaCount]->initialize();
 
 				++alpacaCount;
 				std::cout << "알파카 구매 " << std::endl;
@@ -1133,6 +1136,7 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 				penguins[penguinCount] = new Penguin(penguinCount);
 				penguins[penguinCount]->setShader(animalShader);
 				penguins[penguinCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+				penguins[penguinCount]->initialize();
 
 				++penguinCount;
 				std::cout << "펭귄 구매 " << std::endl;
@@ -1146,6 +1150,7 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 				foxes[foxCount] = new Fox;
 				foxes[foxCount]->setShader(animalShader);
 				foxes[foxCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+				foxes[foxCount]->initialize();
 
 				++foxCount;
 				std::cout << "여우 구매 " << std::endl;
