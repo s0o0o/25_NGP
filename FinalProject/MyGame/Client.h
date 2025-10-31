@@ -18,8 +18,7 @@ void InitClient() // 클라이언트 초기화
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
-		printf("윈도우 소켓 생성 실패\n");
-		exit(0);
+		err_quit("윈도우 생성 실패");
 	}
 
 	// 소켓 생성
