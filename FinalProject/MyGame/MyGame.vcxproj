@@ -139,6 +139,8 @@
   <ItemGroup>
     <ClInclude Include="Alpaca.h" />
     <ClInclude Include="Chic.h" />
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="Common.h" />
     <ClInclude Include="Fox.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="gameScene.h" />
