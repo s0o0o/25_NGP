@@ -39,7 +39,6 @@ void startScene::update(float elapsedTime)
 {
 	const float rotateSpeed = 45.0f;
 	if (isRotate) {
-		// 2. "속도 * 시간" 만큼만 더합니다
 		rotateY += rotateSpeed * elapsedTime;
 	}
 	else if (not isRotate) {
@@ -67,6 +66,10 @@ void startScene::draw()
 	GLuint skyTex = m_resourceManager->getTexture("sky2");
 	GLuint buttonTex = m_resourceManager->getTexture("pushSpaceBar");
 
+	// login 1105
+	GLuint loginTex = m_resourceManager->getTexture("login");
+	GLuint titleTex = m_resourceManager->getTexture("title");
+
 	{	// 배경  // z뒤
 		glUseProgram(bgShader);
 		glDisable(GL_DEPTH_TEST);
@@ -90,97 +93,47 @@ void startScene::draw()
 	glEnable(GL_DEPTH_TEST);
 
 	glUseProgram(texShader);
-	GLint useLightColor = glGetUniformLocation(texShader, "lightColor");
-	if (useLightColor < 0) {
-		std::cout << " lightColor 찾을 수 없음.." << std::endl;
-	}
-	glUniform3f(useLightColor, 1.f, 1.f, 1.f);
 
-
-	// TITLE obj 그릴거..
-	GLuint objShader = m_resourceManager->getShader("obj");
-	MeshData titleMesh = m_resourceManager->getMesh("title");
-
-	glUseProgram(objShader);
-	glBindVertexArray(titleMesh.VAO);
-	glUniform1i(usingLight, GL_TRUE);
-
-	GLint useGlobalColor = glGetUniformLocation(objShader, "useGlobalColor");
+	// 로그인+title 1105
 	{
-		GLuint viewLoc = glGetUniformLocation(objShader, "viewTransform");
-		if (viewLoc < 0)
-			std::cout << "viewLoc 찾지 못함\n";
-		GLuint projLoc = glGetUniformLocation(objShader, "projTransform");
-		if (projLoc < 0)
-			std::cout << "projLoc 찾지 못함\n";
-
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDepthMask(GL_FALSE); // 투명도 처리를 위해 깊이 쓰기 비활성화
+		GLint viewLoc = glGetUniformLocation(texShader, "viewTransform");
+		GLint projLoc = glGetUniformLocation(texShader, "projTransform");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
 
-		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, -3.f, -15.f));
-		glm::mat4 rotMatrixY = glm::rotate(glm::mat4(1.f), glm::radians(rotateY), glm::vec3(0.f, 1.f, 0.f));
+		// title 제목 (사이즈 3*1)
+		{
+			glBindVertexArray(cubeMesh.VAO);
+			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 3.5f, 0.0f)); // Z축을 카메라 가까이 (-5.0f)
+			glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(3.5f*3, 3.5f, 1.f));
+			glm::mat4 matrix = translateMatrix * sclaeMatrix;
 
-		glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.3f));
-		glm::mat4 matrix = translateMatrix * rotMatrixY * sclaeMatrix;
-
-		GLuint modelLoc = glGetUniformLocation(objShader, "modelTransform");
-		if (modelLoc < 0)
-			std::cout << " modelLoc 찾을수 없음!";
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
-
-		GLint color = glGetUniformLocation(objShader, "globalColor");
-		glUniform1i(useGlobalColor, GL_TRUE);
-		if (color < 0)
-			std::cout << "globalColor 찾지 못함\n";
-		else
-			glUniform3f(color, 201 / 255.f, 133 / 255.f, 1 / 255.f);
-
-		glUseProgram(objShader);
-		useLightColor = glGetUniformLocation(objShader, "lightColor");
-		if (useLightColor < 0) {
-			std::cout << " lightColor 찾을 수 없음.." << std::endl;
-		}
-		glUniform3f(useLightColor, 1.f, 1.f, 1.f);
-
-		glBindVertexArray(titleMesh.VAO);
-		glDrawArrays(GL_TRIANGLES, 0, titleMesh.vertexCount);
-	}
-
-
-	glUseProgram(texShader);
-	{
-		glBindVertexArray(cubeMesh.VAO);
-		glm::mat4 rotMatrixY = glm::rotate(glm::mat4(1.f), glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 rotMatrixX = glm::rotate(glm::mat4(1.f), glm::radians(-10.f), glm::vec3(1.f, 0.f, 0.f));
-
-		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, -3.f, 0.f));
-		glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(15.f, 1.5f, 0.1f));
-
-		glm::mat4 matrix = translateMatrix * rotMatrixX * rotMatrixY * sclaeMatrix;
-
-		GLint worldLoc = glGetUniformLocation(texShader, "modelTransform");
-		if (worldLoc < 0)
-			std::cout << "worldLoc 찾지 못함\n";
-		else
+			GLint worldLoc = glGetUniformLocation(texShader, "modelTransform");
 			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 
-		GLint viewLoc = glGetUniformLocation(texShader, "viewTransform");
-		if (viewLoc < 0)
-			std::cout << "viewLoc 찾지 못함\n";
-		else
-			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-
-		GLint projLoc = glGetUniformLocation(texShader, "projTransform");
-		if (projLoc < 0)
-			std::cout << "projLoc 찾지 못함\n";
-		else
-			glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
-
-		// 육면체 그리는거!!
-		for (int i = 0; i < 6; ++i) {
-			glBindTexture(GL_TEXTURE_2D, buttonTex);
-			glDrawArrays(GL_TRIANGLES, 6 * i, 6);
+			glBindTexture(GL_TEXTURE_2D, titleTex);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+
+		// 로그인 창(사이즈 2*1)
+		{
+			glBindVertexArray(cubeMesh.VAO);
+			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, -1.5f, 0.f));
+			glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(12.f, 6.f, 1.f));
+			glm::mat4 matrix = translateMatrix * sclaeMatrix;
+
+			GLint worldLoc = glGetUniformLocation(texShader, "modelTransform");
+			glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+
+			glBindTexture(GL_TEXTURE_2D, loginTex);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
 	}
 }
 

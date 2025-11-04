@@ -72,7 +72,7 @@ void ResourceManager::loadAllResource()
 	m_Meshes["background"] = initBackGroundBuffer(); // (배경 VAO)
 
 	// 시작화면에 필요한거
-	m_Meshes["title"] = initBufferWithUV("./OBJ/title.obj");
+	m_Meshes["titleobj"] = initBufferWithUV("./OBJ/title.obj");
 
 	m_Textures["farmsign_rest"] = initTexture("./Img/farmsign_rest.png");
 	m_Textures["farmsign"] = initTexture("./Img/farmsign.png");
@@ -92,6 +92,8 @@ void ResourceManager::loadAllResource()
 
 	// 시작화면에 필요한거
 	m_Textures["pushSpaceBar"] = initTexture("./Img/enterSpaceBar.png");
+	m_Textures["login"] = initTexture("./Img/loginUI.png");
+	m_Textures["title"] = initTexture("./Img/textAnimalFarm.png");
 }
 
 GLuint ResourceManager::getShader(const std::string& name)
