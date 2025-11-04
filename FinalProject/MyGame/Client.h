@@ -33,6 +33,7 @@ void InitClient() // 클라이언트 초기화
 	serveraddr.sin_port = htons(SERVERPORT);
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR) err_quit("connect()");
+
 }
 
 void CloseClient() // 클라이언트 종료
