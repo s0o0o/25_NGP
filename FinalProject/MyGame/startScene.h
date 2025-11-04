@@ -5,6 +5,12 @@
 
 #include <string>
 #include <vector>
+#include <map>
+
+struct UVRect {
+	float uMin, vMin; 
+	float uWidth, vHeight; 
+};	;
 
 class startScene : public MyScene
 {
@@ -14,11 +20,22 @@ private:
 	int width;
 	int height;
 
-	float rotateY;
-	bool isRotate;
-	bool isTitleAni;
-	bool isTitleAniEnd;
+	std::string m_idInput;
+	std::string m_ipInput;
+	int m_activeField; // 0: ID, 1: IP -> 탭누르면 전환됨
 
+	GLuint fontShader;
+	GLuint fontTexture;
+	GLuint fontQuadVAO;
+	GLsizei fontQuadVertCount;
+
+	GLint font_modelLoc;
+	GLint font_projLoc;
+	GLint font_uvRectLoc;
+	GLint font_colorLoc;
+
+	std::map<char, UVRect> m_charUVMap;
+	void DrawTextWithAtlas(const std::string& text, float x, float y, float size);
 public:
 	// 게임 로직에서, update, draw..., 키 입력
 	startScene(int winWidth, int winHeight);

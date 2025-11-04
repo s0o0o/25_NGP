@@ -34,6 +34,9 @@
     <Filter Include="헤더 파일\Scene">
       <UniqueIdentifier>{7e9435f6-e1b1-4218-9403-00d1995fa37d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Shader\font">
+      <UniqueIdentifier>{bf737fc4-902c-4d64-b4d9-a246c8b61102}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="library.h">
@@ -162,6 +165,12 @@
     </None>
     <None Include="Shader\log_vertex.glsl">
       <Filter>소스 파일\Shader</Filter>
+    </None>
+    <None Include="Shader\fontfrag.glsl">
+      <Filter>소스 파일\Shader\font</Filter>
+    </None>
+    <None Include="Shader\fontvertex.glsl">
+      <Filter>소스 파일\Shader\font</Filter>
     </None>
   </ItemGroup>
 </Project>

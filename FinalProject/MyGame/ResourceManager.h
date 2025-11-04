@@ -34,6 +34,7 @@ private:
 	static GLuint initTexture(std::string texFilename);
 	static MeshData initCubeBuffer();
 	static MeshData initBackGroundBuffer(); // 아마 배경용
+	static MeshData initTextQuad(); // 2D 텍스트 출력용
 
 	static GLuint makeShader(std::string vertexFilename, std::string fragmentFilename);
 	static std::string readFile(std::string filename);

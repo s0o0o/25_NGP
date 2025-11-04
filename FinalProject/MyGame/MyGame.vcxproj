@@ -173,6 +173,8 @@
     <None Include="Shader\Animalvertex.glsl" />
     <None Include="Shader\bg_fragment.glsl" />
     <None Include="Shader\bg_vertex.glsl" />
+    <None Include="Shader\fontfrag.glsl" />
+    <None Include="Shader\fontvertex.glsl" />
     <None Include="Shader\log_vertex.glsl" />
     <None Include="Shader\obj_fragment.glsl" />
     <None Include="Shader\obj_vertex.glsl" />

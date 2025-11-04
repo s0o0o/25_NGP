@@ -54,6 +54,9 @@ void ResourceManager::loadAllResource()
 	m_Shaders["tex"] = makeShader("./Shader/tex_vertex.glsl", "./Shader/tex_fragement.glsl");
 	m_Shaders["animal"] = makeShader("./Shader/Animalvertex.glsl", "./Shader/Animalfragment.glsl");
 
+	// 시작화면에 필요한거
+	m_Shaders["font"] = makeShader("./Shader/fontvertex.glsl", "./Shader/fontfrag.glsl");
+
 	std::cout << "Loading Meshes..." << std::endl;
 
 	m_Meshes["sphere"] = initBuffer("./OBJ/sphere.obj");
@@ -70,6 +73,7 @@ void ResourceManager::loadAllResource()
 	m_Meshes["coin"] = initBufferWithUV("./OBJ/coin.obj");
 	m_Meshes["feed"] = initBufferWithUV("./OBJ/feed.obj");
 	m_Meshes["background"] = initBackGroundBuffer(); // (배경 VAO)
+	m_Meshes["textQuad"] = initTextQuad(); // 폰트그리는 vao
 
 	// 시작화면에 필요한거
 	m_Meshes["titleobj"] = initBufferWithUV("./OBJ/title.obj");
@@ -94,6 +98,8 @@ void ResourceManager::loadAllResource()
 	m_Textures["pushSpaceBar"] = initTexture("./Img/enterSpaceBar.png");
 	m_Textures["login"] = initTexture("./Img/loginUI.png");
 	m_Textures["title"] = initTexture("./Img/textAnimalFarm.png");
+	m_Textures["keyboard"] = initTexture("./Img/keyboard.png");
+
 }
 
 GLuint ResourceManager::getShader(const std::string& name)
@@ -330,6 +336,38 @@ MeshData ResourceManager::initBackGroundBuffer() {
 	return { VAO, VBO, vertexCount };
 }
 
+MeshData ResourceManager::initTextQuad()
+{
+	float vertices[] = {
+		// pos      // uv
+		0.0f, 1.0f,   0.0f, 1.0f,
+		0.0f, 0.0f,   0.0f, 0.0f,
+		1.0f, 0.0f,   1.0f, 0.0f,
+
+		0.0f, 1.0f,   0.0f, 1.0f,
+		1.0f, 0.0f,   1.0f, 0.0f,
+		1.0f, 1.0f,   1.0f, 1.0f
+	};
+
+	GLuint VAO, VBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// pos (location = 0)
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// uv (location = 1)
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
+	return { VAO, VBO, 6 };
+}
+
 GLuint ResourceManager::initTexture(std::string texFilename)
 {
 	GLuint textureID;
@@ -339,7 +377,7 @@ GLuint ResourceManager::initTexture(std::string texFilename)
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	int width, height, nrChannels; // (변수명 'level'보다 'nrChannels'가 명확합니다)
