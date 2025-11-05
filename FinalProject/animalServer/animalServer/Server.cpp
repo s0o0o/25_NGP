@@ -92,7 +92,6 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// 7. 서버 종료 (정리)
 	closesocket(listen_sock);
 	CloseHandle(hServerFullEvent);
 	DeleteCriticalSection(&cs_connections);
