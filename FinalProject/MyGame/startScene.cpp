@@ -11,6 +11,7 @@
 // 1105 로그인 입력
 
 std::string SERVERIP;
+std::string ID;
 
 startScene::startScene(int winWidth, int winHeight)
 	: width{ winWidth }, height{ winHeight }, m_activeField(0)
@@ -251,6 +252,7 @@ void startScene::keyboard(unsigned char key, bool isPressed)
 	case 32:
 		std::cout << " 스페이스바 누름!" << std::endl;
 		SERVERIP = m_ipInput; // 서버 주소 전달
+		ID = m_idInput; // ID 전달
 		m_sceneManager->changeScene("mainGame");
 		break;
 	default:

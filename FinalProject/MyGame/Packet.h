@@ -9,7 +9,7 @@
 // 로그인 요청. C -> S
 struct CS_Login_Request {
 	char id[MAX_ID_LEN];
-	char password[MAX_PASS_LEN];
+//	char password[MAX_PASS_LEN];
 };
 
 

@@ -3,8 +3,10 @@
 //===================================================
 #pragma once
 #include "Common.h"
+#include "Packet.h"
 
 extern std::string SERVERIP;
+extern std::string ID;
 #define SERVERPORT 9000
 #define BUFSIZE    512
 
@@ -33,6 +35,9 @@ void InitClient() // 클라이언트 초기화
 	serveraddr.sin_port = htons(SERVERPORT);
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR) err_quit("connect()");
+
+	// ID 전송
+	send(sock, ID.c_str(), sizeof(ID.c_str()), 0);
 
 }
 
