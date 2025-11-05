@@ -123,9 +123,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ClinetHandler.cpp" />
     <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ClientHandler.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Packet.h" />
   </ItemGroup>

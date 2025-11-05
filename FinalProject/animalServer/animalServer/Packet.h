@@ -1,10 +1,10 @@
+#pragma once
+
 #define MAX_ID_LEN 10
-#define MAX_PASS_LEN 10
 
 // 로그인 요청. C -> S
 struct CS_Login_Request {
 	char id[MAX_ID_LEN];
-	char password[MAX_PASS_LEN];
 };
 
 

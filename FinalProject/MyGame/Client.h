@@ -14,6 +14,10 @@ extern std::string ID;
 
 SOCKET sock;
 
+// Client.h 또는 Client.cpp
+
+// ( ... 상단 ... )
+
 void InitClient() // 클라이언트 초기화
 {
 	int retval;
@@ -37,12 +41,36 @@ void InitClient() // 클라이언트 초기화
 	serveraddr.sin_port = htons(SERVERPORT);
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR) err_quit("connect()");
-	CS_Login_Request login_pk;
-	strcpy_s(login_pk.id, (char*)ID.c_str());
-	// ID 전송
-	send(sock, reinterpret_cast<char*>(&login_pk), sizeof(ID.c_str()), 0);
 
+	CS_Login_Request login_pk;
+	strcpy_s(login_pk.id, MAX_ID_LEN, ID.c_str());
+
+	retval = send(sock, reinterpret_cast<char*>(&login_pk), sizeof(CS_Login_Request), 0);
+	if (retval == SOCKET_ERROR) {
+		err_quit("send() 오류");
+	}
+
+	// 로그인 결과 수신
+	SC_Login_Result result_pk;
+	retval = recv(sock, reinterpret_cast<char*>(&result_pk), sizeof(SC_Login_Result), MSG_WAITALL);
+	if (retval == SOCKET_ERROR || retval == 0) {
+		err_quit("recv() 오류 또는 서버 연결 끊김");
+	}
+
+	// 로그인 결과
+	if (result_pk.success) {
+		// 로그인 성공!
+		// (ex: 게임 씬으로 이동)
+		printf("서버: %s\n", result_pk.message);
+		// GoToGameScene();
+	}
+	else {
+		// 로그인 실패
+		printf("서버: %s\n", result_pk.message);
+		err_quit("로그인 실패");
+	}
 }
+
 
 void CloseClient() // 클라이언트 종료
 {
