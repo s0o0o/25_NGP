@@ -4,7 +4,7 @@
 #pragma once
 #include "Common.h"
 
-char* SERVERIP = (char*)"127.0.0.1";
+extern std::string SERVERIP;
 #define SERVERPORT 9000
 #define BUFSIZE    512
 
@@ -29,7 +29,7 @@ void InitClient() // 클라이언트 초기화
 	struct sockaddr_in serveraddr;
 	memset(&serveraddr, 0, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
-	inet_pton(AF_INET, SERVERIP, &serveraddr.sin_addr);
+	inet_pton(AF_INET, SERVERIP.c_str(), &serveraddr.sin_addr);
 	serveraddr.sin_port = htons(SERVERPORT);
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR) err_quit("connect()");

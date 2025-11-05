@@ -3,7 +3,6 @@
 
 #include "sceneManager.h"
 #include "library.h"
-#include "Client.h"
 
 // 각종 콜백 함수 미리 선언
 void DisplayFunc(void);
@@ -27,8 +26,6 @@ static sceneManager* g_Manager = nullptr;
 
 int main(int argc, char** argv)
 {
-	InitClient(); // 클라이언트 초기화
-
 	//--- 윈도우 생성하기 (freeglut)
 	glutInit(&argc, argv);							// glut 초기화
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
@@ -93,8 +90,6 @@ int main(int argc, char** argv)
 	std::cout << "Exiting Main Loop...\n";
 	delete g_Manager; // 생성했던 씬 매니저 삭제
 	g_Manager = nullptr;
-
-	CloseClient(); // 클라이언트 종료
 
 	return 0;
 }

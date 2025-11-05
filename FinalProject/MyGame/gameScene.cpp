@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include <stb_image.h>	// 얘 추가할말?
+#include "Client.h"
 
 const float LIGHT_SPEED = 0.5f;
 const float CAMERA_ANIM_SPEED = 10.0f;
@@ -29,6 +30,8 @@ gameScene::~gameScene()
 
 void gameScene::sceneOnEnter()	// 이게 init역할
 {
+	InitClient(); // 클라이언트 초기화
+
 	glutSetCursor(GLUT_CURSOR_NONE);	// gamescene입장할때 마우스 숨기기..
 
 	width = 1600;
@@ -187,6 +190,8 @@ void gameScene::sceneOnExit()
 		delete foxes[i];
 
 	delete player;
+
+	CloseClient(); // 클라이언트 종료
 }
 
 void gameScene::update(float elapsedTime)
