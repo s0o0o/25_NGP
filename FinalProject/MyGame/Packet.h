@@ -12,13 +12,11 @@ struct CS_Login_Request {
 //	char password[MAX_PASS_LEN];
 };
 
-
 // 2. S -> C (서버가 클라이언트로 )
 struct SC_Login_Result {
 	bool success;
 	char message[100]; // 로그인 메세지 
 };
-
 
 // 플레이어 이동
 struct cs_move

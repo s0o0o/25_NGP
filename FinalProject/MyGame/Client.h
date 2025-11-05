@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 //===================================================
 // 클라이언트 추가 - 2025.10.31
 //===================================================
@@ -35,9 +37,10 @@ void InitClient() // 클라이언트 초기화
 	serveraddr.sin_port = htons(SERVERPORT);
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR) err_quit("connect()");
-
+	CS_Login_Request login_pk;
+	strcpy_s(login_pk.id, (char*)ID.c_str());
 	// ID 전송
-	send(sock, ID.c_str(), sizeof(ID.c_str()), 0);
+	send(sock, reinterpret_cast<char*>(&login_pk), sizeof(ID.c_str()), 0);
 
 }
 
