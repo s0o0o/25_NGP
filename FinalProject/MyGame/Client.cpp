@@ -6,19 +6,6 @@ volatile GameState g_gameState = GameState::STATE_LOGIN_SCENE;
 SOCKET g_sock;
 
 
-void err_quit(const char* msg)
-{
-	LPVOID lpMsgBuf;
-	FormatMessageA(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, WSAGetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(char*)&lpMsgBuf, 0, NULL);
-	MessageBoxA(NULL, (const char*)lpMsgBuf, msg, MB_ICONERROR);
-	LocalFree(lpMsgBuf);
-	exit(1);
-}
-
 DWORD WINAPI ReceiveThread(LPVOID arg)
 {
 	SOCKET sock = (SOCKET)arg;
