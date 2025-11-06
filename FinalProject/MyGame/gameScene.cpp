@@ -29,7 +29,6 @@ gameScene::~gameScene()
 
 void gameScene::sceneOnEnter()	// 이게 init역할
 {
-	
 	glutSetCursor(GLUT_CURSOR_NONE);	// gamescene입장할때 마우스 숨기기..
 
 	width = 1600;

@@ -96,6 +96,15 @@ void startScene::sceneOnExit()
 
 void startScene::update(float elapsedTime)
 {
+	if (g_gameState == GameState::STATE_INGAME)
+	{
+		m_sceneManager->changeScene("mainGame");
+	}
+	else if (g_gameState == GameState::STATE_LOGIN_FAILED)
+	{
+		printf("로그인 실패! (서버 연결 불가 또는 ID 오류)\n");
+		g_gameState = GameState::STATE_LOGIN_SCENE;	// 다시 로그인화면으로...
+	}
 }
 
 void startScene::draw()
@@ -250,14 +259,13 @@ void startScene::keyboard(unsigned char key, bool isPressed)
 		break;
 	case 32:
 		std::cout << " 스페이스바 누름!" << std::endl;
-		SERVERIP = m_ipInput; // 서버 주소 전달
-		ID = m_idInput; // ID 전달
-
-		// 로그인 패킷 보내기
-		// 로그인 ㅇㅋ되면 입장시키는로직..
-		InitClient();
-
-		//	m_sceneManager->changeScene("mainGame");
+		if (g_gameState == GameState::STATE_LOGIN_SCENE)
+		{
+			std::cout << " 스페이스바 누름! 서버 접속 시도..." << std::endl;
+			SERVERIP = m_ipInput; // 서버 주소 전달
+			ID = m_idInput;		 // ID 전달
+			InitClient();
+		}
 		
 		break;
 	default:

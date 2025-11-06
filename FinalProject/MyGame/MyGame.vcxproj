@@ -147,6 +147,7 @@
     <ClInclude Include="gameScene.h" />
     <ClInclude Include="library.h" />
     <ClInclude Include="MyScene.h" />
+    <ClInclude Include="PacketProcessor.h" />
     <ClInclude Include="Penguin.h" />
     <ClInclude Include="Pig.h" />
     <ClInclude Include="PlayerObject.h" />
@@ -157,10 +158,12 @@
   <ItemGroup>
     <ClCompile Include="Alpaca.cpp" />
     <ClCompile Include="Chic.cpp" />
+    <ClCompile Include="Client.cpp" />
     <ClCompile Include="Fox.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="gameScene.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PacketProcessor.cpp" />
     <ClCompile Include="Penguin.cpp" />
     <ClCompile Include="Pig.cpp" />
     <ClCompile Include="PlayerObject.cpp" />

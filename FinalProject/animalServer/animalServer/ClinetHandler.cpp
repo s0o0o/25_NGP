@@ -77,7 +77,7 @@ DWORD WINAPI ClientThread(LPVOID arg)
 		packet.id = 100;
 		packet.coin = 5;
 		packet.feed = 5;
-		strcpy_s(packet.message, "[C->S] 플레이어 로그인 패킷 전송 ");
+		strcpy_s(packet.message, "[S->C] 플레이어 로그인 ㅇㅋ 패킷 전송함\n");
 		// 필요한 초기 정보 로딩하고 패킷 보내기
 
 		sendPacket(client_sock, PacketType::SC_LOGIN_ACCEPT, (char*)&packet, sizeof(SC_Login_Accept));
@@ -138,7 +138,9 @@ DWORD WINAPI ClientThread(LPVOID arg)
 
 	// 이제 로그인 했으면 게임 루프 돌기
 	if (bLogin) {
+		printf("[TCP 서버] 로그인 ㅇㅋ\n");
 		while (true) {
+			printf("[TCP 서버] recv 기다림중\n");
 			retval = recv(client_sock, (char*)&header, sizeof(PacketHeader), MSG_WAITALL);	// 헤더먼저
 			if (retval == SOCKET_ERROR || retval == 0) break;
 

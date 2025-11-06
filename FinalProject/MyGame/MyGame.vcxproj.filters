@@ -87,6 +87,9 @@
     <ClInclude Include="..\Packet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="PacketProcessor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -124,6 +127,12 @@
     </ClCompile>
     <ClCompile Include="gameScene.cpp">
       <Filter>소스 파일\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Client.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketProcessor.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
