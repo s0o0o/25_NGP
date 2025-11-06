@@ -124,12 +124,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ClinetHandler.cpp" />
+    <ClCompile Include="packetProcessor.cpp" />
     <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Packet.h" />
     <ClInclude Include="ClientHandler.h" />
     <ClInclude Include="Common.h" />
-    <ClInclude Include="Packet.h" />
+    <ClInclude Include="packetProcessor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

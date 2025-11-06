@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Packet.h" />
     <ClInclude Include="Alpaca.h" />
     <ClInclude Include="Chic.h" />
     <ClInclude Include="Client.h" />
@@ -146,7 +147,6 @@
     <ClInclude Include="gameScene.h" />
     <ClInclude Include="library.h" />
     <ClInclude Include="MyScene.h" />
-    <ClInclude Include="Packet.h" />
     <ClInclude Include="Penguin.h" />
     <ClInclude Include="Pig.h" />
     <ClInclude Include="PlayerObject.h" />

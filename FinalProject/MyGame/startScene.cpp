@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stb_image.h>
 
+#include "Client.h"
 
 // 1105 로그인 입력
 
@@ -246,14 +247,18 @@ void startScene::keyboard(unsigned char key, bool isPressed)
 		break;
 	case 9:
 		m_activeField = (m_activeField + 1) % 2;
-		if (m_activeField == 0) std::cout << "ID 필드 활성화" << std::endl;
-		else std::cout << "IP 필드 활성화" << std::endl;
 		break;
 	case 32:
 		std::cout << " 스페이스바 누름!" << std::endl;
 		SERVERIP = m_ipInput; // 서버 주소 전달
 		ID = m_idInput; // ID 전달
-		m_sceneManager->changeScene("mainGame");
+
+		// 로그인 패킷 보내기
+		// 로그인 ㅇㅋ되면 입장시키는로직..
+		InitClient();
+
+		//	m_sceneManager->changeScene("mainGame");
+		
 		break;
 	default:
 		if (key >= 32 && key <= 126) {

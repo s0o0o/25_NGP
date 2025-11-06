@@ -182,20 +182,3 @@ void PassiveMotionFunc(int x, int y)
 	}
 }
 
-//void IdleFunc()	// 수직 동기화가 되고있다.. --> 컴퓨터마다 다르게 동작할 수 있음
-//{
-//
-//	static std::chrono::high_resolution_clock::time_point last_time =
-//		std::chrono::high_resolution_clock::now();
-//
-//	auto now_time = std::chrono::high_resolution_clock::now();
-//	auto dur_time = now_time - last_time;
-//	last_time = now_time;
-//
-//	float deltaTime = dur_time.count() / static_cast<float>(1E09);
-//	if (g_Manager)
-//		g_Manager->update(deltaTime);
-//
-//	glutPostRedisplay();	// 씬을 업데이트 했으니, 화면에 그려줘야 한다..
-//	// glutMainLoop에게 다음 프레임에 화면을 다시 그리라는 플래그를 세운다..
-//}

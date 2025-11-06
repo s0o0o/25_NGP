@@ -1,6 +1,6 @@
 // server.cpp
 #include "Common.h"      
-#include "Packet.h"    
+#include "../../Packet.h"    
 #include "ClientHandler.h" 
 
 // Client.h 에 정의된 포트와 버퍼 크기 사용
@@ -9,7 +9,6 @@
 HANDLE hServerFullEvent;
 CRITICAL_SECTION cs_connections;
 volatile long g_connectionCount = 0;
-
 
 int main(int argc, char* argv[])
 {
@@ -59,33 +58,13 @@ int main(int argc, char* argv[])
 			continue;
 		}
 
-		// 접속자 수 증가 및 상태 확인 (CS 동기화)
-		EnterCriticalSection(&cs_connections);
-		g_connectionCount++;
-		printf("[정보] 현재 접속자: %ld명\n", g_connectionCount);
-		if (g_connectionCount >= 3) {
-			ResetEvent(hServerFullEvent); // 3명이 찼으므로 문을 닫는다 (Non-Signaled)
-		}
-		LeaveCriticalSection(&cs_connections);
-		// ---
-
 		// 6. 클라이언트 접속 시 CreateThread로 스레드 생성
 		//    (ClientThread 함수는 ClientHandler.h 에 선언되어 있음)
 		HANDLE hThread = CreateThread(NULL, 0, ClientThread, (LPVOID)client_sock, 0, NULL);
 		if (hThread == 0) {
 			// [수정] 빠져있던 스레드 생성 실패 시 예외 처리
 			printf("[오류] 스레드를 생성할 수 없습니다.\n");
-
-			// 스레드 생성 실패 시, 접속 카운트 원복 및 이벤트 설정
-			EnterCriticalSection(&cs_connections);
-			g_connectionCount--;
-			if (g_connectionCount < 3) {
-				SetEvent(hServerFullEvent); // (만약 닫혔었다면) 다시 문을 연다
-			}
-			LeaveCriticalSection(&cs_connections);
-
 			closesocket(client_sock);
-			// ---
 		}
 		else {
 			CloseHandle(hThread);
