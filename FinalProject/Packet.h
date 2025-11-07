@@ -12,10 +12,11 @@ enum class PacketType : uint16_t {
 	// C->S
 	CS_LOGIN_REQUEST = 1000, // 로그인 요청
 	CS_MOVE = 1001,
-
+	
 	// S->C
 	SC_LOGIN_ACCEPT = 2000, // 로그인 ㅇㅋ
 	SC_LOGIN_FAIL = 2001,	// 로그인 실패
+	SC_MOVE_UPDATE = 1002,
 };
 
 struct PacketHeader {	// 2+2 바이트 고정, 모든 패킷 제일 앞에 붙여보내면됨
@@ -44,6 +45,12 @@ struct SC_Login_Fail {
 
 // 플레이어 이동
 struct cs_move
+{
+	float x;
+	float y;
+};
+
+struct sc_move_update
 {
 	float x;
 	float y;

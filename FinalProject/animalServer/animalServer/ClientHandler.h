@@ -15,3 +15,5 @@ DWORD WINAPI ClientThread(LPVOID arg);
 extern CRITICAL_SECTION cs_connections;
 extern HANDLE hServerFullEvent;
 extern volatile long g_connectionCount;
+
+int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize);

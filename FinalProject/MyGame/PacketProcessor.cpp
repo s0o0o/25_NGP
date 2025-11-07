@@ -19,6 +19,11 @@ void ProcessPacket(PacketType type, char* data)
 		g_gameState = GameState::STATE_LOGIN_FAILED;
 		break;
 	}
+	case PacketType::SC_MOVE_UPDATE:
+	{
+		printf("이동 업데이트됨!\n");
+	}
+	break;
 	default:
 		printf("[클라] 알 수 없는 패킷 수신: %d\n", type);
 		break;

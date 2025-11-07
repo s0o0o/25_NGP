@@ -1,12 +1,13 @@
 #include "PlayerObject.h"
 #include "Pig.h"
+#include "Client.h"
 #include <iostream>
 
 
 // 플레이어는 그리지 않을거임.. 바라보는 시점이라
 
 constexpr int winWidth = 1600, winHeight = 900;
-
+extern SOCKET g_sock;
 
 PlayerObject::PlayerObject()
 {
@@ -186,6 +187,12 @@ void PlayerObject::keyboard(unsigned char key, bool isPressed)
 		case'W':
 		case'w':
 			isWPressed = true;
+			cs_move move_pk;
+			cs_move result_pk;
+			move_pk.x = 0.1;
+			move_pk.y = 0.2;
+			sendPacket(g_sock, PacketType::CS_MOVE, reinterpret_cast<char*>(&move_pk),  sizeof(move_pk));
+			//recv(g_sock, reinterpret_cast<char*>(&result_pk), sizeof(result_pk), MSG_WAITALL);
 			break;
 		case'S':
 		case's':
