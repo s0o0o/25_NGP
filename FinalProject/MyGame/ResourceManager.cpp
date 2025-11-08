@@ -91,7 +91,7 @@ void ResourceManager::loadAllResource()
 	m_Textures["feedButton"] = initTexture("./Img/feedButton.png");
 	m_Textures["coin"] = initTexture("./Img/coin.png");
 	m_Textures["buy"] = initTexture("./Img/buy.png");
-	m_Textures["feedpack"] = initTexture("./Img/feedpack.png");
+	m_Textures["feedpack"] = initTexture("./Img/feed.png");
 	m_Textures["growNsell"] = initTexture("./Img/growNsell.png");
 
 	// 시작화면에 필요한거

@@ -8,7 +8,6 @@ out vec3 outTexcoord; // 텍스처 좌표 OUT 시켜서 fragment.glsl에서 읽을것임
 out vec3 outFragPos;	// .
 out vec3 outNormal;		// . 마찬가지로..
 
-
 uniform mat4 modelTransform;
 uniform mat4 viewTransform;
 uniform mat4 projTransform;

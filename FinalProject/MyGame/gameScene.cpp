@@ -111,7 +111,7 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 
 	// 여긴 ui 부분.. 코인이나 사료 등..
 	for (int i = 0; i < maxCoin; ++i) {
-		coin_x[i] = -0.9f + i * 0.1f;
+		coin_x[i] = 50.f + i * 75.f;
 		isCoin[i] = false;
 	}
 	isCoin[0] = true;
@@ -122,7 +122,7 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	nowCoin = 5;
 
 	for (int i = 0; i < maxFeed; ++i) {
-		feed_x[i] = -0.9f + i * 0.1f;
+		feed_x[i] = 50.f + i * 75.f;
 		isFood[i] = false;
 	}
 	isFood[0] = true;
@@ -461,6 +461,8 @@ void gameScene::draw()
 	{
 		glDisable(GL_DEPTH_TEST);
 		glBindVertexArray(bgMesh.VAO);
+		glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
 		{
 			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(-40.0f, 15.f, -3.f));
 			glm::mat4 rotMatrixY = glm::rotate(glm::mat4(1.f), glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
@@ -807,43 +809,49 @@ void gameScene::draw()
 
 
 	// 코인.. + 사료
-	MeshData coinMesh = m_resourceManager->getMesh("coin");
-	MeshData feedMesh = m_resourceManager->getMesh("feed"); // 또는 UI용 사각형 메시 이름
+	cubeMesh = m_resourceManager->getMesh("cube");
 	GLuint coinTexture = m_resourceManager->getTexture("coin");
 	GLuint feedTexture = m_resourceManager->getTexture("feedpack");
 	GLuint sellTexture = m_resourceManager->getTexture("growNsell");
 
-	glUseProgram(bgShader);
+	glm::mat4 uiViewMatrix = glm::mat4(1.0f);
+	glm::mat4 uiProjMatrix = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
+
+	glUseProgram(texShader);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
-	glBindVertexArray(coinMesh.VAO);
+	glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(uiViewMatrix));
+	glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(uiProjMatrix));
+
+	glBindVertexArray(cubeMesh.VAO);
 	glBindTexture(GL_TEXTURE_2D, coinTexture);
 	for (int i = 0; i < nowCoin; ++i)
 	{
 		if (isCoin[i]) {
-			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(coin_x[i], 0.75f, 0.f));
-			glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.08f / 2, 0.1f / 2, 0.1f));
+			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(coin_x[i], 840.f, 0.f));
+			glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(70.f, 70.f, 0.1f));
 			glm::mat4 matrix = translateMatrix * sclaeMatrix;
-			glUniformMatrix4fv(m_bgShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+			glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 
-			glDrawArrays(GL_TRIANGLES, 0, coinMesh.vertexCount);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 	}
 
-	glBindVertexArray(feedMesh.VAO); // 사료 VAO로 변경
 	glBindTexture(GL_TEXTURE_2D, feedTexture);
 	for (int i = 0; i < nowFeed; ++i)
 	{
 		if (isFood[i]) {
-			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(feed_x[i], -0.85f, 0.f));
-			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.04f, 0.06f, 0.1f)); // 직접 계산된 값 사용
+			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(feed_x[i], 50.f, 0.f));
+			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(70.f, 70.f, 0.1f)); // 직접 계산된 값 사용
 			glm::mat4 matrix = translateMatrix * scaleMatrix; // 회전 없음
-			glUniformMatrix4fv(m_bgShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 
-			// 그리기 (VAO, 텍스처는 이미 바인드됨)
-			glDrawArrays(GL_TRIANGLES, 0, feedMesh.vertexCount);
+			glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 	}
 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 
 
 	// 이제 동물 그릴 차례..

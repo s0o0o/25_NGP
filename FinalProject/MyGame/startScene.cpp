@@ -160,7 +160,7 @@ void startScene::draw()
 		// title 제목 (사이즈 3*1)
 		{
 			glBindVertexArray(cubeMesh.VAO);
-			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 3.5f, 0.0f)); // Z축을 카메라 가까이 (-5.0f)
+			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 3.5f, 0.0f));
 			glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(3.5f * 3, 3.5f, 1.f));
 			glm::mat4 matrix = translateMatrix * sclaeMatrix;
 
