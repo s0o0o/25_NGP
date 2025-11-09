@@ -151,7 +151,7 @@ void PlayerObject::update(float elapseTime)
 	{
 		glm::vec3 newPosition = worldTransform[3];
 		if (newPosition.x > 6.f and newPosition.x <= 12.f and
-			newPosition.z > 3.f and newPosition.z < 5.f) {
+			newPosition.z > 2.f and newPosition.z < 6.f) {
 			//std::cout << "»óÁ¡ ¾Õ¿¡ ¿È" << std::endl;
 			isStoreShow = true;
 		}
