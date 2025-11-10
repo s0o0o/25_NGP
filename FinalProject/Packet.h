@@ -52,6 +52,7 @@ struct cs_move
 
 struct sc_move_update
 {
+	int playerID; // 누가 움직였는지 ID
 	float x;
 	float y;
 };

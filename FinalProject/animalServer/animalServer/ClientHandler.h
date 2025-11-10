@@ -3,17 +3,41 @@
 
 #include "Common.h" 
 #include "../../Packet.h" 
+#include <map>
 
-// ID 등록
-extern const char* ALLOWED_IDS[];
-extern const int NUM_ALLOWED_IDS;
+const int MAX_PLAYER = 3;
+
+// ID 등록 잠시주석
+//extern const char* ALLOWED_IDS[];
+//extern const int NUM_ALLOWED_IDS;
+
+
+//플레이어 세션 구조체 
+struct PlayerSession {
+	SOCKET sock;
+	int playerID;
+	char loginID[MAX_ID_LEN];
+
+	// 플레이어의 현재 위치
+	float x;
+	float y;
+
+	bool bActive; // (로그인 완료 여부)
+};
+
+extern std::map<SOCKET, PlayerSession> g_sessions_map;
+
+//동기화 객체
+extern CRITICAL_SECTION cs_connections;
+extern HANDLE hServerFullEvent;
+extern volatile long g_connectionCount;
+
+//ProcessPacket 프로토타입 변경
+void ProcessPacket(PlayerSession* pSession, PacketType type, char* data);
+
 
 // 클라이언트 처리 스레드 함수 선언 (본체 X)
 DWORD WINAPI ClientThread(LPVOID arg);
 
-// 동기화 객체 선언 (extern)
-extern CRITICAL_SECTION cs_connections;
-extern HANDLE hServerFullEvent;
-extern volatile long g_connectionCount;
 
 int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize);
