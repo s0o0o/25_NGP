@@ -5,8 +5,6 @@
 
 #define SERVERPORT 9000
 
-
-
 HANDLE hServerFullEvent;
 CRITICAL_SECTION cs_connections;
 volatile long g_connectionCount = 0;
@@ -64,8 +62,7 @@ int main(int argc, char* argv[])
 		}
 		LeaveCriticalSection(&cs_connections);
 
-
-		//스레드 생성
+		//워커 스레드 생성
 		HANDLE hThread = CreateThread(NULL, 0, ClientThread, (LPVOID)client_sock, 0, NULL);
 		if (hThread == 0) {
 			//  스레드 생성 실패 시 예외 처리
@@ -86,6 +83,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
+		
 	// 서버 종료
 	closesocket(listen_sock);
 	CloseHandle(hServerFullEvent);

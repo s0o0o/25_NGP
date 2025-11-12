@@ -5,9 +5,9 @@
 
 #define BUFSIZE    4096 
 
-// [유지] 디버깅용 ID 주석
-//const char* ALLOWED_IDS[] = { "1111", "2222", "3333" };
-//const int NUM_ALLOWED_IDS = sizeof(ALLOWED_IDS) / sizeof(ALLOWED_IDS[0]);
+//  ID 
+const char* ALLOWED_IDS[] = { "1111", "2222", "3333" };
+const int NUM_ALLOWED_IDS = sizeof(ALLOWED_IDS) / sizeof(ALLOWED_IDS[0]);
 
 int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize)
 {
@@ -54,11 +54,11 @@ DWORD WINAPI ClientThread(LPVOID arg)
 		inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port), client_sock);
 
 
-	// 1. 헤더 수신 (빠진 코드 복원)
+	// 1. 헤더 수신 
 	retval = recv(client_sock, (char*)&header, sizeof(PacketHeader), MSG_WAITALL);
 	if (retval == SOCKET_ERROR || retval == 0) {
 		printf("[TCP 서버] 클라이언트(%lld) 연결 끊김 (로그인 헤더 수신 전)\n", client_sock);
-		// bLogin은 이미 false이므로, 바로 함수 하단의 if(bLogin) 루프를 건너뛰겟지...
+		// bLogin은 이미 false이므로, 바로 함수 하단의 if(bLogin) 루프를 일단 건너뜀...
 	}
 	else
 	{
