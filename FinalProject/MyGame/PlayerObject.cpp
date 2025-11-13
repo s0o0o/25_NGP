@@ -41,127 +41,57 @@ float limitX = 22.f;
 
 void PlayerObject::update(float elapseTime)
 {
-	glm::vec3 dir(0.f);
 
 	// 이동 패킷 전송
 	if (isWPressed || isAPressed || isSPressed || isDPressed)
 	{
+		glm::vec3 gl;
+		if (isWPressed || isSPressed) gl = getLook();
+		else gl = getRight();
+
 		cs_move move_pk;
 		cs_move result_pk;
-		move_pk.x = playerX;
-		move_pk.y = playerZ;
+		move_pk.x = worldTransform[3][0];
+		move_pk.z = playerZ = worldTransform[3][2];
+		move_pk.dx = gl[0];
+		move_pk.dz = gl[2];
 		if (isWPressed) move_pk.dir = W;
 		else if (isAPressed) move_pk.dir = A;
 		else if (isSPressed) move_pk.dir = S;
 		else if (isDPressed) move_pk.dir = D;
 		sendPacket(g_sock, PacketType::CS_MOVE, reinterpret_cast<char*>(&move_pk), sizeof(move_pk));
 		//recv(g_sock, reinterpret_cast<char*>(&result_pk), sizeof(result_pk), MSG_WAITALL);
+
+		glm::vec3 dir(0.f);
+		if (isWPressed || isAPressed) 
+		{
+			dir[0] = dx;
+			dir[1] = gl[1];
+			dir[2] = dz;
+		}
+		else
+		{
+			dir[0] = -dx;
+			dir[1] = -gl[1];
+			dir[2] = -dz;
+		}
+		
+
+		if (glm::length(dir) >= glm::epsilon<float>())
+		move(dir, moveSpeed * elapseTime);
+
+		playerX = worldTransform[3][0];
+		playerZ = worldTransform[3][2];
 	}
 
-	if (isWPressed) {
-		glm::vec3 newPosition = worldTransform[3]; // 현재 위치를 복사
-		newPosition += getLook(); // 이동 방향 추가
-
-		// X축과 Z축 범위를 체크
-		if (newPosition.z > -20.f + playerLimit && newPosition.z < 20.f - playerLimit &&
-			newPosition.x > -limitX + playerLimit && newPosition.x < limitX - playerLimit) {
-			dir += getLook(); // 범위를 초과하지 않으면 이동
-		}
-		else {
-			if (newPosition.z <= -20.f + playerLimit) dir.z = (-20.f + playerLimit) - worldTransform[3][2];
-			if (newPosition.z >= 20.f - playerLimit) dir.z = (20.f - playerLimit) - worldTransform[3][2];
-			if (newPosition.x <= -limitX + playerLimit) dir.x = (-limitX + playerLimit) - worldTransform[3][0];
-			if (newPosition.x >= limitX - playerLimit) dir.x = (limitX - playerLimit) - worldTransform[3][0];
-		}
-
-		if (newPosition.z > -8.f && newPosition.z < 10.f &&
-			newPosition.x > -15.f && newPosition.x < 1.f) {
+		if (playerZ > -8.f && playerZ < 10.f &&
+			playerX > -15.f && playerX < 1.f) {
 			//std::cout << "농장안에 들어옴" << std::endl;
 			isInFarm = true;
 		}
 		else {
 			isInFarm = false;
 		}
-	}
-	if (isAPressed) {
-		glm::vec3 newPosition = worldTransform[3]; // 현재 위치를 복사
-		newPosition += getRight(); // 이동 방향 추가
-
-		// X축과 Z축 범위를 체크
-		if (newPosition.z > -20.f + playerLimit && newPosition.z < 20.f - playerLimit &&
-			newPosition.x > -limitX + playerLimit && newPosition.x < limitX - playerLimit) {
-			dir += getRight(); // 범위를 초과하지 않으면 이동
-		}
-		else {
-			if (newPosition.z <= -20.f + playerLimit) dir.z = (-20.f + playerLimit) - worldTransform[3][2];
-			if (newPosition.z >= 20.f - playerLimit) dir.z = (20.f - playerLimit) - worldTransform[3][2];
-			if (newPosition.x <= -limitX + playerLimit) dir.x = (-limitX + playerLimit) - worldTransform[3][0];
-			if (newPosition.x >= limitX - playerLimit) dir.x = (limitX - playerLimit) - worldTransform[3][0];
-		}
-
-		if (newPosition.z > -8.f && newPosition.z < 10.f &&
-			newPosition.x > -15.f && newPosition.x < 1.f) {
-			//std::cout << "농장안에 들어옴" << std::endl;
-			isInFarm = true;
-
-		}
-		else {
-			isInFarm = false;
-		}
-	}
-
-	if (isSPressed) {
-		glm::vec3 newPosition = worldTransform[3]; // 현재 위치를 복사
-		newPosition -= getLook(); // 이동 방향 추가
-
-		// X축과 Z축 범위를 체크
-		if (newPosition.z > -20.f + playerLimit && newPosition.z < 20.f - playerLimit &&
-			newPosition.x > -limitX + playerLimit && newPosition.x < limitX - playerLimit) {
-			dir -= getLook(); // 범위를 초과하지 않으면 이동
-		}
-		else {
-			if (newPosition.z <= -20.f + playerLimit) dir.z = (-20.f + playerLimit) - worldTransform[3][2];
-			if (newPosition.z >= 20.f - playerLimit) dir.z = (20.f - playerLimit) - worldTransform[3][2];
-			if (newPosition.x <= -limitX + playerLimit) dir.x = (-limitX + playerLimit) - worldTransform[3][0];
-			if (newPosition.x >= limitX - playerLimit) dir.x = (limitX - playerLimit) - worldTransform[3][0];
-		}
-
-		if (newPosition.z > -8.f && newPosition.z < 10.f &&
-			newPosition.x > -15.f && newPosition.x < 1.f) {
-			//std::cout << "농장안에 들어옴" << std::endl;
-			isInFarm = true;
-
-		}
-		else {
-			isInFarm = false;
-		}
-	}
-
-	if (isDPressed) {
-		glm::vec3 newPosition = worldTransform[3]; // 현재 위치를 복사
-		newPosition -= getRight(); // 이동 방향 추가
-
-		// X축과 Z축 범위를 체크
-		if (newPosition.z > -20.f + playerLimit && newPosition.z < 20.f - playerLimit &&
-			newPosition.x > -limitX + playerLimit && newPosition.x < limitX - playerLimit) {
-			dir -= getRight(); // 범위를 초과하지 않으면 이동
-		}
-		else {
-			if (newPosition.z <= -20.f + playerLimit) dir.z = (-20.f + playerLimit) - worldTransform[3][2];
-			if (newPosition.z >= 20.f - playerLimit) dir.z = (20.f - playerLimit) - worldTransform[3][2];
-			if (newPosition.x <= -limitX + playerLimit) dir.x = (-limitX + playerLimit) - worldTransform[3][0];
-			if (newPosition.x >= limitX - playerLimit) dir.x = (limitX - playerLimit) - worldTransform[3][0];
-		}
-
-		if (newPosition.z > -8.f && newPosition.z < 10.f &&
-			newPosition.x > -15.f && newPosition.x < 1.f) {
-			//std::cout << "농장안에 들어옴" << std::endl;
-			isInFarm = true;
-		}
-		else {
-			isInFarm = false;
-		}
-	}
 
 	// 상점에 왔는지 체크
 	{
@@ -175,15 +105,6 @@ void PlayerObject::update(float elapseTime)
 			isStoreShow = false;
 		}
 	}
-
-	playerX = worldTransform[3][0];
-	playerZ = worldTransform[3][2];
-
-	//std::cout << "playerX :" << playerX << ", worldTransform[3][0] : " << worldTransform[3][0] << std::endl;
-	//std::cout << "playerZ :" << playerZ << ", worldTransform[3][2] : " << worldTransform[3][2] << std::endl;
-
-	if (glm::length(dir) >= glm::epsilon<float>())
-		move(dir, moveSpeed * elapseTime);
 }
 
 void PlayerObject::draw(const glm::mat4& viewMatrix,

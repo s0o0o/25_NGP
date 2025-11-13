@@ -1,5 +1,10 @@
+#pragma once
 #include "PacketProcessor.h"
 #include "Client.h"
+#include "gameScene.h"
+#include "main.h"
+
+extern sceneManager* g_Manager;
 
 void ProcessPacket(PacketType type, char* data)
 {
@@ -19,9 +24,18 @@ void ProcessPacket(PacketType type, char* data)
 		g_gameState = GameState::STATE_LOGIN_FAILED;
 		break;
 	}
+	case PacketType::SC_MOVE_UPDATE_OWN:
+	{
+		sc_move_update_own* p = (sc_move_update_own*)data;
+		gameScene* scene = (gameScene*)(g_Manager->getCurrentScene());
+		scene->setPlayerDx(p->dx);
+		scene->setPlayerDz(p->dz);
+		printf("내 이동 업데이트됨!\n");
+	}
+	break;
 	case PacketType::SC_MOVE_UPDATE:
 	{
-		printf("이동 업데이트됨!\n");
+		printf("다른 클라이언트의 이동 업데이트됨!\n");
 	}
 	break;
 	default:

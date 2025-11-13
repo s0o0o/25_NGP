@@ -21,6 +21,7 @@ const float SNOW_SPEED = 5.0f;
 
 gameScene::gameScene(int winWidth, int winHeight)
 {
+	player = nullptr;
 }
 
 gameScene::~gameScene()
@@ -1390,4 +1391,14 @@ void gameScene::setWindowSize(int winWidth, int winHeight)
 {
 	width = winWidth;
 	height = winHeight;
+}
+
+void gameScene::setPlayerDx(float n)
+{
+	player->dx = n;
+}
+
+void gameScene::setPlayerDz(float n)
+{
+	player->dz = n;
 }

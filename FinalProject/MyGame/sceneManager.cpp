@@ -135,3 +135,8 @@ void sceneManager::changeScene(const std::string& sceneName)
         m_currentScene->sceneOnEnter(); // 해당 씬으로 입장~
     }
 }
+
+MyScene* sceneManager::getCurrentScene()
+{
+    return m_currentScene;
+}

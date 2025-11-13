@@ -1,8 +1,4 @@
-#include <iostream>
-#include <chrono>
-
-#include "sceneManager.h"
-#include "library.h"
+#include "main.h"
 
 // 각종 콜백 함수 미리 선언
 void DisplayFunc(void);
@@ -17,12 +13,7 @@ void TimerFunc(int);
 //void IdleFunc();
 void PassiveMotionFunc(int, int);
 
-// 전역 변수
-constexpr int winWidth = 1600, winHeight = 900;
-
-const std::string windowTitle = "25_NGP_AnimalFarm";
-
-static sceneManager* g_Manager = nullptr;
+sceneManager* g_Manager = nullptr;
 
 int main(int argc, char** argv)
 {

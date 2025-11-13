@@ -20,7 +20,7 @@ struct PlayerSession {
 
 	// 플레이어의 현재 위치
 	float x;
-	float y;
+	float z;
 
 	bool bActive; // (로그인 완료 여부)
 };

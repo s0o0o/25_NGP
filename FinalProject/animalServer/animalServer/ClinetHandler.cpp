@@ -85,7 +85,7 @@ DWORD WINAPI ClientThread(LPVOID arg)
 			newSession.playerID = (int)client_sock; // 임시 ID (소켓 핸들)
 			strcpy_s(newSession.loginID, p->id);
 			newSession.x = 0.0f; // 초기 위치
-			newSession.y = 0.0f;
+			newSession.z = 0.0f;
 			newSession.bActive = true;
 
 			// 2. 맵에 삽입

@@ -108,6 +108,8 @@ public:
 	void mouseMove(int x, int y) override;
 
 	void setWindowSize(int winWidth, int winHeight) override;
+	void setPlayerDx(float n);
+	void setPlayerDz(float n);
 
 private:
 	GLint m_texShader_modelLoc, m_texShader_viewLoc, m_texShader_projLoc, 

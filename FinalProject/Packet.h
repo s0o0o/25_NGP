@@ -7,7 +7,7 @@
 #define MAX_ID_LEN 10
 #define MAX_PASS_LEN 10
 
-enum {
+enum direction {
 	W,
 	A,
 	S,
@@ -18,11 +18,12 @@ enum class PacketType : uint16_t {
 	// C->S
 	CS_LOGIN_REQUEST = 1000, // 로그인 요청
 	CS_MOVE = 1001,
-	
+
 	// S->C
 	SC_LOGIN_ACCEPT = 2000, // 로그인 ㅇㅋ
 	SC_LOGIN_FAIL = 2001,	// 로그인 실패
-	SC_MOVE_UPDATE = 1002,
+	SC_MOVE_UPDATE_OWN = 1002,
+	SC_MOVE_UPDATE = 1003,
 };
 
 struct PacketHeader {	// 2+2 바이트 고정, 모든 패킷 제일 앞에 붙여보내면됨
@@ -54,14 +55,23 @@ struct cs_move
 {
 	int dir;
 	float x;
-	float y;
+	float z;
+	float dx;
+	float dz;
 };
+
+struct sc_move_update_own
+{
+	float dx;
+	float dz;
+};
+
 
 struct sc_move_update
 {
 	int playerID; // 누가 움직였는지 ID
 	float x;
-	float y;
+	float z;
 };
 
 // 똥 청소 요청

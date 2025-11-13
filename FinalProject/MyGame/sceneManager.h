@@ -30,6 +30,7 @@ public:
 
     // 纠 官层林绰局
     void changeScene(const std::string& sceneName);
+    MyScene* getCurrentScene();
 
 private:
     std::map<std::string, MyScene*> m_scenes; // 葛电 纠阑 家蜡..

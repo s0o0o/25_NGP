@@ -146,6 +146,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="gameScene.h" />
     <ClInclude Include="library.h" />
+    <ClInclude Include="main.h" />
     <ClInclude Include="MyScene.h" />
     <ClInclude Include="PacketProcessor.h" />
     <ClInclude Include="Penguin.h" />
