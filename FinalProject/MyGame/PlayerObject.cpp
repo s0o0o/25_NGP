@@ -44,16 +44,19 @@ void PlayerObject::update(float elapseTime)
 	glm::vec3 dir(0.f);
 
 	// 이동 패킷 전송
-	cs_move move_pk;
-	cs_move result_pk;
-	move_pk.x = playerX;
-	move_pk.y = playerZ;
-	if (isWPressed) move_pk.dir = W;
-	else if (isAPressed) move_pk.dir = A;
-	else if (isSPressed) move_pk.dir = S;
-	else if (isDPressed) move_pk.dir = D;
-	sendPacket(g_sock, PacketType::CS_MOVE, reinterpret_cast<char*>(&move_pk), sizeof(move_pk));
-	//recv(g_sock, reinterpret_cast<char*>(&result_pk), sizeof(result_pk), MSG_WAITALL);
+	if (isWPressed || isAPressed || isSPressed || isDPressed)
+	{
+		cs_move move_pk;
+		cs_move result_pk;
+		move_pk.x = playerX;
+		move_pk.y = playerZ;
+		if (isWPressed) move_pk.dir = W;
+		else if (isAPressed) move_pk.dir = A;
+		else if (isSPressed) move_pk.dir = S;
+		else if (isDPressed) move_pk.dir = D;
+		sendPacket(g_sock, PacketType::CS_MOVE, reinterpret_cast<char*>(&move_pk), sizeof(move_pk));
+		//recv(g_sock, reinterpret_cast<char*>(&result_pk), sizeof(result_pk), MSG_WAITALL);
+	}
 
 	if (isWPressed) {
 		glm::vec3 newPosition = worldTransform[3]; // 현재 위치를 복사

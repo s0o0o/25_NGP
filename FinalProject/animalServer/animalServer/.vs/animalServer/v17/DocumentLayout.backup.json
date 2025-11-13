@@ -3,20 +3,20 @@
   "WorkspaceRootPath": "C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\packetProcessor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:packetProcessor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\packetProcessor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:packetProcessor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\ClinetHandler.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:ClinetHandler.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\Server.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:Server.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\packetProcessor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:packetProcessor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\packetProcessor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:packetProcessor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\ClientHandler.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -34,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -53,14 +53,18 @@
               "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "packetProcessor.cpp",
               "DocumentMoniker": "C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\packetProcessor.cpp",
               "RelativeDocumentMoniker": "packetProcessor.cpp",
               "ToolTip": "C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\packetProcessor.cpp",
               "RelativeToolTip": "packetProcessor.cpp",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAACkAAABhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-11-05T17:49:24.054Z",
               "EditorCaption": ""
@@ -79,31 +83,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "Server.cpp",
               "DocumentMoniker": "C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\Server.cpp",
               "RelativeDocumentMoniker": "Server.cpp",
               "ToolTip": "C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\Server.cpp",
               "RelativeToolTip": "Server.cpp",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAD8AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAAEMAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-11-05T12:24:26.323Z"
+              "WhenOpened": "2025-11-05T12:24:26.323Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "ClinetHandler.cpp",
               "DocumentMoniker": "C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\ClinetHandler.cpp",
               "RelativeDocumentMoniker": "ClinetHandler.cpp",
               "ToolTip": "C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\ClinetHandler.cpp",
               "RelativeToolTip": "ClinetHandler.cpp",
-              "ViewState": "AgIAAFQAAAAAAAAAAAAAAEgAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-11-05T13:34:43.077Z"
+              "WhenOpened": "2025-11-05T13:34:43.077Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "packetProcessor.h",
               "DocumentMoniker": "C:\\GitHub\\25_NGP\\FinalProject\\animalServer\\animalServer\\packetProcessor.h",
               "RelativeDocumentMoniker": "packetProcessor.h",
