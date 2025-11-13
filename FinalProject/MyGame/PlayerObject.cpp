@@ -42,6 +42,19 @@ float limitX = 22.f;
 void PlayerObject::update(float elapseTime)
 {
 	glm::vec3 dir(0.f);
+
+	// 이동 패킷 전송
+	cs_move move_pk;
+	cs_move result_pk;
+	move_pk.x = playerX;
+	move_pk.y = playerZ;
+	if (isWPressed) move_pk.dir = W;
+	else if (isAPressed) move_pk.dir = A;
+	else if (isSPressed) move_pk.dir = S;
+	else if (isDPressed) move_pk.dir = D;
+	sendPacket(g_sock, PacketType::CS_MOVE, reinterpret_cast<char*>(&move_pk), sizeof(move_pk));
+	//recv(g_sock, reinterpret_cast<char*>(&result_pk), sizeof(result_pk), MSG_WAITALL);
+
 	if (isWPressed) {
 		glm::vec3 newPosition = worldTransform[3]; // 현재 위치를 복사
 		newPosition += getLook(); // 이동 방향 추가
@@ -187,12 +200,7 @@ void PlayerObject::keyboard(unsigned char key, bool isPressed)
 		case'W':
 		case'w':
 			isWPressed = true;
-			cs_move move_pk;
-			cs_move result_pk;
-			move_pk.x = 0.1;
-			move_pk.y = 0.2;
-			sendPacket(g_sock, PacketType::CS_MOVE, reinterpret_cast<char*>(&move_pk),  sizeof(move_pk));
-			//recv(g_sock, reinterpret_cast<char*>(&result_pk), sizeof(result_pk), MSG_WAITALL);
+
 			break;
 		case'S':
 		case's':

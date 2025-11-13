@@ -7,6 +7,12 @@
 #define MAX_ID_LEN 10
 #define MAX_PASS_LEN 10
 
+enum {
+	W,
+	A,
+	S,
+	D
+};
 
 enum class PacketType : uint16_t {
 	// C->S
@@ -46,6 +52,7 @@ struct SC_Login_Fail {
 // 플레이어 이동
 struct cs_move
 {
+	int dir;
 	float x;
 	float y;
 };
