@@ -1,6 +1,9 @@
 // ClientHandler.h
 #pragma once
 
+#include "./glm/glm.hpp"
+#include "./glm/ext.hpp"
+
 #include "Common.h" 
 #include "../../Packet.h" 
 #include <map>
@@ -21,6 +24,10 @@ struct PlayerSession {
 	// 플레이어의 현재 위치
 	float x;
 	float z;
+
+	float moveSpeed = 6.f;	// 스피드
+	int   lastInputDir; // (W,A,S,D...)
+	float currentYaw;
 
 	bool bActive; // (로그인 완료 여부)
 };

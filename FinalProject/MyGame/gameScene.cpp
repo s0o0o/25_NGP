@@ -1,5 +1,6 @@
 #pragma once
 #include "gameScene.h"
+#include "Client.h"
 
 #include "ResourceManager.h"
 #include "sceneManager.h"
@@ -41,6 +42,7 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	isLightMove = false;
 
 	player = new PlayerObject();
+	g_myPlayer = player;
 	player->rotateY(180.f);
 	player->setPosition(0.f, 0.f, 15.f);
 
@@ -1393,12 +1395,12 @@ void gameScene::setWindowSize(int winWidth, int winHeight)
 	height = winHeight;
 }
 
-void gameScene::setPlayerDx(float n)
-{
-	player->dx = n;
-}
-
-void gameScene::setPlayerDz(float n)
-{
-	player->dz = n;
-}
+//void gameScene::setPlayerDx(float n)
+//{
+//	player->dx = n;
+//}
+//
+//void gameScene::setPlayerDz(float n)
+//{
+//	player->dz = n;
+//}

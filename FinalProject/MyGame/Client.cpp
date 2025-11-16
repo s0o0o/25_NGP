@@ -1,10 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Client.h"
 #include "PacketProcessor.h"
+#include "PlayerObject.h"
 
 volatile GameState g_gameState = GameState::STATE_LOGIN_SCENE;
 SOCKET g_sock;
 
+int g_myPlayerID = -1;
+PlayerObject* g_myPlayer = nullptr;
 
 DWORD WINAPI ReceiveThread(LPVOID arg)
 {

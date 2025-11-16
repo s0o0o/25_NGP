@@ -108,7 +108,6 @@ void GameObject::rotateX(float degrees)
 	setPosition(originPos);
 }
 
-
 void GameObject::move(glm::vec3 dir, float value)
 {
 	glm::vec3 normalDir = glm::normalize(dir);

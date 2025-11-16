@@ -19,10 +19,12 @@ enum class GameState {
 };
 
 extern volatile GameState g_gameState;
+//GameState g_gameState = GameState::STATE_LOGIN_SCENE;
 extern SOCKET g_sock;
 
+class PlayerObject;
+extern PlayerObject* g_myPlayer;
 
-//GameState g_gameState = GameState::STATE_LOGIN_SCENE;
 
 int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize);
 

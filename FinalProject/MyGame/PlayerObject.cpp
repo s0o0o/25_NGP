@@ -23,6 +23,7 @@ PlayerObject::PlayerObject()
 	playerX = worldTransform[3][0];
 	playerZ = worldTransform[3][2];
 
+	m_currentYaw = 0.f;
 	rotateY(0.f);
 }
 
@@ -44,44 +45,24 @@ void PlayerObject::update(float elapseTime)
 
 	// 이동 패킷 전송
 	if (isWPressed || isAPressed || isSPressed || isDPressed)
-	{
-		glm::vec3 gl;
-		if (isWPressed || isSPressed) gl = getLook();
-		else gl = getRight();
-
+	{ 
 		cs_move move_pk;
-		cs_move result_pk;
-		move_pk.x = worldTransform[3][0];
-		move_pk.z = playerZ = worldTransform[3][2];
-		move_pk.dx = gl[0];
-		move_pk.dz = gl[2];
-		if (isWPressed) move_pk.dir = W;
-		else if (isAPressed) move_pk.dir = A;
-		else if (isSPressed) move_pk.dir = S;
-		else if (isDPressed) move_pk.dir = D;
+		if (isWPressed) move_pk.inputDir = W;
+		else if (isAPressed) move_pk.inputDir = A;
+		else if (isSPressed) move_pk.inputDir = S;
+		else if (isDPressed) move_pk.inputDir = D;
+		move_pk.currentYaw = m_currentYaw;
+
+		printf("이동 패킷 보냄! dir : %d, yaw: %f \n", move_pk.inputDir, move_pk.currentYaw);
 		sendPacket(g_sock, PacketType::CS_MOVE, reinterpret_cast<char*>(&move_pk), sizeof(move_pk));
-		//recv(g_sock, reinterpret_cast<char*>(&result_pk), sizeof(result_pk), MSG_WAITALL);
 
-		glm::vec3 dir(0.f);
-		if (isWPressed || isAPressed) 
-		{
-			dir[0] = dx;
-			dir[1] = gl[1];
-			dir[2] = dz;
+		{	// 얘네 없어도 움직여얗한다..
+			//if (glm::length(dir) >= glm::epsilon<float>())
+			//move(dir, moveSpeed * elapseTime);
+			//
+			//playerX = worldTransform[3][0];
+			//playerZ = worldTransform[3][2];
 		}
-		else
-		{
-			dir[0] = -dx;
-			dir[1] = -gl[1];
-			dir[2] = -dz;
-		}
-		
-
-		if (glm::length(dir) >= glm::epsilon<float>())
-		move(dir, moveSpeed * elapseTime);
-
-		playerX = worldTransform[3][0];
-		playerZ = worldTransform[3][2];
 	}
 
 		if (playerZ > -8.f && playerZ < 10.f &&
@@ -204,6 +185,7 @@ void PlayerObject::mouseMove(int x, int y)
 	float yawAngle = static_cast<float>(moveXValue) * MOUSE_SENSITIVITY;
 	float pitchAngle = static_cast<float>(moveYValue) * MOUSE_SENSITIVITY;
 	float nextPitch = m_currentPitch + pitchAngle;
+	float nextYaw = m_currentYaw + yawAngle;
 	if (nextPitch > MAX_PITCH) {
 		pitchAngle = MAX_PITCH - m_currentPitch; 
 		m_currentPitch = MAX_PITCH;          
@@ -216,6 +198,7 @@ void PlayerObject::mouseMove(int x, int y)
 		m_currentPitch = nextPitch;
 	}
 
+	m_currentYaw = nextYaw;
 	if (abs(yawAngle) > 0.001f) {
 		rotateY(-yawAngle);
 	}
@@ -233,4 +216,14 @@ void PlayerObject::mouseMove(int x, int y)
 		befMousePosX = windowCenterX; // 워프된 위치로 last 업데이트
 		befMousePosY = windowCenterY;
 	}
+}
+
+// 서버에서 받은 위치로..
+void PlayerObject::movePosition(float serverX, float serverZ)
+{
+	glm::vec3 serverPos(serverX, worldTransform[3].y, serverZ);
+	worldTransform[3] = glm::vec4(serverPos, 1.0f);
+
+	playerX = serverX;
+	playerZ = serverZ;
 }

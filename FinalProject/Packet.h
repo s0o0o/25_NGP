@@ -8,7 +8,7 @@
 #define MAX_PASS_LEN 10
 
 enum direction {
-	W,
+	W = 1,
 	A,
 	S,
 	D
@@ -53,11 +53,8 @@ struct SC_Login_Fail {
 // 플레이어 이동
 struct cs_move
 {
-	int dir;
-	float x;
-	float z;
-	float dx;
-	float dz;
+	int inputDir;
+	float currentYaw; // 플레이어가 지금 바라보고있는방향
 };
 
 struct sc_move_update_own
@@ -71,7 +68,7 @@ struct sc_move_update
 {
 	int playerID; // 누가 움직였는지 ID
 	float x;
-	float z;
+	float y;
 };
 
 // 똥 청소 요청

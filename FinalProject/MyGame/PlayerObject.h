@@ -19,7 +19,8 @@ class PlayerObject : public GameObject{
 	const float MAX_PITCH = 60.0f; // 최대 올림각
 	const float MIN_PITCH = -60.0f; // 최대 내림각
 	const float MOUSE_SENSITIVITY = 0.15f;
-	
+
+	float m_currentYaw = 0.0f;
 public :
 	PlayerObject();
 	virtual ~PlayerObject();
@@ -41,8 +42,6 @@ public :
 	bool isStoreShow;
 
 	int feedNum;
-
-	float dx = 0.0f;
-	float dz = 0.0f;
+	void movePosition(float serverX, float serverZ);
 };
 
