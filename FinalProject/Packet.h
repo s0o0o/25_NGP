@@ -24,6 +24,9 @@ enum class PacketType : uint16_t {
 	SC_LOGIN_FAIL = 2001,	// 로그인 실패
 	SC_MOVE_UPDATE_OWN = 1002,
 	SC_MOVE_UPDATE = 1003,
+	sc_spawn_animal = 2003,
+	sc_spawn_poop = 2004,
+	cs_request_buy_animal = 1060,
 };
 
 struct PacketHeader {	// 2+2 바이트 고정, 모든 패킷 제일 앞에 붙여보내면됨
@@ -71,17 +74,35 @@ struct sc_move_update
 	float y;
 };
 
+//==============================================================
+//(2003)
+struct sc_spawn_animal {
+	int animalID;
+	int animalType;
+	int growStep;
+	float x;
+	float y;
+};
+
+struct sc_spawn_poop {
+	int poopID;
+	float x;
+	float y;
+};
+
+struct cs_request_buy_animal {
+	int animalType;
+};
+
+//=======================================================
+
+
 // 똥 청소 요청
 struct cs_request_clean_poop
 {
 	int poopID;
 };
 
-// 동물 구매 요청
-struct cs_request_buy_animal
-{
-	int AnimalType;
-};
 
 // 동물 사료 급여 요청
 struct cs_request_feed_animal
