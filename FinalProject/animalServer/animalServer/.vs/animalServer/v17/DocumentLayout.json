@@ -3,31 +3,16 @@
   "WorkspaceRootPath": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\AnimalManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:AnimalManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\ClinetHandler.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:ClinetHandler.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\ClientHandler.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:ClientHandler.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\Server.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:Server.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\GameLoop.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:GameLoop.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\GameLoop.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:GameLoop.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|D:\\net\\25_NGP\\FinalProject\\Packet.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\packetProcessor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:packetProcessor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\AnimalManager.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{34EF4717-0F6E-4148-B3E0-CE1BA2259F64}|animalServer.vcxproj|solutionrelative:AnimalManager.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -37,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -61,93 +46,41 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ClientHandler.h",
-              "DocumentMoniker": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\ClientHandler.h",
-              "RelativeDocumentMoniker": "ClientHandler.h",
-              "ToolTip": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\ClientHandler.h",
-              "RelativeToolTip": "ClientHandler.h",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAABoAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "AnimalManager.h",
+              "DocumentMoniker": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\AnimalManager.h",
+              "RelativeDocumentMoniker": "AnimalManager.h",
+              "ToolTip": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\AnimalManager.h*",
+              "RelativeToolTip": "AnimalManager.h*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-11-17T09:49:36.263Z",
+              "WhenOpened": "2025-11-17T11:10:46.975Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "ClinetHandler.cpp",
               "DocumentMoniker": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\ClinetHandler.cpp",
               "RelativeDocumentMoniker": "ClinetHandler.cpp",
               "ToolTip": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\ClinetHandler.cpp",
               "RelativeToolTip": "ClinetHandler.cpp",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-11-17T09:46:35.193Z",
+              "WhenOpened": "2025-11-17T11:10:44.633Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "GameLoop.cpp",
-              "DocumentMoniker": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\GameLoop.cpp",
-              "RelativeDocumentMoniker": "GameLoop.cpp",
-              "ToolTip": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\GameLoop.cpp",
-              "RelativeToolTip": "GameLoop.cpp",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAAFEAAAA7AAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "AnimalManager.cpp",
+              "DocumentMoniker": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\AnimalManager.cpp",
+              "RelativeDocumentMoniker": "AnimalManager.cpp",
+              "ToolTip": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\AnimalManager.cpp*",
+              "RelativeToolTip": "AnimalManager.cpp*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-11-17T06:57:00.872Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "GameLoop.h",
-              "DocumentMoniker": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\GameLoop.h",
-              "RelativeDocumentMoniker": "GameLoop.h",
-              "ToolTip": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\GameLoop.h",
-              "RelativeToolTip": "GameLoop.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-11-17T06:57:32.308Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Packet.h",
-              "DocumentMoniker": "D:\\net\\25_NGP\\FinalProject\\Packet.h",
-              "RelativeDocumentMoniker": "..\\..\\Packet.h",
-              "ToolTip": "D:\\net\\25_NGP\\FinalProject\\Packet.h",
-              "RelativeToolTip": "..\\..\\Packet.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-11-17T08:33:14.007Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Server.cpp",
-              "DocumentMoniker": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\Server.cpp",
-              "RelativeDocumentMoniker": "Server.cpp",
-              "ToolTip": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\Server.cpp",
-              "RelativeToolTip": "Server.cpp",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAAAEcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-11-17T06:59:57.916Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "packetProcessor.h",
-              "DocumentMoniker": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\packetProcessor.h",
-              "RelativeDocumentMoniker": "packetProcessor.h",
-              "ToolTip": "D:\\net\\25_NGP\\FinalProject\\animalServer\\animalServer\\packetProcessor.h",
-              "RelativeToolTip": "packetProcessor.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-11-17T08:31:44.788Z",
+              "WhenOpened": "2025-11-17T11:04:59.529Z",
               "EditorCaption": ""
             }
           ]

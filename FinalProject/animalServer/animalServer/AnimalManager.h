@@ -23,11 +23,6 @@ struct PoopData {
 class AnimalManager
 {
 public:
-	static AnimalManager& GetInstance() {
-		static AnimalManager instance;
-		return instance;
-	}
-
 	void Initialize();
 	void Cleanup();
 
