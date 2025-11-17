@@ -17,19 +17,19 @@ Fox::Fox()
 	if (foxXDir > 0 && foxZDir > 0)
 	{
 		rotateFaceFox = 45.f;
-		std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
+		//std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
 	}
 	else if (foxXDir > 0 && foxZDir < 0) {
 		rotateFaceFox = 135.f;
-		std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
+		//std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
 	}
 	else if (foxXDir < 0 && foxZDir > 0) {
 		rotateFaceFox = -45.f;
-		std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
+		//std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
 	}
 	else if (foxXDir < 0 && foxZDir < 0) {
 		rotateFaceFox = -135.f; // 225 -> -135
-		std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
+		//std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
 	}
 	rotateY(rotateFaceFox);
 
@@ -48,7 +48,7 @@ Fox::~Fox()
 
 void Fox::initialize()
 {
-	std::cout << "Fox init, shader : " << shader << std::endl;
+	//std::cout << "Fox init, shader : " << shader << std::endl;
 	if (shader == 0) {
 		std::cerr << "Error: Fox shader has not been set before calling initialize!\n";
 		return;
@@ -57,8 +57,8 @@ void Fox::initialize()
 	m_worldLoc = glGetUniformLocation(shader, "modelTransform");
 	m_colorLoc = glGetUniformLocation(shader, "colorTransform");
 
-	std::cout << "Fox m_worldLoc : " << m_worldLoc << std::endl;
-	std::cout << "Fox m_colorLoc : " << m_colorLoc << std::endl;
+	//std::cout << "Fox m_worldLoc : " << m_worldLoc << std::endl;
+	//std::cout << "Fox m_colorLoc : " << m_colorLoc << std::endl;
 
 	if (m_worldLoc < 0) std::cerr << "Error: Fox modelTransform uniform not found!\n";
 	if (m_colorLoc < 0) std::cerr << "Error: Fox colorTransform uniform not found!\n";
@@ -108,19 +108,19 @@ void Fox::update(float elapseTime)
 		if (foxXDir > 0 && foxZDir > 0)
 		{
 			rotateFaceFox = 45.f;
-			std::cout << "부딪힘, 오른쪽가면서 카메라앞으로" << std::endl;
+			//std::cout << "부딪힘, 오른쪽가면서 카메라앞으로" << std::endl;
 		}
 		else if (foxXDir > 0 && foxZDir < 0) {
 			rotateFaceFox = 135.f;
-			std::cout << "부딪힘, 오른쪽가면서 뒤쪽으로" << std::endl;
+			//std::cout << "부딪힘, 오른쪽가면서 뒤쪽으로" << std::endl;
 		}
 		else if (foxXDir < 0 && foxZDir > 0) {
 			rotateFaceFox = -45.f;
-			std::cout << "부딪힘 왼쪽으로, 카메라쪽으로" << std::endl;
+			//std::cout << "부딪힘 왼쪽으로, 카메라쪽으로" << std::endl;
 		}
 		else if (foxXDir < 0 && foxZDir < 0) {
 			rotateFaceFox = -135.f;
-			std::cout << "부딪힘, 왼쪽, 뒤쪽으로" << std::endl;
+			//std::cout << "부딪힘, 왼쪽, 뒤쪽으로" << std::endl;
 		}
 		rotateY(-currentFace + rotateFaceFox);
 	}

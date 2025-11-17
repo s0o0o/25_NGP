@@ -53,7 +53,7 @@ void PlayerObject::update(float elapseTime)
 		else if (isDPressed) move_pk.inputDir = D;
 		move_pk.currentYaw = m_currentYaw;
 
-		printf("이동 패킷 보냄! dir : %d, yaw: %f \n", move_pk.inputDir, move_pk.currentYaw);
+		//printf("이동 패킷 보냄! dir : %d, yaw: %f \n", move_pk.inputDir, move_pk.currentYaw);
 		sendPacket(g_sock, PacketType::CS_MOVE, reinterpret_cast<char*>(&move_pk), sizeof(move_pk));
 
 		{	// 얘네 없어도 움직여얗한다..

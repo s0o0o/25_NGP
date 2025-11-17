@@ -24,19 +24,19 @@ Alpaca::Alpaca()
 	if (alpacaXDir > 0 && alpacaZDir > 0)
 	{
 		rotateFaceAlpa = 45.f;
-		std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
+		//std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
 	}
 	else if (alpacaXDir > 0 && alpacaZDir < 0) {
 		rotateFaceAlpa = 135.f;
-		std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
+		//std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
 	}
 	else if (alpacaXDir < 0 && alpacaZDir > 0) {
 		rotateFaceAlpa = -45.f;
-		std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
+		//std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
 	}
 	else if (alpacaXDir < 0 && alpacaZDir < 0) {
 		rotateFaceAlpa = -135.f; // 225 -> -135
-		std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
+		//std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
 	}
 	rotateY(rotateFaceAlpa);
 	setPosition(x, 0.f, z);
@@ -49,15 +49,15 @@ Alpaca::~Alpaca()
 
 void Alpaca::initialize()
 {
-	std::cout << "Alpaca init, shader : " << shader << std::endl;
+	//std::cout << "Alpaca init, shader : " << shader << std::endl;
 	if (shader == 0) {
 		std::cerr << "Error: Chic shader has not been set before calling initialize!\n";
 		return;
 	}
 	m_worldLoc = glGetUniformLocation(shader, "modelTransform");
 	m_colorLoc = glGetUniformLocation(shader, "colorTransform");
-	std::cout << "Alpaca m_worldLoc : " << m_worldLoc << std::endl;
-	std::cout << "Alpaca m_colorLoc : " << m_colorLoc << std::endl;
+	//std::cout << "Alpaca m_worldLoc : " << m_worldLoc << std::endl;
+	//std::cout << "Alpaca m_colorLoc : " << m_colorLoc << std::endl;
 
 	if (m_worldLoc < 0) std::cerr << "Error: Alpaca modelTransform uniform not found!\n";
 	if (m_colorLoc < 0) std::cerr << "Error: Alpaca colorTransform uniform not found!\n";

@@ -47,7 +47,7 @@ Penguin::~Penguin()
 
 void Penguin::initialize()
 {
-	std::cout << "Penguin init, shader : " << shader << std::endl;
+//	std::cout << "Penguin init, shader : " << shader << std::endl;
 	if (shader == 0) {
 		std::cerr << "Error: Pig shader has not been set before calling initialize!\n";
 		return;
@@ -56,8 +56,8 @@ void Penguin::initialize()
 	m_worldLoc = glGetUniformLocation(shader, "modelTransform");
 	m_colorLoc = glGetUniformLocation(shader, "colorTransform");
 
-	std::cout << "Penguin m_worldLoc : " << m_worldLoc << std::endl;
-	std::cout << "Penguin m_colorLoc : " << m_colorLoc << std::endl;
+	//std::cout << "Penguin m_worldLoc : " << m_worldLoc << std::endl;
+	//std::cout << "Penguin m_colorLoc : " << m_colorLoc << std::endl;
 
 	if (m_worldLoc < 0) std::cerr << "Error: Penguin modelTransform uniform not found!\n";
 	if (m_colorLoc < 0) std::cerr << "Error: Penguin colorTransform uniform not found!\n";
@@ -106,19 +106,19 @@ void Penguin::update(float elapseTime)
 		if (XDir > 0 && ZDir > 0)
 		{
 			rotateFacePenguin = 45.f;
-			std::cout << "ºÎµúÈû, ¿À¸¥ÂÊ°¡¸é¼­ Ä«¸Þ¶ó¾ÕÀ¸·Î" << std::endl;
+			//std::cout << "ºÎµúÈû, ¿À¸¥ÂÊ°¡¸é¼­ Ä«¸Þ¶ó¾ÕÀ¸·Î" << std::endl;
 		}
 		else if (XDir > 0 && ZDir < 0) {
 			rotateFacePenguin = 135.f;
-			std::cout << "ºÎµúÈû, ¿À¸¥ÂÊ°¡¸é¼­ µÚÂÊÀ¸·Î" << std::endl;
+			//std::cout << "ºÎµúÈû, ¿À¸¥ÂÊ°¡¸é¼­ µÚÂÊÀ¸·Î" << std::endl;
 		}
 		else if (XDir < 0 && ZDir > 0) {
 			rotateFacePenguin = -45.f;
-			std::cout << "ºÎµúÈû ¿ÞÂÊÀ¸·Î, Ä«¸Þ¶óÂÊÀ¸·Î" << std::endl;
+			//std::cout << "ºÎµúÈû ¿ÞÂÊÀ¸·Î, Ä«¸Þ¶óÂÊÀ¸·Î" << std::endl;
 		}
 		else if (XDir < 0 && ZDir < 0) {
 			rotateFacePenguin = -135.f;
-			std::cout << "ºÎµúÈû, ¿ÞÂÊ, µÚÂÊÀ¸·Î" << std::endl;
+			//std::cout << "ºÎµúÈû, ¿ÞÂÊ, µÚÂÊÀ¸·Î" << std::endl;
 		}
 		rotateY(-currentFace + rotateFacePenguin);
 	}

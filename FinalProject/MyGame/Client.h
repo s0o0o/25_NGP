@@ -18,13 +18,20 @@ enum class GameState {
 	STATE_LOGIN_FAILED   // 로그인 실패
 };
 
+struct LoginInfo {
+    int x, z;
+    int coin, feed;
+    int maxCoin, maxFeed;
+    bool hasReceivedInfo = false; // 정보를 받았는지 체크용
+};
+
 extern volatile GameState g_gameState;
 //GameState g_gameState = GameState::STATE_LOGIN_SCENE;
 extern SOCKET g_sock;
 
 class PlayerObject;
 extern PlayerObject* g_myPlayer;
-
+extern LoginInfo g_loginInfo;
 
 int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize);
 

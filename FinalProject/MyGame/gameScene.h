@@ -51,16 +51,6 @@ private:
 	std::vector<Ddong> ddongs;
 	std::vector<Snow> snows;
 
-	float coin_x[20];
-	bool isCoin[20];
-	int nowCoin;
-	int maxCoin;
-
-	float feed_x[20];
-	bool isFood[20];
-	int nowFeed;
-	int maxFeed;
-
 	float ddongSpawnTimer;
 	const float DDONG_SPAWN_TIME = 10.f; // 10초에 하나 스폰
 	float rotateTreeY[10];

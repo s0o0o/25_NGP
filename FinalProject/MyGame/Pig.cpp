@@ -17,19 +17,19 @@ Pig::Pig(int num) : pigNum(num)
 	if (pigXDir > 0 && pigZDir > 0)
 	{
 		rotateFacePig = 45.f;
-		std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
+		//std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
 	}
 	else if (pigXDir > 0 && pigZDir < 0) {
 		rotateFacePig = 135.f;
-		std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
+		//std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
 	}
 	else if (pigXDir < 0 && pigZDir > 0) {
 		rotateFacePig = -45.f;
-		std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
+		//std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
 	}
 	else if (pigXDir < 0 && pigZDir < 0) {
 		rotateFacePig = -135.f; // 225 -> -135
-		std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
+		//std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
 	}
 	rotateY(rotateFacePig);
 
@@ -63,7 +63,7 @@ Pig::~Pig()
 
 void Pig::initialize()
 {
-	std::cout << "돼지 init, shader : " << shader << std::endl;
+	//std::cout << "돼지 init, shader : " << shader << std::endl;
 	if (shader == 0) {
 		std::cerr << "Error: Pig shader has not been set before calling initialize!\n";
 		return;
@@ -72,8 +72,8 @@ void Pig::initialize()
 	m_worldLoc = glGetUniformLocation(shader, "modelTransform");
 	m_colorLoc = glGetUniformLocation(shader, "colorTransform");
 
-	std::cout << "돼지 m_worldLoc : " << m_worldLoc << std::endl;
-	std::cout << "돼지 m_colorLoc : " << m_colorLoc << std::endl;
+	//std::cout << "돼지 m_worldLoc : " << m_worldLoc << std::endl;
+	//std::cout << "돼지 m_colorLoc : " << m_colorLoc << std::endl;
 
 	if (m_worldLoc < 0) std::cerr << "Error: Pig modelTransform uniform not found!\n";
 	if (m_colorLoc < 0) std::cerr << "Error: Pig colorTransform uniform not found!\n";

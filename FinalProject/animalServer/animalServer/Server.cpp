@@ -3,6 +3,8 @@
 #include "ClientHandler.h" 
 #include "GameLoop.h"
 #include <map> 
+#include <ctime>  
+#include <cstdlib>
 
 #define SERVERPORT 9000
 
@@ -15,6 +17,7 @@ std::map<SOCKET, PlayerSession> g_sessions_map;
 
 int main(int argc, char* argv[])
 {
+	srand(static_cast<unsigned int>(time(NULL)));
 	int retval;
 
 	WSADATA wsa;

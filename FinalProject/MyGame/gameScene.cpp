@@ -23,6 +23,8 @@ const float SNOW_SPEED = 5.0f;
 gameScene::gameScene(int winWidth, int winHeight)
 {
 	player = nullptr;
+	player = new PlayerObject();
+	g_myPlayer = player;
 }
 
 gameScene::~gameScene()
@@ -41,13 +43,21 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	light.z = 0.f;
 	isLightMove = false;
 
-	player = new PlayerObject();
-	g_myPlayer = player;
+	
 	player->rotateY(180.f);
-	player->setPosition(0.f, 0.f, 15.f);
-
-	maxCoin = 20;
-	maxFeed = 20;
+	//player->setPosition(0.f, 0.f, 15.f);
+	if (g_loginInfo.hasReceivedInfo)
+	{
+		g_myPlayer->movePosition((float)g_loginInfo.x, (float)g_loginInfo.z);
+		g_myPlayer->setCoin(g_loginInfo.coin);
+		g_myPlayer->setFeed(g_loginInfo.feed);
+		g_myPlayer->setMaxCoin(g_loginInfo.maxCoin);
+		g_myPlayer->setMaxFeed(g_loginInfo.maxFeed);
+		printf("[GameScene] 로그인 정보 적용 완료!\n");
+		printf("[클라] 내 플레이어 ,x=%.2f, y=%.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
+			(float)g_loginInfo.x, (float)g_loginInfo.z, player->getCoin(),player->getFeed(), player->getMaxCoin(), player->getMaxFeed());
+	}
+	
 	objectCount = 2;
 	townObjectCount = 15;	// 얘 안쓰는 듯..?
 
@@ -67,8 +77,8 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		pigs[i]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
 		pigs[i]->initialize();
 
-		std::cout << "돼지 생성, pig shader [ " << i << "] :" << animalShader << std::endl;
-		std::cout << "pig vao " << animalMesh.VAO << ", count :" << animalMesh.vertexCount << std::endl;
+		//std::cout << "돼지 생성, pig shader [ " << i << "] :" << animalShader << std::endl;
+		//std::cout << "pig vao " << animalMesh.VAO << ", count :" << animalMesh.vertexCount << std::endl;
 	}
 
 	// 알파카
@@ -111,29 +121,6 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	cameraY = 25.5f;
 	isTitleAniEnd = false;
 	isTitleAni = true;
-
-	// 여긴 ui 부분.. 코인이나 사료 등..
-	for (int i = 0; i < maxCoin; ++i) {
-		coin_x[i] = 50.f + i * 75.f;
-		isCoin[i] = false;
-	}
-	isCoin[0] = true;
-	isCoin[1] = true;
-	isCoin[2] = true;
-	isCoin[3] = true;
-	isCoin[4] = true;
-	nowCoin = 5;
-
-	for (int i = 0; i < maxFeed; ++i) {
-		feed_x[i] = 50.f + i * 75.f;
-		isFood[i] = false;
-	}
-	isFood[0] = true;
-	isFood[1] = true;
-	isFood[2] = true;
-	isFood[3] = true;
-	isFood[4] = true;
-	nowFeed = 5;
 
 	isSnow = true;
 	isDay = true;
@@ -821,6 +808,8 @@ void gameScene::draw()
 	GLuint coinTexture = m_resourceManager->getTexture("coin");
 	GLuint feedTexture = m_resourceManager->getTexture("feedpack");
 	GLuint sellTexture = m_resourceManager->getTexture("growNsell");
+	float uiStartX = 50.0f;           // ui 첫번째 x위치
+	float uiGap = 75.0f;              // 간격
 
 	glm::mat4 uiViewMatrix = glm::mat4(1.0f);
 	glm::mat4 uiProjMatrix = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
@@ -833,31 +822,27 @@ void gameScene::draw()
 	glDisable(GL_DEPTH_TEST);
 
 	glBindVertexArray(cubeMesh.VAO);
+	// 코인
 	glBindTexture(GL_TEXTURE_2D, coinTexture);
-	for (int i = 0; i < nowCoin; ++i)
-	{
-		if (isCoin[i]) {
-			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(coin_x[i], 840.f, 0.f));
-			glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(70.f, 70.f, 0.1f));
-			glm::mat4 matrix = translateMatrix * sclaeMatrix;
-			glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
-
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
+	for (int i = 0; i < player->getCoin(); ++i) {
+		float xPos = uiStartX + (i * uiGap);
+		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(xPos, 840.f, 0.f));
+		glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(70.f, 70.f, 0.1f));
+		glm::mat4 matrix = translateMatrix * sclaeMatrix;
+		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
-
+	// 사료
 	glBindTexture(GL_TEXTURE_2D, feedTexture);
-	for (int i = 0; i < nowFeed; ++i)
-	{
-		if (isFood[i]) {
-			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(feed_x[i], 50.f, 0.f));
-			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(70.f, 70.f, 0.1f)); // 직접 계산된 값 사용
-			glm::mat4 matrix = translateMatrix * scaleMatrix; // 회전 없음
-
-			glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
+	for (int i = 0; i < player->getFeed(); ++i) {
+		float xPos = uiStartX + (i * uiGap);
+		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(xPos, 50.f, 0.f));
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(70.f, 70.f, 0.1f)); // 직접 계산된 값 사용
+		glm::mat4 matrix = translateMatrix * scaleMatrix; // 회전 없음
+		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
+	
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 
@@ -1108,20 +1093,18 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 		switch (key)
 		{
 		case '0': // 돼지 구매
-			if (player->isStoreShow && nowCoin > 1) {
+			if (player->isStoreShow and player->getCoin() > 1) {
 				pigs[pigCount] = new Pig(pigCount);
 				pigs[pigCount]->setShader(animalShader);
 				pigs[pigCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
 				pigs[pigCount]->initialize();
 				++pigCount;
 				std::cout << "돼지 구매.. " << pigCount << "마리" << std::endl;
-				nowCoin -= 2;
-				isCoin[nowCoin + 1] = false;
-				isCoin[nowCoin] = false;
+				player->setCoin(player->getCoin() - 2);
 			}
 			break;
 		case '1': // 병아리 구매
-			if (player->isStoreShow && nowCoin > 1) {
+			if (player->isStoreShow && player->getCoin() > 1) {
 				chics[chickenCount] = new Chic;
 				chics[chickenCount]->setShader(animalShader);
 				chics[chickenCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
@@ -1129,13 +1112,11 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 
 				++chickenCount;
 				std::cout << "병아리 구매 " << std::endl;
-				nowCoin -= 2;
-				isCoin[nowCoin + 1] = false;
-				isCoin[nowCoin] = false;
+				player->setCoin(player->getCoin() - 2);
 			}
 			break;
 		case '2': // 알파카 구매
-			if (player->isStoreShow && nowCoin > 2) {
+			if (player->isStoreShow && player->getCoin() > 2) {
 				alpacas[alpacaCount] = new Alpaca;
 				alpacas[alpacaCount]->setShader(animalShader);
 				alpacas[alpacaCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
@@ -1143,14 +1124,11 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 
 				++alpacaCount;
 				std::cout << "알파카 구매 " << std::endl;
-				nowCoin -= 3;
-				isCoin[nowCoin + 2] = false;
-				isCoin[nowCoin + 1] = false;
-				isCoin[nowCoin] = false;
+				player->setCoin(player->getCoin() - 3);
 			}
 			break;
 		case '3': // 펭귄 구매
-			if (player->isStoreShow && nowCoin > 1) {
+			if (player->isStoreShow && player->getCoin() > 1) {
 				penguins[penguinCount] = new Penguin(penguinCount);
 				penguins[penguinCount]->setShader(animalShader);
 				penguins[penguinCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
@@ -1158,13 +1136,11 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 
 				++penguinCount;
 				std::cout << "펭귄 구매 " << std::endl;
-				nowCoin -= 2;
-				isCoin[nowCoin + 1] = false;
-				isCoin[nowCoin] = false;
+				player->setCoin(player->getCoin() - 2);
 			}
 			break;
 		case '4':
-			if (player->isStoreShow && nowCoin > 1) {
+			if (player->isStoreShow && player->getCoin() > 1) {
 				foxes[foxCount] = new Fox;
 				foxes[foxCount]->setShader(animalShader);
 				foxes[foxCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
@@ -1172,9 +1148,7 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 
 				++foxCount;
 				std::cout << "여우 구매 " << std::endl;
-				nowCoin -= 2;
-				isCoin[nowCoin + 1] = false;
-				isCoin[nowCoin] = false;
+				player->setCoin(player->getCoin() - 2);
 			}
 			break;
 		case 32: // 스페이스바
@@ -1182,9 +1156,9 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 			for (auto& ddong : ddongs) {
 				if (ddong.isNear && ddong.isDraw) {
 					ddong.isDraw = false;
-					if (nowFeed < maxFeed) {
-						isFood[nowFeed] = true;
-						++nowFeed;
+					if (player->getFeed() < player->getMaxFeed()) {
+						int newFeed = player->getFeed();
+						player->setFeed(++newFeed);
 					}
 				}
 			}
@@ -1194,18 +1168,20 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 			for (int i = 0; i < pigCount; ++i) {
 				if (pigs[i]->isNear) {
 					if (pigs[i]->isBaby) { // 아기 돼지?? -> 밥 주기
-						if (nowFeed > 0) {
-							--nowFeed;
-							isFood[nowFeed] = false;
+						if (player->getFeed() > 0) {
+							// 패킷보내야지
+							
+							/////////
+							// 여기 이런 데이터 바꾸는거 나중에 서버가 처리하게 바꾸기!!
 							++pigs[i]->feedNum;
 							std::cout << "돼지 밥준 횟수 : " << pigs[i]->feedNum << std::endl;
+							/////////
 						}
 					}
 					else {
 						std::cout << " 돼지 팔음" << std::endl;
-						if (nowCoin < maxCoin) {
-							isCoin[nowCoin] = true;
-							++nowCoin;
+						if (player->getCoin() < player->getMaxCoin() - 1) {
+							// 패킷 보내기
 						}
 						delete pigs[i];
 						if (i != pigCount - 1) {
@@ -1221,18 +1197,19 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 			for (int i = 0; i < alpacaCount; ++i) {
 				if (alpacas[i]->isNear) {
 					if (alpacas[i]->isBaby) { // 아기 돼지?? -> 밥 주기
-						if (nowFeed > 0) {
-							--nowFeed;
-							isFood[nowFeed] = false;
+						if (player->getFeed() > 0) {
+							// 패킷보내야지
+
+
 							++alpacas[i]->feedNum;
 							std::cout << "알파카 밥준 횟수 : " << alpacas[i]->feedNum << std::endl;
 						}
 					}
 					else {
 						std::cout << " 알파카 팔음" << std::endl;
-						if (nowCoin < maxCoin) {
-							isCoin[nowCoin] = true;
-							++nowCoin;
+						if (player->getCoin() < player->getMaxCoin() - 1) {
+							// 패킷보내야지
+
 						}
 						delete alpacas[i];
 						if (i != alpacaCount - 1) {
@@ -1248,18 +1225,18 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 			for (int i = 0; i < penguinCount; ++i) {
 				if (penguins[i]->isNear) {
 					if (penguins[i]->isBaby) {
-						if (nowFeed > 0) {
-							--nowFeed;
-							isFood[nowFeed] = false;
+						if (player->getFeed() > 0) {
+							// 패킷보내야지
+
 							++penguins[i]->feedNum;
 							std::cout << "펭귄  밥준 횟수 : " << penguins[i]->feedNum << std::endl;
 						}
 					}
 					else {
 						std::cout << " 펭귄 팔음" << std::endl;
-						if (nowCoin < maxCoin) {
-							isCoin[nowCoin] = true;
-							++nowCoin;
+						if (player->getCoin() < player->getMaxCoin()-1) {
+							// 패킷보내야지
+
 						}
 						delete penguins[i];
 						if (i != penguinCount - 1) {
@@ -1276,18 +1253,18 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 			for (int i = 0; i < chickenCount; ++i) {
 				if (chics[i]->isNear) {
 					if (chics[i]->isBaby) {
-						if (nowFeed > 0) {
-							--nowFeed;
-							isFood[nowFeed] = false;
+						if (player->getFeed() > 0) {
+							// 패킷보내야지
+
 							++chics[i]->feedNum;
 							std::cout << "취킨  밥준 횟수 : " << chics[i]->feedNum << std::endl;
 						}
 					}
 					else {
 						std::cout << " 취킨 팔음" << std::endl;
-						if (nowCoin < maxCoin) {
-							isCoin[nowCoin] = true;
-							++nowCoin;
+						if (player->getCoin() < player->getMaxCoin() - 1) {
+							// 패킷보내야지
+
 						}
 						delete chics[i];
 						if (i != chickenCount - 1) {
@@ -1304,18 +1281,18 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 			for (int i = 0; i < foxCount; ++i) {
 				if (foxes[i]->isNear) {
 					if (foxes[i]->isBaby) {
-						if (nowFeed > 0) {
-							--nowFeed;
-							isFood[nowFeed] = false;
+						if (player->getFeed() > 0) {
+							// 패킷보내야지
+
 							++foxes[i]->feedNum;
-							std::cout << "취킨  밥준 횟수 : " << foxes[i]->feedNum << std::endl;
+							std::cout << "여우  밥준 횟수 : " << foxes[i]->feedNum << std::endl;
 						}
 					}
 					else {
-						std::cout << " 취킨 팔음" << std::endl;
-						if (nowCoin < maxCoin) {
-							isCoin[nowCoin] = true;
-							++nowCoin;
+						std::cout << " 여우 팔음" << std::endl;
+						if (player->getCoin() < player->getMaxCoin() - 1) {
+							// 패킷보내야지
+
 						}
 						delete foxes[i];
 						if (i != foxCount - 1) {

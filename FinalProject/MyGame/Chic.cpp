@@ -27,19 +27,19 @@ Chic::Chic()
 	if (chicXDir > 0 && chicZDir > 0)
 	{
 		rotateFaceChic = 45.f;
-		std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
+		//std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
 	}
 	else if (chicXDir > 0 && chicZDir < 0) {
 		rotateFaceChic = 135.f;
-		std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
+		//std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
 	}
 	else if (chicXDir < 0 && chicZDir > 0) {
 		rotateFaceChic = -45.f;
-		std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
+		//std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
 	}
 	else if (chicXDir < 0 && chicZDir < 0) {
 		rotateFaceChic = -135.f; // 225 -> -135
-		std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
+		//std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
 	}
 	rotateY(rotateFaceChic);
 	setPosition(x, 0.f, z);
@@ -51,15 +51,15 @@ Chic::~Chic()
 
 void Chic::initialize()
 {
-	std::cout << "Chic init, shader : " << shader << std::endl;
+	//std::cout << "Chic init, shader : " << shader << std::endl;
 	if (shader == 0) {
 		std::cerr << "Error: Chic shader has not been set before calling initialize!\n";
 		return;
 	}
 	m_worldLoc = glGetUniformLocation(shader, "modelTransform");
 	m_colorLoc = glGetUniformLocation(shader, "colorTransform");
-	std::cout << "Chic m_worldLoc : " << m_worldLoc << std::endl;
-	std::cout << "Chic m_colorLoc : " << m_colorLoc << std::endl;
+	//std::cout << "Chic m_worldLoc : " << m_worldLoc << std::endl;
+	//std::cout << "Chic m_colorLoc : " << m_colorLoc << std::endl;
 
 	if (m_worldLoc < 0) std::cerr << "Error: Chic modelTransform uniform not found!\n";
 	if (m_colorLoc < 0) std::cerr << "Error: Chic colorTransform uniform not found!\n";

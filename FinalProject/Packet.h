@@ -18,15 +18,17 @@ enum class PacketType : uint16_t {
 	// C->S
 	CS_LOGIN_REQUEST = 1000, // 로그인 요청
 	CS_MOVE = 1001,
+	CS_REQUEST_BUY_ANIMAL = 1060,
+	CS_REQUEST_FEED = 1070,
 
 	// S->C
 	SC_LOGIN_ACCEPT = 2000, // 로그인 ㅇㅋ
 	SC_LOGIN_FAIL = 2001,	// 로그인 실패
 	SC_MOVE_UPDATE_OWN = 1002,
 	SC_MOVE_UPDATE = 1003,
-	sc_spawn_animal = 2003,
-	sc_spawn_poop = 2004,
-	cs_request_buy_animal = 1060,
+	SC_SPAWN_ANIMAL = 2003,
+	SC_SPAWN_POOP = 2004,
+	SC_STAT_CHANGE = 2005,
 };
 
 struct PacketHeader {	// 2+2 바이트 고정, 모든 패킷 제일 앞에 붙여보내면됨
@@ -43,8 +45,12 @@ struct CS_Login_Request {
 // 로그인 ㅇㅋ S -> C 
 struct SC_Login_Accept {
 	int id;
+
+	float x, z; // 초기위치설정
 	int coin;
 	int feed;
+	int maxCoin;
+	int maxFeed;
 	char message[200];
 };
 
@@ -72,6 +78,13 @@ struct sc_move_update
 	int playerID; // 누가 움직였는지 ID
 	float x;
 	float y;
+};
+
+
+// 스탯 변경
+struct sc_stat_change {
+	int coin;
+	int feed;
 };
 
 //==============================================================

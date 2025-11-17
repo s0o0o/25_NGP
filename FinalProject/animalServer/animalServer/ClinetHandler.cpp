@@ -38,6 +38,9 @@ int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize
 // ClientThread 
 DWORD WINAPI ClientThread(LPVOID arg)
 {
+	srand(static_cast<unsigned int>(time(NULL)));
+
+
 	SOCKET client_sock = (SOCKET)arg;
 	PlayerSession* pSession = NULL; // 이 스레드가 맡은 세션 포인터
 
@@ -84,10 +87,14 @@ DWORD WINAPI ClientThread(LPVOID arg)
 			newSession.sock = client_sock;
 			newSession.playerID = (int)client_sock;			// 임시 ID (소켓 핸들)
 			strcpy_s(newSession.loginID, p->id);
-			newSession.x = 0.0f;	 // 초기 위치
-			newSession.z = 0.0f;
+			newSession.x = 5.0f;	 // 초기 위치
+			newSession.z = 5.0f;
 			newSession.currentYaw = 0.0f; 
-			newSession.lastInputDir = -1;					// h에서 이미 초기화 함.
+			newSession.lastInputDir = -1;				// h에서 이미 초기화 함.
+			newSession.coinNum = rand() % 3 + 3;		// 초기 코인
+			newSession.feedNum = rand() % 3 + 3;		// 초기 먹이
+			newSession.maxCoinNum = 15;		 
+			newSession.maxFeedNum = 15;					// 최대 갯수 세팅
 			newSession.bActive = true;
 
 			// 2. 맵에 삽입
@@ -96,8 +103,14 @@ DWORD WINAPI ClientThread(LPVOID arg)
 
 			// 3. 응답 패킷 준비
 			packet.id = pSession->playerID;
-			packet.coin = 5;
-			packet.feed = 5;
+			packet.x = pSession->x;
+			packet.z = pSession->z;
+			packet.coin = pSession->coinNum;
+			packet.feed = pSession->feedNum;
+			packet.maxCoin = pSession->maxCoinNum;
+			packet.maxFeed = pSession->maxFeedNum;
+			printf("플레이어(%d) 로그인 성공: x=%.2f, y=%.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
+				pSession->playerID, pSession->x, pSession->z, pSession->coinNum, pSession->feedNum, pSession->maxCoinNum, pSession->maxFeedNum);
 			strcpy_s(packet.message, "[S->C] 플레이어 로그인 ㅇㅋ");
 
 			LeaveCriticalSection(&cs_connections);

@@ -90,6 +90,18 @@ void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 
 		break;
 	}
+	case PacketType::CS_REQUEST_BUY_ANIMAL:
+	{
+		// 동물 구매 요청 처리
+		cs_request_buy_animal* p = (cs_request_buy_animal*)data;
+		break;
+	}
+	case PacketType::CS_REQUEST_FEED:
+	{
+		// 먹이처리
+		break;
+	}
+
 	default:
 		printf("타입 정의 X 패킷 : %d\n", type);
 		break;

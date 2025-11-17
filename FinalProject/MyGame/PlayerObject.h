@@ -21,10 +21,16 @@ class PlayerObject : public GameObject{
 	const float MOUSE_SENSITIVITY = 0.15f;
 
 	float m_currentYaw = 0.0f;
+
+	int coinNum;
+	int feedNum;
+	int coinMax;
+	int FeedMax;
+	float x, z;
 public :
 	PlayerObject();
 	virtual ~PlayerObject();
-
+	
 	virtual void initialize() override;
 	virtual void update(float elapseTime)override;
 	virtual void draw(const glm::mat4& viewMatrix,
@@ -41,7 +47,20 @@ public :
 	bool isInFarm;
 	bool isStoreShow;
 
-	int feedNum;
 	void movePosition(float serverX, float serverZ);
+	void setStatus(int nCoin, int nFeed) {
+		this->coinNum = nCoin;
+		this->feedNum = nFeed;
+		printf("[클라] 자산 갱신: 코인 %d, 사료 %d\n", coinNum, feedNum);
+	}
+
+	int getCoin() const { return coinNum; }
+	int getFeed() const { return feedNum; }
+	void setCoin(int newCoin) { this->coinNum = newCoin; }
+	void setFeed(int newFeed) { this->feedNum = newFeed; }
+	int getMaxCoin() const { return coinMax; }
+	int getMaxFeed() const { return FeedMax; }
+	void setMaxCoin(int maxCoin) { this->coinMax = maxCoin; }
+	void setMaxFeed(int maxFeed) { this->FeedMax = maxFeed; }
 };
 

@@ -29,6 +29,11 @@ struct PlayerSession {
 	int   lastInputDir= - 1; // wasd
 	float currentYaw = 0.0f; // 0도 로 초기화
 
+	int coinNum;
+	int feedNum;
+	int maxCoinNum = 15;
+	int maxFeedNum = 15;
+
 	bool bActive; // (로그인 완료 여부)
 };
 
