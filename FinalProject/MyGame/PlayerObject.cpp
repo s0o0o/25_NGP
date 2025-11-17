@@ -46,7 +46,7 @@ void PlayerObject::update(float elapseTime)
 	// 이동 패킷 전송
 	if (isWPressed || isAPressed || isSPressed || isDPressed)
 	{ 
-		cs_move move_pk;
+		cs_move move_pk = {};
 		if (isWPressed) move_pk.inputDir = W;
 		else if (isAPressed) move_pk.inputDir = A;
 		else if (isSPressed) move_pk.inputDir = S;

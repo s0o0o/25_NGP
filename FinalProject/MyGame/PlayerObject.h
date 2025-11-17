@@ -13,8 +13,8 @@ class PlayerObject : public GameObject{
 	float moveSpeed;
 
 	bool isLeftMousePressed;
-	float befMousePosX;
-	float befMousePosY;
+	float befMousePosX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+	float befMousePosY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
 	float m_currentPitch = 0.0f;
 	const float MAX_PITCH = 60.0f; // 최대 올림각
 	const float MIN_PITCH = -60.0f; // 최대 내림각
