@@ -124,6 +124,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ClinetHandler.cpp" />
+    <ClCompile Include="GameLoop.cpp" />
     <ClCompile Include="packetProcessor.cpp" />
     <ClCompile Include="Server.cpp" />
   </ItemGroup>
@@ -131,6 +132,7 @@
     <ClInclude Include="..\..\Packet.h" />
     <ClInclude Include="ClientHandler.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="GameLoop.h" />
     <ClInclude Include="packetProcessor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

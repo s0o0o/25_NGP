@@ -26,8 +26,8 @@ struct PlayerSession {
 	float z;
 
 	float moveSpeed = 6.f;	// 스피드
-	int   lastInputDir; // (W,A,S,D...)
-	float currentYaw;
+	int   lastInputDir= - 1; // wasd
+	float currentYaw = 0.0f; // 0도 로 초기화
 
 	bool bActive; // (로그인 완료 여부)
 };

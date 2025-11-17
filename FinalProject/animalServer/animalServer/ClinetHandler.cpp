@@ -86,6 +86,8 @@ DWORD WINAPI ClientThread(LPVOID arg)
 			strcpy_s(newSession.loginID, p->id);
 			newSession.x = 0.0f; // 초기 위치
 			newSession.z = 0.0f;
+			newSession.currentYaw = 0.0f; // 
+			newSession.lastInputDir = -1; // h에서 이미 초기화 함.
 			newSession.bActive = true;
 
 			// 2. 맵에 삽입
@@ -113,7 +115,7 @@ DWORD WINAPI ClientThread(LPVOID arg)
 	if (bLogin) {
 		printf("[TCP 서버] 로그인 ㅇㅋ\n");
 		while (true) {
-			printf("[TCP 서버] recv 기다림중\n");
+			//printf("[TCP 서버] recv 기다림중\n");
 			retval = recv(client_sock, (char*)&header, sizeof(PacketHeader), MSG_WAITALL);
 			if (retval == SOCKET_ERROR || retval == 0) break;
 
