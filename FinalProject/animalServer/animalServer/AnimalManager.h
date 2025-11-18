@@ -29,6 +29,11 @@ public:
 	void SpawnAnimal(int type, float startX, float startY);
 	void SpawnPoop(float x, float y);
 
+	// 접속한 유저에게 현재 나와있는 동물/똥 목록 전송
+	void SendExistingObjects(SOCKET client_sock);
+
+	int GetNextAnimalID() { return ++nextAnimalID; }
+	int GetNextPoopID() { return ++nextPoopID; }
 
 private:
 	AnimalManager() : nextAnimalID(0), nextPoopID(0) {}

@@ -34,12 +34,12 @@ int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize
 	return (sizeof(PacketHeader) + dataSize); // 총 보낸 바이트 수 반환
 }
 
+
 // 접속 -> 로그인 처리 후 + packetprocess
 // ClientThread 
 DWORD WINAPI ClientThread(LPVOID arg)
 {
 	srand(static_cast<unsigned int>(time(NULL)));
-
 
 	SOCKET client_sock = (SOCKET)arg;
 	PlayerSession* pSession = NULL; // 이 스레드가 맡은 세션 포인터
