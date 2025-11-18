@@ -89,7 +89,7 @@ void UpdateGameWorld(float deltaTime)
 		// 디버깅용
 		// printf("dir : %f / %f / %f \n", dir.x, dir.y, dir.z);
 
-		glm::vec3 currentPos(session.x, 0.f, session.z);
+		glm::vec3 currentPos(session.x, session.y, session.z);
 		glm::vec3 nextPos = currentPos + (dir * session.moveSpeed * deltaTime);
 
 		//못나가게 막기 주석 해제
@@ -100,13 +100,14 @@ void UpdateGameWorld(float deltaTime)
 
 		// 세션에 최종 위치 반영
 		session.x = nextPos.x;
+		session.y = nextPos.y;
 		session.z = nextPos.z;
 
 		// 이동 결과 브로드캐스팅 (모든 클라이언트에게 알림)
 		sc_move_update resPkt;
 		resPkt.playerID = session.playerID;
 		resPkt.x = session.x;
-		resPkt.y = session.z; 
+		resPkt.z = session.z;
 
 		for (auto& send_pair : g_sessions_map)
 		{

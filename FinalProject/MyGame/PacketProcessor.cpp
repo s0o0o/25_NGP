@@ -16,6 +16,7 @@ void ProcessPacket(PacketType type, char* data)
 		SC_Login_Accept* p = (SC_Login_Accept*)data;
 		g_myPlayerID = p->id;
 		g_loginInfo.x = p->x;
+		g_loginInfo.y = p->y;
 		g_loginInfo.z = p->z;
 		g_loginInfo.coin = p->coin;
 		g_loginInfo.feed = p->feed;
@@ -43,7 +44,7 @@ void ProcessPacket(PacketType type, char* data)
 		if (p->playerID == g_myPlayerID)	// 나라면, 이동 업뎃
 		{
 			if (g_myPlayer != nullptr) {
-				g_myPlayer->movePosition(p->x, p->y);
+				g_myPlayer->movePosition(p->x, p->z);
 			}
 		}
 		break;

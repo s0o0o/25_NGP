@@ -88,6 +88,7 @@ DWORD WINAPI ClientThread(LPVOID arg)
 			newSession.playerID = (int)client_sock;			// 임시 ID (소켓 핸들)
 			strcpy_s(newSession.loginID, p->id);
 			newSession.x = 5.0f;	 // 초기 위치
+			newSession.y = 1.5f;	 // 초기 위치
 			newSession.z = 5.0f;
 			newSession.currentYaw = 0.0f; 
 			newSession.lastInputDir = -1;				// h에서 이미 초기화 함.
@@ -104,13 +105,14 @@ DWORD WINAPI ClientThread(LPVOID arg)
 			// 3. 응답 패킷 준비
 			packet.id = pSession->playerID;
 			packet.x = pSession->x;
+			packet.y = pSession->y;
 			packet.z = pSession->z;
 			packet.coin = pSession->coinNum;
 			packet.feed = pSession->feedNum;
 			packet.maxCoin = pSession->maxCoinNum;
 			packet.maxFeed = pSession->maxFeedNum;
-			printf("플레이어(%d) 로그인 성공: x=%.2f, y=%.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
-				pSession->playerID, pSession->x, pSession->z, pSession->coinNum, pSession->feedNum, pSession->maxCoinNum, pSession->maxFeedNum);
+			printf("플레이어(%d) 로그인 성공: x=%.2f, y=%.2f, z=%.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
+				pSession->playerID, pSession->x, pSession->y, pSession->z, pSession->coinNum, pSession->feedNum, pSession->maxCoinNum, pSession->maxFeedNum);
 			strcpy_s(packet.message, "[S->C] 플레이어 로그인 ㅇㅋ");
 
 			LeaveCriticalSection(&cs_connections);

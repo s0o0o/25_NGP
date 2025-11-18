@@ -23,8 +23,7 @@ const float SNOW_SPEED = 5.0f;
 gameScene::gameScene(int winWidth, int winHeight)
 {
 	player = nullptr;
-	player = new PlayerObject();
-	g_myPlayer = player;
+
 }
 
 gameScene::~gameScene()
@@ -43,20 +42,6 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	light.z = 0.f;
 	isLightMove = false;
 
-	
-	player->rotateY(180.f);
-	//player->setPosition(0.f, 0.f, 15.f);
-	if (g_loginInfo.hasReceivedInfo)
-	{
-		g_myPlayer->movePosition((float)g_loginInfo.x, (float)g_loginInfo.z);
-		g_myPlayer->setCoin(g_loginInfo.coin);
-		g_myPlayer->setFeed(g_loginInfo.feed);
-		g_myPlayer->setMaxCoin(g_loginInfo.maxCoin);
-		g_myPlayer->setMaxFeed(g_loginInfo.maxFeed);
-		printf("[GameScene] 로그인 정보 적용 완료!\n");
-		printf("[클라] 내 플레이어 ,x=%.2f, y=%.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
-			(float)g_loginInfo.x, (float)g_loginInfo.z, player->getCoin(),player->getFeed(), player->getMaxCoin(), player->getMaxFeed());
-	}
 	
 	objectCount = 2;
 	townObjectCount = 15;	// 얘 안쓰는 듯..?
@@ -154,6 +139,26 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	m_defaultShader_viewLoc = glGetUniformLocation(defaultShader, "viewTransform");
 	m_defaultShader_projLoc = glGetUniformLocation(defaultShader, "projTransform");
 	m_defaultShader_cameraPosLoc = glGetUniformLocation(defaultShader, "cameraPos");
+
+	// 플레이어 셋팅
+	MeshData cubeMesh = m_resourceManager->getMesh("cube");
+	player = new PlayerObject();
+	player->setShader(texShader); // 또는 colorShader
+	player->setVAO(cubeMesh.VAO, cubeMesh.vertexCount);
+	player->initialize();
+	player->rotateY(180.f);
+	g_myPlayer = player;
+	if (g_loginInfo.hasReceivedInfo)
+	{
+		player->setPosition((float)g_loginInfo.x, (float)g_loginInfo.y, (float)g_loginInfo.z);
+		g_myPlayer->setCoin(g_loginInfo.coin);
+		g_myPlayer->setFeed(g_loginInfo.feed);
+		g_myPlayer->setMaxCoin(g_loginInfo.maxCoin);
+		g_myPlayer->setMaxFeed(g_loginInfo.maxFeed);
+		printf("[GameScene] 로그인 정보 적용 완료!\n");
+		printf("[클라] 내 플레이어 ,x=%.2f, y=%.2f, z= %.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
+			(float)g_loginInfo.x, (float)g_loginInfo.y, (float)g_loginInfo.z, player->getCoin(), player->getFeed(), player->getMaxCoin(), player->getMaxFeed());
+	}
 }
 
 void gameScene::sceneOnExit()
@@ -426,16 +431,31 @@ void gameScene::draw()
 	glm::mat4 projMatrix = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = glm::lookAt(glm::vec3(0.f, cameraY, 15.f), glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 	glm::vec3 cameraPos = glm::vec3(1.f);
-	if (isTitleAniEnd) {
-		cameraPos = player->getPosition();		// 플레이어 위치에서
-		cameraPos.y = 1.5f;
-		glm::vec3 targetPos = cameraPos + player->getLook(); // 플레이어 앞을 바라본다
-		viewMatrix = glm::lookAt(cameraPos, targetPos, glm::vec3(0.f, 1.f, 0.f));
-	}
-	else if (not isTitleAniEnd) {
+	//if (isTitleAniEnd) {
+	//	cameraPos = player->getPosition();		// 플레이어 위치에서
+	//	cameraPos.y = 1.5f;
+	//	glm::vec3 targetPos = cameraPos + player->getLook(); // 플레이어 앞을 바라본다
+	//	viewMatrix = glm::lookAt(cameraPos, targetPos, glm::vec3(0.f, 1.f, 0.f));
+	//}
+	if (not isTitleAniEnd) {
 		viewMatrix = glm::lookAt(glm::vec3(0.f, cameraY, 25.f), glm::vec3(0.f, 2.5f, 10.f), glm::vec3(0.f, 1.f, 0.f));
 	}
+	if (g_myPlayer != nullptr and isTitleAniEnd)
+	{
+		glm::vec3 playerPos = g_myPlayer->getPosition();
+		glm::vec3 playerLook = g_myPlayer->getLook();
+
+		float cameraDistance = 5.0f; // 등 뒤로 5만큼
+		float cameraHeight = 3.0f;   // 위로 3만큼
+
+		glm::vec3 cameraPos = playerPos - (playerLook * cameraDistance) + glm::vec3(0.0f, cameraHeight, 0.0f);
+		glm::vec3 targetPos = playerPos + glm::vec3(0.0f, 1.0f, 0.0f);
+
+		viewMatrix = glm::lookAt(cameraPos, targetPos, glm::vec3(0.f, 1.f, 0.f));
+	}
 	projMatrix = glm::perspective(glm::radians(45.f), float(width) / float(height), 0.1f, 100.f);
+
+	
 
 	GLuint texShader = m_resourceManager->getShader("tex");
 	GLuint objShader = m_resourceManager->getShader("obj");
@@ -530,8 +550,7 @@ void gameScene::draw()
 		glUniformMatrix4fv(m_defaultShader_projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
 	}
 
-	// 오브젝트 그리기
-	//player->draw();		// 지금 플레이어 안그리긴 해도... 나중에 그릴 수 있으니 호출해준다
+
 
 	// 펜스
 	MeshData fenceMesh = m_resourceManager->getMesh("fence");
@@ -906,6 +925,16 @@ void gameScene::draw()
 			glEnable(GL_DEPTH_TEST);
 		}
 	}
+
+	glEnable(GL_DEPTH_TEST);
+	glm::vec3 lightPos(50.0f, 100.0f, 50.0f);
+	GLuint playerTexture = m_resourceManager->getTexture("tino");
+	glBindTexture(GL_TEXTURE_2D, playerTexture);
+	if (g_myPlayer != nullptr)
+	{
+		g_myPlayer->draw(viewMatrix, projMatrix, lightPos);
+	}
+	glDisable(GL_DEPTH_TEST);
 
 	// 동물 근처일때 UI
 	{

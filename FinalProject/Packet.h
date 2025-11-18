@@ -46,7 +46,7 @@ struct CS_Login_Request {
 struct SC_Login_Accept {
 	int id;
 
-	float x, z; // 초기위치설정
+	float x, y, z; // 초기위치설정
 	int coin;
 	int feed;
 	int maxCoin;
@@ -77,7 +77,7 @@ struct sc_move_update
 {
 	int playerID; // 누가 움직였는지 ID
 	float x;
-	float y;
+	float z;
 };
 
 

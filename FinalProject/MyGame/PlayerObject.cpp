@@ -18,8 +18,6 @@ PlayerObject::PlayerObject()
 
 	moveSpeed = 6.f;
 
-	initialize();
-
 	playerX = worldTransform[3][0];
 	playerZ = worldTransform[3][2];
 
@@ -33,8 +31,18 @@ PlayerObject::~PlayerObject()
 
 void PlayerObject::initialize()
 {
-	setVAO(0, 0);
-	setShader(0);
+	if (shader == 0) {
+		std::cerr << "Error: player shader has not been set before calling initialize!\n";
+		return;
+	}
+
+	m_worldLoc = glGetUniformLocation(shader, "modelTransform");
+
+	if (m_worldLoc < 0) std::cerr << "Error: player modelTransform uniform not found!\n";
+
+	m_viewLoc = glGetUniformLocation(shader, "viewTransform");
+	m_projLoc = glGetUniformLocation(shader, "projTransform");
+	m_lightPosLoc = glGetUniformLocation(shader, "lightPos");
 }
 
 float playerLimit = 2.f;
@@ -55,14 +63,6 @@ void PlayerObject::update(float elapseTime)
 
 		//printf("이동 패킷 보냄! dir : %d, yaw: %f \n", move_pk.inputDir, move_pk.currentYaw);
 		sendPacket(g_sock, PacketType::CS_MOVE, reinterpret_cast<char*>(&move_pk), sizeof(move_pk));
-
-		{	// 얘네 없어도 움직여얗한다..
-			//if (glm::length(dir) >= glm::epsilon<float>())
-			//move(dir, moveSpeed * elapseTime);
-			//
-			//playerX = worldTransform[3][0];
-			//playerZ = worldTransform[3][2];
-		}
 	}
 
 		if (playerZ > -8.f && playerZ < 10.f &&
@@ -91,6 +91,22 @@ void PlayerObject::update(float elapseTime)
 void PlayerObject::draw(const glm::mat4& viewMatrix,
 	const glm::mat4& projMatrix, const glm::vec3& lightPos) const
 {
+	// 일단 큐브로 표현
+	glUseProgram(shader);
+	GLint viewLoc = glGetUniformLocation(shader, "viewTransform");
+	GLint projLoc = glGetUniformLocation(shader, "projTransform");
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
+
+	glm::mat4 modelMatrix = worldTransform;
+
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.75f, 1.0f, 0.75f)); // 키가 큰 직육면체
+
+	GLint modelLoc = glGetUniformLocation(shader, "modelTransform");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 }
 
 void PlayerObject::release()

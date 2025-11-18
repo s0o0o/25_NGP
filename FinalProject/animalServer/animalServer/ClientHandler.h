@@ -23,6 +23,7 @@ struct PlayerSession {
 
 	// 플레이어의 현재 위치
 	float x;
+	float y;
 	float z;
 
 	float moveSpeed = 6.f;	// 스피드

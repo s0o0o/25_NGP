@@ -4,6 +4,11 @@
 #include "Pig.h"
 
 class PlayerObject : public GameObject{
+	GLint m_worldLoc;
+
+	GLint m_viewLoc;
+	GLint m_projLoc;
+	GLint m_lightPosLoc;
 
 	bool isWPressed;
 	bool isAPressed;
@@ -15,12 +20,10 @@ class PlayerObject : public GameObject{
 	bool isLeftMousePressed;
 	float befMousePosX = glutGet(GLUT_WINDOW_WIDTH) / 2;
 	float befMousePosY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
-	float m_currentPitch = 0.0f;
 	const float MAX_PITCH = 60.0f; // 최대 올림각
 	const float MIN_PITCH = -60.0f; // 최대 내림각
 	const float MOUSE_SENSITIVITY = 0.15f;
 
-	float m_currentYaw = 0.0f;
 
 	int coinNum;
 	int feedNum;
@@ -39,6 +42,8 @@ public :
 	virtual void release() override;
 
 	float playerX, playerZ;
+	float m_currentYaw = 0.0f;
+	float m_currentPitch = 0.0f;
 	
 	void keyboard(unsigned char key, bool isPressed);
 	void mouse(int button, int state, int x, int y);

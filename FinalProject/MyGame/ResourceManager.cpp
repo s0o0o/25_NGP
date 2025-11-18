@@ -93,6 +93,7 @@ void ResourceManager::loadAllResource()
 	m_Textures["buy"] = initTexture("./Img/buy.png");
 	m_Textures["feedpack"] = initTexture("./Img/feed.png");
 	m_Textures["growNsell"] = initTexture("./Img/growNsell.png");
+	m_Textures["tino"] = initTexture("./Img/tino.png");
 
 	// 시작화면에 필요한거
 	m_Textures["pushSpaceBar"] = initTexture("./Img/enterSpaceBar.png");

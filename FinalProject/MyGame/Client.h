@@ -19,7 +19,7 @@ enum class GameState {
 };
 
 struct LoginInfo {
-    int x, z;
+    float x, y, z;
     int coin, feed;
     int maxCoin, maxFeed;
     bool hasReceivedInfo = false; // 정보를 받았는지 체크용
