@@ -2,9 +2,8 @@
 #include "Common.h"      
 #include "ClientHandler.h" 
 #include "GameLoop.h"
+#include "AnimalManager.h"
 #include <map> 
-#include <ctime>  
-#include <cstdlib>
 
 #define SERVERPORT 9000
 
@@ -23,6 +22,8 @@ int main(int argc, char* argv[])
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 		return 1;
+
+	ANIMALS.Initialize();
 
 	InitializeCriticalSection(&cs_connections);
 	hServerFullEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
@@ -94,8 +95,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
-		
 	// 서버 종료
+	ANIMALS.Cleanup();
 	closesocket(listen_sock);
 	CloseHandle(hServerFullEvent);
 	DeleteCriticalSection(&cs_connections);

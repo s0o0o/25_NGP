@@ -1,6 +1,7 @@
 // ClientHandler.cpp
 #include "ClientHandler.h" 
 #include "packetProcessor.h"
+#include "AnimalManager.h"
 #include <stdio.h>        
 
 #define BUFSIZE    4096 
@@ -119,6 +120,9 @@ DWORD WINAPI ClientThread(LPVOID arg)
 
 			sendPacket(client_sock, PacketType::SC_LOGIN_ACCEPT, (char*)&packet, sizeof(SC_Login_Accept));
 			bLogin = true; // 디버깅용 로그인 성공
+
+			//로그인 직후, 현재 맵에 있는 동물 / 똥 정보를 보냄
+			ANIMALS.SendExistingObjects(client_sock);
 		}
 		else {
 			printf("[TCP 서버] 클라이언트(%lld)가 로그인 요청 대신 비정상 패킷 전송 (%d)\n", client_sock, header.type);
