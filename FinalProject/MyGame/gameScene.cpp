@@ -23,7 +23,8 @@ const float SNOW_SPEED = 5.0f;
 gameScene::gameScene(int winWidth, int winHeight)
 {
 	player = nullptr;
-
+	otherPlayer[0] = nullptr;
+	otherPlayer[1] = nullptr;
 }
 
 gameScene::~gameScene()
@@ -159,6 +160,23 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		printf("[클라] 내 플레이어 ,x=%.2f, y=%.2f, z= %.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
 			(float)g_loginInfo.x, (float)g_loginInfo.y, (float)g_loginInfo.z, player->getCoin(), player->getFeed(), player->getMaxCoin(), player->getMaxFeed());
 	}
+
+	// 다른 플레이어
+	otherPlayer[0] = new PlayerObject();
+	otherPlayer[0]->setShader(texShader); // 또는 colorShader
+	otherPlayer[0]->setVAO(cubeMesh.VAO, cubeMesh.vertexCount);
+	otherPlayer[0]->initialize();
+	otherPlayer[0]->rotateY(180.f);
+	otherPlayer[0]->setPosition(5.0f, 1.5f, 5.0f);
+	g_otherPlayer[0] = otherPlayer[0];
+
+	otherPlayer[1] = new PlayerObject();
+	otherPlayer[1]->setShader(texShader); // 또는 colorShader
+	otherPlayer[1]->setVAO(cubeMesh.VAO, cubeMesh.vertexCount);
+	otherPlayer[1]->initialize();
+	otherPlayer[1]->rotateY(180.f);
+	otherPlayer[1]->setPosition(5.0f, 1.5f, 5.0f);
+	g_otherPlayer[1] = otherPlayer[1];
 }
 
 void gameScene::sceneOnExit()
@@ -926,6 +944,7 @@ void gameScene::draw()
 		}
 	}
 
+	// 플레이어 그리기
 	glEnable(GL_DEPTH_TEST);
 	glm::vec3 lightPos(50.0f, 100.0f, 50.0f);
 	GLuint playerTexture = m_resourceManager->getTexture("tino");
@@ -933,6 +952,14 @@ void gameScene::draw()
 	if (g_myPlayer != nullptr)
 	{
 		g_myPlayer->draw(viewMatrix, projMatrix, lightPos);
+	}
+	if (otherPlayer[0] != nullptr && isActive[0])
+	{
+		otherPlayer[0]->draw(viewMatrix, projMatrix, lightPos);
+	}
+	if (otherPlayer[1] != nullptr && isActive[1])
+	{
+		otherPlayer[1]->draw(viewMatrix, projMatrix, lightPos);
 	}
 	glDisable(GL_DEPTH_TEST);
 

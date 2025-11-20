@@ -2,12 +2,14 @@
 #include "Client.h"
 #include "PacketProcessor.h"
 #include "PlayerObject.h"
-
 volatile GameState g_gameState = GameState::STATE_LOGIN_SCENE;
 SOCKET g_sock;
 
 int g_myPlayerID = -1;
 PlayerObject* g_myPlayer = nullptr;
+PlayerObject* g_otherPlayer[2] = { nullptr, nullptr };
+bool isActive[2] = { false, false };
+int g_otherPlayerID[2] = { -1, -1 };	
 
 DWORD WINAPI ReceiveThread(LPVOID arg)
 {

@@ -33,6 +33,7 @@ class gameScene : public MyScene
 {
 private:
 	PlayerObject* player;
+	PlayerObject* otherPlayer[2];
 	GameObject* objects[10];
 	GameObject* pigs[30];
 	GameObject* alpacas[30];

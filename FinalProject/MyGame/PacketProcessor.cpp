@@ -5,6 +5,8 @@
 
 extern int g_myPlayerID;
 extern PlayerObject* g_myPlayer;
+extern PlayerObject* g_otherPlayer[2];
+extern bool isActive[2];
 LoginInfo g_loginInfo;
 
 void ProcessPacket(PacketType type, char* data)
@@ -45,6 +47,37 @@ void ProcessPacket(PacketType type, char* data)
 		{
 			if (g_myPlayer != nullptr) {
 				g_myPlayer->movePosition(p->x, p->z);
+			}
+		}
+		else // 다른 사람이면, 다른 플레이어 이동 업뎃
+		{
+			if(p->playerID != g_otherPlayerID[0] && p->playerID != g_otherPlayerID[1])
+			{
+				// 새로운 다른 플레이어 등장
+				if (g_otherPlayerID[0] == -1) {
+					g_otherPlayerID[0] = p->playerID;
+					isActive[0] = true;
+					printf("[클라] 다른 플레이어 1 등장! ID: %d\n", p->playerID);
+					g_otherPlayer[0]->movePosition(p->x, p->z);
+				}
+				else if (g_otherPlayerID[1] == -1) {
+					g_otherPlayerID[1] = p->playerID;
+					isActive[1] = true;
+					printf("[클라] 다른 플레이어 2 등장! ID: %d\n", p->playerID);
+					g_otherPlayer[1]->movePosition(p->x, p->z);
+				}
+			}
+			else if (p->playerID == g_otherPlayerID[0]) {
+				// 다른 플레이어 1 이동 업뎃
+				if (g_otherPlayer[0] != nullptr) {
+					g_otherPlayer[0]->movePosition(p->x, p->z);
+				}
+			}
+			else if (p->playerID == g_otherPlayerID[1]) {
+				// 다른 플레이어 2 이동 업뎃
+				if (g_otherPlayer[1] != nullptr) {
+					g_otherPlayer[1]->movePosition(p->x, p->z);
+				}
 			}
 		}
 		break;
