@@ -24,11 +24,12 @@ enum class PacketType : uint16_t {
 	// S->C
 	SC_LOGIN_ACCEPT = 2000, // 로그인 ㅇㅋ
 	SC_LOGIN_FAIL = 2001,	// 로그인 실패
-	SC_MOVE_UPDATE_OWN = 1002,
-	SC_MOVE_UPDATE = 1003,
+	SC_MOVE_UPDATE = 2002,
 	SC_SPAWN_ANIMAL = 2003,
 	SC_SPAWN_POOP = 2004,
 	SC_STAT_CHANGE = 2005,
+	SC_LOGIN_NOTIFY = 2006,
+	SC_LOGOUT = 2007,
 };
 
 struct PacketHeader {	// 2+2 바이트 고정, 모든 패킷 제일 앞에 붙여보내면됨
@@ -59,17 +60,24 @@ struct SC_Login_Fail {
 	char message[100]; // 실패사유보내기?
 };
 
+struct sc_login_notify {
+	int playerID;
+	float x;
+	float y;
+	float z;
+};
+
+struct sc_logout {
+	int playerID;
+};
+
+
+
 // 플레이어 이동
 struct cs_move
 {
 	int inputDir;
 	float currentYaw; // 플레이어가 지금 바라보고있는방향
-};
-
-struct sc_move_update_own
-{
-	float dx;
-	float dz;
 };
 
 
@@ -78,6 +86,7 @@ struct sc_move_update
 	int playerID; // 누가 움직였는지 ID
 	float x;
 	float z;
+	float yaw;
 };
 
 

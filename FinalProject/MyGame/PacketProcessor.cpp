@@ -2,11 +2,10 @@
 #include "PacketProcessor.h"
 #include "Client.h"
 #include "PlayerObject.h"
+#include "gameScene.h"
 
 extern int g_myPlayerID;
 extern PlayerObject* g_myPlayer;
-extern PlayerObject* g_otherPlayer[2];
-extern bool isActive[2];
 LoginInfo g_loginInfo;
 
 void ProcessPacket(PacketType type, char* data)
@@ -26,7 +25,6 @@ void ProcessPacket(PacketType type, char* data)
 		g_loginInfo.maxFeed = p->maxFeed;
 		g_loginInfo.hasReceivedInfo = true;
 
-		
 		g_gameState = GameState::STATE_INGAME;
 		
 		printf("[클라] 로그인 성공! 초기 정보 업뎃 성공, 서버 메시지: %s\n", p->message);
@@ -39,45 +37,45 @@ void ProcessPacket(PacketType type, char* data)
 		g_gameState = GameState::STATE_LOGIN_FAILED;
 		break;
 	}
+	case PacketType::SC_LOGIN_NOTIFY:
+	{
+		sc_login_notify* p = (sc_login_notify*)data;
+
+		// 나 무시
+		if (p->playerID == g_myPlayerID) break;
+
+		if (g_gameScene) {
+			printf("다른 클라 보이게하기\n");
+			g_gameScene->createOtherPlayer(p->playerID, p->x, p->y, p->z);
+		}
+		printf("[클라] 다른 유저(%d) 접속! 위치: %.2f, %.2f\n", p->playerID, p->x, p->z);
+		break;
+	}
+	case PacketType::SC_LOGOUT:
+	{
+		sc_logout* p = (sc_logout*)data;
+		if (g_gameScene) {
+			g_gameScene->removeOtherPlayer(p->playerID);
+		}
+		printf("[클라] 유저(%d) 나감.\n", p->playerID);
+		break;
+	}
 	case PacketType::SC_MOVE_UPDATE:
 	{
 		//printf("이동 패킷 옴\n");
 		sc_move_update* p = (sc_move_update*)data;
 		if (p->playerID == g_myPlayerID)	// 나라면, 이동 업뎃
 		{
+			//printf("내 이동 패킷 옴. 위치: %.2f, %.2f, yaw: %.2f\n", p->x, p->z, p->yaw);
 			if (g_myPlayer != nullptr) {
 				g_myPlayer->movePosition(p->x, p->z);
 			}
 		}
 		else // 다른 사람이면, 다른 플레이어 이동 업뎃
 		{
-			if(p->playerID != g_otherPlayerID[0] && p->playerID != g_otherPlayerID[1])
-			{
-				// 새로운 다른 플레이어 등장
-				if (g_otherPlayerID[0] == -1) {
-					g_otherPlayerID[0] = p->playerID;
-					isActive[0] = true;
-					printf("[클라] 다른 플레이어 1 등장! ID: %d\n", p->playerID);
-					g_otherPlayer[0]->movePosition(p->x, p->z);
-				}
-				else if (g_otherPlayerID[1] == -1) {
-					g_otherPlayerID[1] = p->playerID;
-					isActive[1] = true;
-					printf("[클라] 다른 플레이어 2 등장! ID: %d\n", p->playerID);
-					g_otherPlayer[1]->movePosition(p->x, p->z);
-				}
-			}
-			else if (p->playerID == g_otherPlayerID[0]) {
-				// 다른 플레이어 1 이동 업뎃
-				if (g_otherPlayer[0] != nullptr) {
-					g_otherPlayer[0]->movePosition(p->x, p->z);
-				}
-			}
-			else if (p->playerID == g_otherPlayerID[1]) {
-				// 다른 플레이어 2 이동 업뎃
-				if (g_otherPlayer[1] != nullptr) {
-					g_otherPlayer[1]->movePosition(p->x, p->z);
-				}
+			//printf("다른 유저(%d) 이동 패킷 옴. 위치: %.2f, %.2f, yaw: %.2f\n", p->playerID, p->x, p->z, p->yaw);
+			if (g_gameScene != nullptr) {
+				g_gameScene->updateOtherPlayer(p->playerID, p->x, p->z, p->yaw);
 			}
 		}
 		break;
@@ -92,11 +90,6 @@ void ProcessPacket(PacketType type, char* data)
 		}
 		break;
 	}
-	//case PacketType::SC_MOVE_UPDATE:
-	//{
-	//	printf("다른 클라이언트의 이동 업데이트됨!\n");
-	//}
-	break;
 	default:
 		printf("[클라] 알 수 없는 패킷 수신: %d\n", type);
 		break;

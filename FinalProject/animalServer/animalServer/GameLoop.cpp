@@ -108,6 +108,7 @@ void UpdateGameWorld(float deltaTime)
 		resPkt.playerID = session.playerID;
 		resPkt.x = session.x;
 		resPkt.z = session.z;
+		resPkt.yaw = session.currentYaw;
 
 		for (auto& send_pair : g_sessions_map)
 		{

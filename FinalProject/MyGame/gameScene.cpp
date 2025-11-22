@@ -19,12 +19,12 @@
 const float LIGHT_SPEED = 0.5f;
 const float CAMERA_ANIM_SPEED = 10.0f;
 const float SNOW_SPEED = 5.0f;
+gameScene* g_gameScene = nullptr; 
 
 gameScene::gameScene(int winWidth, int winHeight)
 {
 	player = nullptr;
-	otherPlayer[0] = nullptr;
-	otherPlayer[1] = nullptr;
+	g_gameScene = this;
 }
 
 gameScene::~gameScene()
@@ -34,7 +34,6 @@ gameScene::~gameScene()
 void gameScene::sceneOnEnter()	// 이게 init역할
 {
 	glutSetCursor(GLUT_CURSOR_NONE);	// gamescene입장할때 마우스 숨기기..
-
 	width = 1600;
 	height = 900;
 
@@ -160,23 +159,6 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		printf("[클라] 내 플레이어 ,x=%.2f, y=%.2f, z= %.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
 			(float)g_loginInfo.x, (float)g_loginInfo.y, (float)g_loginInfo.z, player->getCoin(), player->getFeed(), player->getMaxCoin(), player->getMaxFeed());
 	}
-
-	// 다른 플레이어
-	otherPlayer[0] = new PlayerObject();
-	otherPlayer[0]->setShader(texShader); // 또는 colorShader
-	otherPlayer[0]->setVAO(cubeMesh.VAO, cubeMesh.vertexCount);
-	otherPlayer[0]->initialize();
-	otherPlayer[0]->rotateY(180.f);
-	otherPlayer[0]->setPosition(5.0f, 1.5f, 5.0f);
-	g_otherPlayer[0] = otherPlayer[0];
-
-	otherPlayer[1] = new PlayerObject();
-	otherPlayer[1]->setShader(texShader); // 또는 colorShader
-	otherPlayer[1]->setVAO(cubeMesh.VAO, cubeMesh.vertexCount);
-	otherPlayer[1]->initialize();
-	otherPlayer[1]->rotateY(180.f);
-	otherPlayer[1]->setPosition(5.0f, 1.5f, 5.0f);
-	g_otherPlayer[1] = otherPlayer[1];
 }
 
 void gameScene::sceneOnExit()
@@ -202,6 +184,68 @@ void gameScene::sceneOnExit()
 	delete player;
 
 	//CloseClient(); // 클라이언트 종료
+}
+
+void gameScene::createOtherPlayer(int id, float x, float y, float z)
+{
+	GLuint texShader = m_resourceManager->getShader("tex");
+	MeshData cubeMesh = m_resourceManager->getMesh("cube"); // 기존 코드 참고
+	
+	for (int i = 0; i < 2; ++i) {
+		if (otherPlayerIDs[i] == id) return;	// 이미 있는 플레이어면 ㅐ스
+	}
+
+	for (int i = 0; i < 2; ++i)
+	{
+		if (otherPlayer[i] == nullptr) // 빈 자리 발견
+		{
+			otherPlayer[i] = new PlayerObject();
+
+			MeshData cubeMesh = m_resourceManager->getMesh("cube");
+			otherPlayer[i]->setVAO(cubeMesh.VAO, cubeMesh.vertexCount);
+			otherPlayer[i]->setShader(texShader);
+			otherPlayer[i]->initialize();
+			otherPlayer[i]->setPosition(x, y, z);
+			otherPlayerIDs[i] = id; 
+
+			return;
+		}
+	}
+	printf("[오류] 최대 인원 초과\n");
+}
+
+void gameScene::removeOtherPlayer(int id)
+{
+	for (int i = 0; i < 2; ++i)
+	{
+		if (otherPlayerIDs[i] == id) 
+		{
+			if (otherPlayer[i] != nullptr) {
+				delete otherPlayer[i]; 
+				otherPlayer[i] = nullptr; 
+			}
+			otherPlayerIDs[i] = -1; // id 초기화
+
+			printf("유저(%d) 로그아웃\n", id);
+			return;
+		}
+	}
+}
+
+void gameScene::updateOtherPlayer(int id, float x, float z, float yaw)
+{
+	for (int i = 0; i < 2; ++i)
+	{
+		if (otherPlayerIDs[i] == id && otherPlayer[i] != nullptr)
+		{
+			otherPlayer[i]->movePosition(x, z); // (이전에 만든 함수 사용)
+			otherPlayer[i]->m_currentYaw = yaw;
+			return;
+		}
+	}
+
+	printf("모르는 유저(%d)의 이동 패킷 수신\n", id);
+	createOtherPlayer(id, x, 1.5f, z); 
 }
 
 void gameScene::update(float elapsedTime)
@@ -953,13 +997,13 @@ void gameScene::draw()
 	{
 		g_myPlayer->draw(viewMatrix, projMatrix, lightPos);
 	}
-	if (otherPlayer[0] != nullptr && isActive[0])
+
+	for (int i = 0; i < 2; ++i)
 	{
-		otherPlayer[0]->draw(viewMatrix, projMatrix, lightPos);
-	}
-	if (otherPlayer[1] != nullptr && isActive[1])
-	{
-		otherPlayer[1]->draw(viewMatrix, projMatrix, lightPos);
+		if (otherPlayer[i] != nullptr)
+		{
+			otherPlayer[i]->draw(viewMatrix, projMatrix, lightPos);
+		}
 	}
 	glDisable(GL_DEPTH_TEST);
 

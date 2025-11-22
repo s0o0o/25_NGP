@@ -31,9 +31,6 @@ extern SOCKET g_sock;
 
 class PlayerObject;
 extern PlayerObject* g_myPlayer;
-extern PlayerObject* g_otherPlayer[2];
-extern bool isActive[2];
-extern int g_otherPlayerID[2];
 extern LoginInfo g_loginInfo;
 
 int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize);

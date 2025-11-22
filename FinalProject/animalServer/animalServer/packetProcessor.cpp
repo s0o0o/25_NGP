@@ -21,7 +21,6 @@ void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 
 		pSession->lastInputDir = p->inputDir;
 		pSession->currentYaw = p->currentYaw;
-
 		break;
 	}
 	case PacketType::CS_REQUEST_BUY_ANIMAL:

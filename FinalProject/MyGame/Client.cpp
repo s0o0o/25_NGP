@@ -7,9 +7,6 @@ SOCKET g_sock;
 
 int g_myPlayerID = -1;
 PlayerObject* g_myPlayer = nullptr;
-PlayerObject* g_otherPlayer[2] = { nullptr, nullptr };
-bool isActive[2] = { false, false };
-int g_otherPlayerID[2] = { -1, -1 };	
 
 DWORD WINAPI ReceiveThread(LPVOID arg)
 {
@@ -115,29 +112,6 @@ void InitClient() // 클라이언트 초기화
 		// 스레드 시작 성공
 		CloseHandle(hThread); // 스레드 핸들은 바로 닫아도 스레드는 계속 돔
 	}
-	//
-
-	//retval = send(sock, reinterpret_cast<char*>(&login_pk), sizeof(CS_Login_Request), 0);
-
-	//// 로그인 결과 수신
-	//SC_Login_Result result_pk;
-	//retval = recv(sock, reinterpret_cast<char*>(&result_pk), sizeof(SC_Login_Result), MSG_WAITALL);
-	//if (retval == SOCKET_ERROR || retval == 0) {
-	//	err_quit("recv() 오류 또는 서버 연결 끊김");
-	//}
-
-	//// 로그인 결과
-	//if (result_pk.success) {
-	//	// 로그인 성공!
-	//	// (ex: 게임 씬으로 이동)
-	//	printf("서버: %s\n", result_pk.message);
-	//	// GoToGameScene();
-	//}
-	//else {
-	//	// 로그인 실패
-	//	printf("서버: %s\n", result_pk.message);
-	//	err_quit("로그인 실패");
-	//}
 }
 
 

@@ -15,6 +15,7 @@ class Penguin;
 class Chic;
 class Fox;
 
+
 struct Ddong {
 	float x, y, z;
 	bool isDraw;
@@ -33,7 +34,7 @@ class gameScene : public MyScene
 {
 private:
 	PlayerObject* player;
-	PlayerObject* otherPlayer[2];
+	PlayerObject* otherPlayer[2] = { nullptr, nullptr };
 	GameObject* objects[10];
 	GameObject* pigs[30];
 	GameObject* alpacas[30];
@@ -41,6 +42,8 @@ private:
 	GameObject* chics[30];
 	GameObject* foxes[30];
 	GameObject* townObjects[20];	// 원래 집도 짓게 하려고 한듯..
+
+	int otherPlayerIDs[2] = { -1, -1 };
 
 	int pigCount;
 	int alpacaCount;
@@ -99,9 +102,10 @@ public:
 	void mouseMove(int x, int y) override;
 
 	void setWindowSize(int winWidth, int winHeight) override;
-	//void setPlayerDx(float n);
-	//void setPlayerDz(float n);
 
+	void createOtherPlayer(int id, float x, float y, float z);
+	void removeOtherPlayer(int id);
+	void updateOtherPlayer(int id, float x, float z, float yaw);
 private:
 	GLint m_texShader_modelLoc, m_texShader_viewLoc, m_texShader_projLoc, 
 		m_texShader_lightColorLoc, m_texShader_useLightLoc;
@@ -115,3 +119,4 @@ private:
 		m_defaultShader_cameraPosLoc; // (이름이 'shader'였던 것)
 };
 
+extern gameScene* g_gameScene;

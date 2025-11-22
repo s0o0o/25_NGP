@@ -121,7 +121,33 @@ DWORD WINAPI ClientThread(LPVOID arg)
 			sendPacket(client_sock, PacketType::SC_LOGIN_ACCEPT, (char*)&packet, sizeof(SC_Login_Accept));
 			bLogin = true; // 디버깅용 로그인 성공
 
-			//로그인 직후, 현재 맵에 있는 동물 / 똥 정보를 보냄
+			EnterCriticalSection(&cs_connections);
+			sc_login_notify myInfoPkt;
+			myInfoPkt.playerID = pSession->playerID;
+			myInfoPkt.x = pSession->x;
+			myInfoPkt.y = pSession->y;
+			myInfoPkt.z = pSession->z;
+			for (auto& pair : g_sessions_map)
+			{
+				PlayerSession& otherSession = pair.second;
+				if (otherSession.sock != client_sock && otherSession.bActive)
+				{
+					// 내정보 다른애들한테
+					printf("내정보 다른애들한테\n");
+					sendPacket(otherSession.sock, PacketType::SC_LOGIN_NOTIFY, (char*)&myInfoPkt, sizeof(sc_login_notify));
+					
+					// 다른애들정보 나한테
+					printf("다른애들정보 나한테\n");
+					sc_login_notify p;
+					p.playerID = otherSession.playerID;
+					p.x = otherSession.x;
+					p.y = otherSession.y;
+					p.z = otherSession.z;
+					sendPacket(client_sock, PacketType::SC_LOGIN_NOTIFY, (char*)&p, sizeof(sc_login_notify));
+				}
+			}
+
+			LeaveCriticalSection(&cs_connections);
 			ANIMALS.SendExistingObjects(client_sock);
 		}
 		else {
@@ -155,6 +181,17 @@ DWORD WINAPI ClientThread(LPVOID arg)
 	printf("[TCP 서버] 클라이언트(%lld) 접속 종료.\n", client_sock);
 
 	EnterCriticalSection(&cs_connections);
+	// 로그아웃 패킷
+	if (pSession != NULL && pSession->bActive) {
+		sc_logout p;
+		p.playerID = pSession->playerID;
+
+		for (auto& pair : g_sessions_map) {
+			if (pair.second.sock != client_sock && pair.second.bActive) {
+				sendPacket(pair.second.sock, PacketType::SC_LOGOUT, (char*)&p, sizeof(sc_logout));
+			}
+		}
+	}
 
 	if (pSession != NULL) {
 		// 맵에서 세션 제거
