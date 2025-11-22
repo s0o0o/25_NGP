@@ -104,17 +104,17 @@ void UpdateGameWorld(float deltaTime)
 		session.z = nextPos.z;
 
 		// 이동 결과 브로드캐스팅 (모든 클라이언트에게 알림)
-		sc_move_update resPkt;
-		resPkt.playerID = session.playerID;
-		resPkt.x = session.x;
-		resPkt.z = session.z;
-		resPkt.yaw = session.currentYaw;
+		sc_move_update mvPkt;
+		mvPkt.playerID = session.playerID;
+		mvPkt.x = session.x;
+		mvPkt.z = session.z;
+		mvPkt.yaw = session.currentYaw;
 
 		for (auto& send_pair : g_sessions_map)
 		{
 			if (send_pair.second.bActive)
 			{
-				sendPacket(send_pair.second.sock, PacketType::SC_MOVE_UPDATE, (char*)&resPkt, sizeof(sc_move_update));
+				sendPacket(send_pair.second.sock, PacketType::SC_MOVE_UPDATE, (char*)&mvPkt, sizeof(sc_move_update));
 			}
 		}
 

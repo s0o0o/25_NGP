@@ -239,7 +239,7 @@ void gameScene::updateOtherPlayer(int id, float x, float z, float yaw)
 		if (otherPlayerIDs[i] == id && otherPlayer[i] != nullptr)
 		{
 			otherPlayer[i]->movePosition(x, z); // (이전에 만든 함수 사용)
-			otherPlayer[i]->m_currentYaw = yaw;
+			otherPlayer[i]->setYaw(yaw);
 			return;
 		}
 	}

@@ -101,7 +101,6 @@ void PlayerObject::draw(const glm::mat4& viewMatrix,
 	glm::mat4 modelMatrix = worldTransform;
 
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.75f, 1.0f, 0.75f)); // 키가 큰 직육면체
-
 	GLint modelLoc = glGetUniformLocation(shader, "modelTransform");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
@@ -113,6 +112,17 @@ void PlayerObject::release()
 {
 }
 
+
+void PlayerObject::setYaw(float newYaw)
+{
+	m_currentYaw = newYaw;
+	glm::vec3 pos = getPosition();
+
+	worldTransform = glm::mat4(1.0f);
+	worldTransform = glm::translate(worldTransform, pos);
+
+	worldTransform = glm::rotate(worldTransform, glm::radians(-newYaw), glm::vec3(0.0f, 1.0f, 0.0f));
+}
 
 void PlayerObject::keyboard(unsigned char key, bool isPressed)
 {

@@ -44,7 +44,8 @@ public :
 	float playerX, playerZ;
 	float m_currentYaw = 0.0f;
 	float m_currentPitch = 0.0f;
-	
+	void setYaw(float newYaw);
+
 	void keyboard(unsigned char key, bool isPressed);
 	void mouse(int button, int state, int x, int y);
 	void mouseMove(int x, int y); 
