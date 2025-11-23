@@ -40,6 +40,7 @@ public:
 
 	int GetNextAnimalID() { return ++nextAnimalID; }
 	int GetNextPoopID() { return ++nextPoopID; }
+	void GrowAnimal(int animalID);
 
 private:
 	AnimalManager() : nextAnimalID(0), nextPoopID(0) {}

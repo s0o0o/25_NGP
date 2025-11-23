@@ -6,6 +6,7 @@
 
 extern int g_myPlayerID;
 extern PlayerObject* g_myPlayer;
+extern gameScene* g_gameScene;
 LoginInfo g_loginInfo;
 
 void ProcessPacket(PacketType type, char* data)
@@ -26,7 +27,7 @@ void ProcessPacket(PacketType type, char* data)
 		g_loginInfo.hasReceivedInfo = true;
 
 		g_gameState = GameState::STATE_INGAME;
-		
+
 		printf("[클라] 로그인 성공! 초기 정보 업뎃 성공, 서버 메시지: %s\n", p->message);
 		break;
 	}
@@ -90,8 +91,17 @@ void ProcessPacket(PacketType type, char* data)
 		}
 		break;
 	}
+	case PacketType::SC_SPAWN_ANIMAL:
+	{
+		printf("동물 생성 패킷 옴\n");
+		sc_spawn_animal* p = (sc_spawn_animal*)data;
+		g_gameScene->spawnList.push_back(p->animalType);
+		break;
+	}
 	default:
+	{
 		printf("[클라] 알 수 없는 패킷 수신: %d\n", type);
 		break;
+	}
 	}
 }

@@ -116,3 +116,17 @@ void AnimalManager::SendExistingObjects(SOCKET client_sock)
 
 	LeaveCriticalSection(&cs_animals);
 }
+
+void AnimalManager::GrowAnimal(int animalID)
+{
+	for(auto& pair : animals)
+	{
+		AnimalData& a = pair.second;
+		if (a.id == animalID)
+		{
+			a.growStep++;
+			printf("[AnimalManager] 동물 성장 (ID: %d, New GrowStep: %d)\n", a.id, a.growStep);
+			break;
+		}
+	}
+}

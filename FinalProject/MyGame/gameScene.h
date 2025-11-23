@@ -44,7 +44,6 @@ private:
 	GameObject* townObjects[20];	// 원래 집도 짓게 하려고 한듯..
 
 	int otherPlayerIDs[2] = { -1, -1 };
-
 	int pigCount;
 	int alpacaCount;
 	int penguinCount;
@@ -106,6 +105,9 @@ public:
 	void createOtherPlayer(int id, float x, float y, float z);
 	void removeOtherPlayer(int id);
 	void updateOtherPlayer(int id, float x, float z, float yaw);
+
+	void spawnAnimal(const int animalType);
+	std::vector<int> spawnList = {};
 private:
 	GLint m_texShader_modelLoc, m_texShader_viewLoc, m_texShader_projLoc, 
 		m_texShader_lightColorLoc, m_texShader_useLightLoc;

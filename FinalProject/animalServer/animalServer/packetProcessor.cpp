@@ -6,6 +6,7 @@
 
 float playerLimit = 2.f;
 float limitX = 22.f;
+#define AnimalCost 2
 
 void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 {
@@ -30,15 +31,30 @@ void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 
 		printf("[구매] 플레이어(%d)가 동물(%d) 구매 요청\n", pSession->playerID, p->animalType);
 
-		// 코인 차감하는 로직 
-		// if (pSession->coin >= 가격) { ... }
+		if (pSession->coinNum < AnimalCost)
+		{
+			printf("[구매실패] 플레이어(%d) 코인 부족\n", pSession->playerID);
 
-		ANIMALS.SpawnAnimal(p->animalType, pSession->x + 2.0f, pSession->z);
+			break;
+		}
+		else
+		{
+			pSession->coinNum -= AnimalCost; // 코인 차감
+			printf("[구매성공] 플레이어(%d) 코인 %d개 차감\n", pSession->playerID, AnimalCost);
+			sc_stat_change statChangePacket;
+			statChangePacket.coin = pSession->coinNum;	
+			statChangePacket.feed = pSession->feedNum;
+			sendPacket(client_sock, PacketType::SC_STAT_CHANGE, (char*)&(statChangePacket), sizeof(sc_stat_change));
+			ANIMALS.SpawnAnimal(p->animalType, pSession->x + 2.0f, pSession->z);
+		}
 		break;
 	}
 	case PacketType::CS_REQUEST_FEED:
 	{
-		// 먹이처리
+		cs_request_feed_animal* p = (cs_request_feed_animal*)data;
+		printf("[급여] 플레이어(%d)가 동물(%d)에게 사료 급여 요청\n", pSession->playerID, p->AnimalID);
+		pSession->feedNum--; // 사료 개수 감소
+		ANIMALS.GrowAnimal(p->AnimalID); // 동물 성장
 		break;
 	}
 

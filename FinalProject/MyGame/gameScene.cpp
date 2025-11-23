@@ -45,6 +45,7 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	
 	objectCount = 2;
 	townObjectCount = 15;	// 얘 안쓰는 듯..?
+	spawnList.clear();
 
 	// 나무 생성
 	for (int i = 0; i < 10; ++i) {
@@ -61,9 +62,6 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		pigs[i]->setShader(animalShader);
 		pigs[i]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
 		pigs[i]->initialize();
-
-		//std::cout << "돼지 생성, pig shader [ " << i << "] :" << animalShader << std::endl;
-		//std::cout << "pig vao " << animalMesh.VAO << ", count :" << animalMesh.vertexCount << std::endl;
 	}
 
 	// 알파카
@@ -248,6 +246,62 @@ void gameScene::updateOtherPlayer(int id, float x, float z, float yaw)
 	createOtherPlayer(id, x, 1.5f, z); 
 }
 
+void gameScene::spawnAnimal(const int animalType)
+{
+	GLuint animalShader = m_resourceManager->getShader("animal");
+	MeshData animalMesh = m_resourceManager->getMesh("animal_cube");
+
+	switch (animalType)
+	{
+		case 0: // 돼지 구매
+		{
+			pigs[pigCount] = new Pig(pigCount);
+			pigs[pigCount]->setShader(animalShader);
+			pigs[pigCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+			pigs[pigCount]->initialize();
+			++pigCount;
+		}
+			break;
+		case 1: // 병아리 구매
+		{
+			chics[chickenCount] = new Chic;
+			chics[chickenCount]->setShader(animalShader);
+			chics[chickenCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+			chics[chickenCount]->initialize();
+			++chickenCount;
+		}
+			break;
+		case 2: // 알파카 구매
+		{
+			alpacas[alpacaCount] = new Alpaca;
+			alpacas[alpacaCount]->setShader(animalShader);
+			alpacas[alpacaCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+			alpacas[alpacaCount]->initialize();
+			++alpacaCount;
+		}
+			break;
+		case 3: // 펭귄 구매
+		{
+			penguins[penguinCount] = new Penguin(penguinCount);
+			penguins[penguinCount]->setShader(animalShader);
+			penguins[penguinCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+			penguins[penguinCount]->initialize();
+			++penguinCount;
+		}
+			break;
+		case 4:
+		{
+			foxes[foxCount] = new Fox;
+			foxes[foxCount]->setShader(animalShader);
+			foxes[foxCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+			foxes[foxCount]->initialize();
+			++foxCount;
+		}
+			break;
+	}
+	printf("[게임씬] 동물 구매 및 생성 완료! 종류: %d\n", animalType);
+}
+
 void gameScene::update(float elapsedTime)
 {
 	player->update(elapsedTime);
@@ -261,6 +315,15 @@ void gameScene::update(float elapsedTime)
 			isTitleAniEnd = true;
 			player->rotateY(0.f);
 		}
+	}
+
+	if(spawnList.empty() == false)
+	{
+		for (int animalType : spawnList)
+		{
+			spawnAnimal(animalType);
+		}
+		spawnList.clear();
 	}
 
 	// 동물이랑 거리 체크 부분
@@ -1185,70 +1248,21 @@ void gameScene::draw()
 void gameScene::keyboard(unsigned char key, bool isPressed)
 {
 	player->keyboard(key, isPressed);
-	GLuint animalShader = m_resourceManager->getShader("animal");
-	MeshData animalMesh = m_resourceManager->getMesh("animal_cube");
 
 	if (isPressed)
 	{
 		switch (key)
 		{
 		case '0': // 돼지 구매
-			if (player->isStoreShow and player->getCoin() > 1) {
-				pigs[pigCount] = new Pig(pigCount);
-				pigs[pigCount]->setShader(animalShader);
-				pigs[pigCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
-				pigs[pigCount]->initialize();
-				++pigCount;
-				std::cout << "돼지 구매.. " << pigCount << "마리" << std::endl;
-				player->setCoin(player->getCoin() - 2);
-			}
-			break;
 		case '1': // 병아리 구매
-			if (player->isStoreShow && player->getCoin() > 1) {
-				chics[chickenCount] = new Chic;
-				chics[chickenCount]->setShader(animalShader);
-				chics[chickenCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
-				chics[chickenCount]->initialize();
-
-				++chickenCount;
-				std::cout << "병아리 구매 " << std::endl;
-				player->setCoin(player->getCoin() - 2);
-			}
-			break;
 		case '2': // 알파카 구매
-			if (player->isStoreShow && player->getCoin() > 2) {
-				alpacas[alpacaCount] = new Alpaca;
-				alpacas[alpacaCount]->setShader(animalShader);
-				alpacas[alpacaCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
-				alpacas[alpacaCount]->initialize();
-
-				++alpacaCount;
-				std::cout << "알파카 구매 " << std::endl;
-				player->setCoin(player->getCoin() - 3);
-			}
-			break;
 		case '3': // 펭귄 구매
-			if (player->isStoreShow && player->getCoin() > 1) {
-				penguins[penguinCount] = new Penguin(penguinCount);
-				penguins[penguinCount]->setShader(animalShader);
-				penguins[penguinCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
-				penguins[penguinCount]->initialize();
-
-				++penguinCount;
-				std::cout << "펭귄 구매 " << std::endl;
-				player->setCoin(player->getCoin() - 2);
-			}
-			break;
-		case '4':
-			if (player->isStoreShow && player->getCoin() > 1) {
-				foxes[foxCount] = new Fox;
-				foxes[foxCount]->setShader(animalShader);
-				foxes[foxCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
-				foxes[foxCount]->initialize();
-
-				++foxCount;
-				std::cout << "여우 구매 " << std::endl;
-				player->setCoin(player->getCoin() - 2);
+		case '4': // 여우 구매
+			if (player->isStoreShow) 
+			{
+				cs_request_buy_animal packet;
+				packet.animalType = key - '0';
+				sendPacket(g_sock, PacketType::CS_REQUEST_BUY_ANIMAL, (char*)&packet, sizeof(cs_request_buy_animal));
 			}
 			break;
 		case 32: // 스페이스바
@@ -1412,6 +1426,8 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 			break;
 		}
 	}
+
+
 }
 
 void gameScene::specialKeyboard(int key, bool isPressed)
