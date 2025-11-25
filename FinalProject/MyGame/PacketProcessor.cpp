@@ -98,6 +98,13 @@ void ProcessPacket(PacketType type, char* data)
 		g_gameScene->spawnList.push_back(p->animalType);
 		break;
 	}
+	case PacketType::SC_UPDATE_ANIMAL_STATE:
+	{
+		printf("동물 상태 변경 패킷 옴\n");
+		sc_update_animal_state* p = (sc_update_animal_state*)data;
+		g_gameScene->feedAnimals(p->AnimalType, p->AnimalID, p->GrowStep);
+		break;
+	}
 	default:
 	{
 		printf("[클라] 알 수 없는 패킷 수신: %d\n", type);

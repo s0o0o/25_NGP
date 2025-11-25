@@ -54,10 +54,18 @@ void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 		cs_request_feed_animal* p = (cs_request_feed_animal*)data;
 		printf("[급여] 플레이어(%d)가 동물(%d)에게 사료 급여 요청\n", pSession->playerID, p->AnimalID);
 		pSession->feedNum--; // 사료 개수 감소
-		ANIMALS.GrowAnimal(p->AnimalID); // 동물 성장
+		ANIMALS.GrowAnimal(p->AnimalID, p->AnimalType); // 동물 성장
+		sc_stat_change statChangePacket;
+		statChangePacket.coin = pSession->coinNum;
+		statChangePacket.feed = pSession->feedNum;
+		sendPacket(client_sock, PacketType::SC_STAT_CHANGE, (char*)&(statChangePacket), sizeof(sc_stat_change));
+		/*sc_update_animal_state updatePacket;
+		updatePacket.AnimalID = p->AnimalID;
+		updatePacket.AnimalType = p->AnimalType;
+		updatePacket.GrowStep =ANIMALS.GetGrowStep(p->AnimalID, p->AnimalType);
+		sendPacket(client_sock, PacketType::SC_UPDATE_ANIMAL_STATE, (char*)&(updatePacket), sizeof(sc_update_animal_state));*/
 		break;
 	}
-
 	default:
 		printf("타입 정의 X 패킷 : %d\n", type);
 		break;

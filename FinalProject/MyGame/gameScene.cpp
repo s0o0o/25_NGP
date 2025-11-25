@@ -246,86 +246,8 @@ void gameScene::updateOtherPlayer(int id, float x, float z, float yaw)
 	createOtherPlayer(id, x, 1.5f, z); 
 }
 
-void gameScene::spawnAnimal(const int animalType)
+void gameScene::isAnimalNear(glm::vec3 playerPosition)
 {
-	GLuint animalShader = m_resourceManager->getShader("animal");
-	MeshData animalMesh = m_resourceManager->getMesh("animal_cube");
-
-	switch (animalType)
-	{
-		case 0: // 돼지 구매
-		{
-			pigs[pigCount] = new Pig(pigCount);
-			pigs[pigCount]->setShader(animalShader);
-			pigs[pigCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
-			pigs[pigCount]->initialize();
-			++pigCount;
-		}
-			break;
-		case 1: // 병아리 구매
-		{
-			chics[chickenCount] = new Chic;
-			chics[chickenCount]->setShader(animalShader);
-			chics[chickenCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
-			chics[chickenCount]->initialize();
-			++chickenCount;
-		}
-			break;
-		case 2: // 알파카 구매
-		{
-			alpacas[alpacaCount] = new Alpaca;
-			alpacas[alpacaCount]->setShader(animalShader);
-			alpacas[alpacaCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
-			alpacas[alpacaCount]->initialize();
-			++alpacaCount;
-		}
-			break;
-		case 3: // 펭귄 구매
-		{
-			penguins[penguinCount] = new Penguin(penguinCount);
-			penguins[penguinCount]->setShader(animalShader);
-			penguins[penguinCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
-			penguins[penguinCount]->initialize();
-			++penguinCount;
-		}
-			break;
-		case 4:
-		{
-			foxes[foxCount] = new Fox;
-			foxes[foxCount]->setShader(animalShader);
-			foxes[foxCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
-			foxes[foxCount]->initialize();
-			++foxCount;
-		}
-			break;
-	}
-	printf("[게임씬] 동물 구매 및 생성 완료! 종류: %d\n", animalType);
-}
-
-void gameScene::update(float elapsedTime)
-{
-	player->update(elapsedTime);
-	const glm::vec3 playerPosition = player->getPosition();
-
-	// 이건 시작했을 때.. 카메라 착지하는듯한 뷰 보여주는거
-	if (isTitleAni) {
-		cameraY -= CAMERA_ANIM_SPEED * elapsedTime;
-		if (cameraY <= 2.f) {
-			isTitleAni = false;
-			isTitleAniEnd = true;
-			player->rotateY(0.f);
-		}
-	}
-
-	if(spawnList.empty() == false)
-	{
-		for (int animalType : spawnList)
-		{
-			spawnAnimal(animalType);
-		}
-		spawnList.clear();
-	}
-
 	// 동물이랑 거리 체크 부분
 	for (int i = 0; i < pigCount; ++i) {
 		const glm::vec3 pigPosition = pigs[i]->getPosition();
@@ -400,6 +322,197 @@ void gameScene::update(float elapsedTime)
 			foxes[i]->isNear = false;
 		}
 	}
+}
+
+void gameScene::spawnAnimal(const int animalType)
+{
+	GLuint animalShader = m_resourceManager->getShader("animal");
+	MeshData animalMesh = m_resourceManager->getMesh("animal_cube");
+
+	switch (animalType)
+	{
+	case AnimalType::PIG: // 돼지 구매
+		{
+			pigs[pigCount] = new Pig(pigCount);
+			pigs[pigCount]->setShader(animalShader);
+			pigs[pigCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+			pigs[pigCount]->initialize();
+			++pigCount;
+		}
+			break;
+		case AnimalType::CHICKEN: // 병아리 구매
+		{
+			chics[chickenCount] = new Chic;
+			chics[chickenCount]->setShader(animalShader);
+			chics[chickenCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+			chics[chickenCount]->initialize();
+			++chickenCount;
+		}
+			break;
+		case AnimalType::ALPACA: // 알파카 구매
+		{
+			alpacas[alpacaCount] = new Alpaca;
+			alpacas[alpacaCount]->setShader(animalShader);
+			alpacas[alpacaCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+			alpacas[alpacaCount]->initialize();
+			++alpacaCount;
+		}
+			break;
+		case AnimalType::PENGUIN: // 펭귄 구매
+		{
+			penguins[penguinCount] = new Penguin(penguinCount);
+			penguins[penguinCount]->setShader(animalShader);
+			penguins[penguinCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+			penguins[penguinCount]->initialize();
+			++penguinCount;
+		}
+			break;
+		case AnimalType::FOX: // 여우 구매
+		{
+			foxes[foxCount] = new Fox;
+			foxes[foxCount]->setShader(animalShader);
+			foxes[foxCount]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
+			foxes[foxCount]->initialize();
+			++foxCount;
+		}
+			break;
+	}
+	printf("[게임씬] 동물 구매 및 생성 완료! 종류: %d\n", animalType);
+}
+
+void gameScene::sellAnimal(const int animalType, const int animalID)
+{
+	switch (animalType)
+	{
+	case AnimalType::PIG: // 돼지 판매
+		{
+			if (animalID < 0 || animalID >= pigCount) return;
+			delete pigs[animalID];
+			if (animalID != pigCount - 1) {
+				pigs[animalID] = pigs[pigCount - 1];
+			}
+			pigs[pigCount - 1] = nullptr;
+			--pigCount;
+		}
+		break;
+	case AnimalType::CHICKEN: // 병아리 판매
+		{
+			if (animalID < 0 || animalID >= chickenCount) return;
+			delete chics[animalID];
+			if (animalID != chickenCount - 1) {
+				chics[animalID] = chics[chickenCount - 1];
+			}
+			chics[chickenCount - 1] = nullptr;
+			--chickenCount;
+		}
+		break;
+	case AnimalType::ALPACA: // 알파카 판매
+		{
+			if (animalID < 0 || animalID >= alpacaCount) return;
+			delete alpacas[animalID];
+			if (animalID != alpacaCount - 1) {
+				alpacas[animalID] = alpacas[alpacaCount - 1];
+			}
+			alpacas[alpacaCount - 1] = nullptr;
+			--alpacaCount;
+	}
+	case AnimalType::PENGUIN: // 펭귄 판매
+		{
+			if (animalID < 0 || animalID >= penguinCount) return;
+			delete penguins[animalID];
+			if (animalID != penguinCount - 1) {
+				penguins[animalID] = penguins[penguinCount - 1];
+			}
+			penguins[penguinCount - 1] = nullptr;
+			--penguinCount;
+		}
+		break;
+	case AnimalType::FOX: // 여우 판매
+		{
+			if (animalID < 0 || animalID >= foxCount) return;
+			delete foxes[animalID];
+			if (animalID != foxCount - 1) {
+				foxes[animalID] = foxes[foxCount - 1];
+			}
+			foxes[foxCount - 1] = nullptr;
+			--foxCount;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void gameScene::feedAnimals(const int animalType, const int animalID, const int growStep)
+{
+	switch (animalType)
+	{
+	case AnimalType::PIG: // 돼지 먹이주기
+	{
+		if (animalID < 0 || animalID >= pigCount) return;
+		pigs[animalID]->feedNum = growStep;
+		if (growStep >= 5) pigs[animalID]->isBaby = false;
+	}
+	break;
+	case AnimalType::CHICKEN: // 병아리 먹이주기
+	{
+		if (animalID < 0 || animalID >= chickenCount) return;
+		chics[animalID]->feedNum = growStep;
+		if (growStep >= 5) chics[animalID]->isBaby = false;
+	}
+	break;
+	case AnimalType::ALPACA: // 알파카 먹이주기
+	{
+		if (animalID < 0 || animalID >= alpacaCount) return;
+		alpacas[animalID]->feedNum = growStep;
+		if (growStep >= 5) alpacas[animalID]->isBaby = false;
+	}
+	break;
+	case AnimalType::PENGUIN: // 펭귄 먹이주기
+	{
+		if (animalID < 0 || animalID >= penguinCount) return;
+		penguins[animalID]->feedNum = growStep;
+		if (growStep >= 5) penguins[animalID]->isBaby = false;
+	}
+	break;
+	case AnimalType::FOX: // 여우 먹이주기
+	{
+		if (animalID < 0 || animalID >= foxCount) return;
+		foxes[animalID]->feedNum = growStep;
+		if (growStep >= 5) foxes[animalID]->isBaby = false;
+	}
+	break;
+	}
+
+	printf("[게임씬] 동물 먹이주기 완료! 종류: %d, ID: %d, 성장단계: %d\n", animalType, animalID, growStep);
+}
+
+void gameScene::update(float elapsedTime)
+{
+	player->update(elapsedTime);
+	const glm::vec3 playerPosition = player->getPosition();
+
+	// 이건 시작했을 때.. 카메라 착지하는듯한 뷰 보여주는거
+	if (isTitleAni) {
+		cameraY -= CAMERA_ANIM_SPEED * elapsedTime;
+		if (cameraY <= 2.f) {
+			isTitleAni = false;
+			isTitleAniEnd = true;
+			player->rotateY(0.f);
+		}
+	}
+
+	if(spawnList.empty() == false)
+	{
+		for (int animalType : spawnList)
+		{
+			spawnAnimal(animalType);
+		}
+		spawnList.clear();
+	}
+
+	// 동물 거리 체크
+	isAnimalNear(playerPosition);
 
 	// 해 움직이는거.. 
 	if (isLightMove) {
@@ -1247,6 +1360,7 @@ void gameScene::draw()
 
 void gameScene::keyboard(unsigned char key, bool isPressed)
 {
+	// 이동 처리 (WASD) 
 	player->keyboard(key, isPressed);
 
 	if (isPressed)
@@ -1283,13 +1397,12 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 				if (pigs[i]->isNear) {
 					if (pigs[i]->isBaby) { // 아기 돼지?? -> 밥 주기
 						if (player->getFeed() > 0) {
-							// 패킷보내야지
-							
-							/////////
-							// 여기 이런 데이터 바꾸는거 나중에 서버가 처리하게 바꾸기!!
-							++pigs[i]->feedNum;
-							std::cout << "돼지 밥준 횟수 : " << pigs[i]->feedNum << std::endl;
-							/////////
+							// feed 요청 패킷 보내기
+							cs_request_feed_animal packet;
+							packet.AnimalID = i;
+							packet.AnimalType = AnimalType::PIG;
+							sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+							break;
 						}
 					}
 					else {
@@ -1312,11 +1425,12 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 				if (alpacas[i]->isNear) {
 					if (alpacas[i]->isBaby) { // 아기 돼지?? -> 밥 주기
 						if (player->getFeed() > 0) {
-							// 패킷보내야지
-
-
-							++alpacas[i]->feedNum;
-							std::cout << "알파카 밥준 횟수 : " << alpacas[i]->feedNum << std::endl;
+							// feed 요청 패킷 보내기
+							cs_request_feed_animal packet;
+							packet.AnimalID = i;
+							packet.AnimalType = AnimalType::ALPACA;
+							sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+							break;
 						}
 					}
 					else {
@@ -1340,10 +1454,12 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 				if (penguins[i]->isNear) {
 					if (penguins[i]->isBaby) {
 						if (player->getFeed() > 0) {
-							// 패킷보내야지
-
-							++penguins[i]->feedNum;
-							std::cout << "펭귄  밥준 횟수 : " << penguins[i]->feedNum << std::endl;
+							// feed 요청 패킷 보내기
+							cs_request_feed_animal packet;
+							packet.AnimalID = i;
+							packet.AnimalType = AnimalType::PENGUIN;
+							sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+							break;
 						}
 					}
 					else {
@@ -1363,15 +1479,17 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 
 				}
 			}
-			// 치킨
+			// 양념 치킨
 			for (int i = 0; i < chickenCount; ++i) {
 				if (chics[i]->isNear) {
 					if (chics[i]->isBaby) {
 						if (player->getFeed() > 0) {
-							// 패킷보내야지
-
-							++chics[i]->feedNum;
-							std::cout << "취킨  밥준 횟수 : " << chics[i]->feedNum << std::endl;
+							// feed 요청 패킷 보내기
+							cs_request_feed_animal packet;
+							packet.AnimalID = i;
+							packet.AnimalType = AnimalType::CHICKEN;
+							sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+							break;
 						}
 					}
 					else {
@@ -1396,10 +1514,12 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 				if (foxes[i]->isNear) {
 					if (foxes[i]->isBaby) {
 						if (player->getFeed() > 0) {
-							// 패킷보내야지
-
-							++foxes[i]->feedNum;
-							std::cout << "여우  밥준 횟수 : " << foxes[i]->feedNum << std::endl;
+							// feed 요청 패킷 보내기
+							cs_request_feed_animal packet;
+							packet.AnimalID = i;
+							packet.AnimalType = AnimalType::FOX;
+							sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+							break;
 						}
 					}
 					else {

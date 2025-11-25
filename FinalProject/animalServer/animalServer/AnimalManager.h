@@ -30,7 +30,7 @@ public:
 	void Cleanup();
 
 	// 동물 생성 
-	void SpawnAnimal(int type, float startX, float startY);
+	void SpawnAnimal(int type, float startX, float startY, bool broadcast = true);
 
 	// 똥 생성
 	void SpawnPoop(float x, float y);
@@ -38,12 +38,14 @@ public:
 	// 접속한 유저에게 현재 나와있는 동물/똥 목록 전송
 	void SendExistingObjects(SOCKET client_sock);
 
-	int GetNextAnimalID() { return ++nextAnimalID; }
+	int GetNextAnimalID(int type);
 	int GetNextPoopID() { return ++nextPoopID; }
-	void GrowAnimal(int animalID);
+	void GrowAnimal(int animalID, int animalType);
 
+	// 동물 상태 브로드캐스팅
+	void BroadcastAnimalState(int animalID);
 private:
-	AnimalManager() : nextAnimalID(0), nextPoopID(0) {}
+	AnimalManager() : nextPoopID(0) {}
 	~AnimalManager() {}
 
 	CRITICAL_SECTION cs_animals; 
@@ -51,8 +53,14 @@ private:
 	std::map<int, AnimalData> animals;
 	std::map<int, PoopData> poops;
 
-	int nextAnimalID;
 	int nextPoopID;
+
+	// 동물 카운트
+	int pigCount;
+	int alpacaCount;
+	int penguinCount;
+	int chickenCount;
+	int foxCount;
 };
 
 #define ANIMALS AnimalManager::GetInstance()

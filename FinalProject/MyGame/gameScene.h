@@ -35,12 +35,14 @@ class gameScene : public MyScene
 private:
 	PlayerObject* player;
 	PlayerObject* otherPlayer[2] = { nullptr, nullptr };
+
 	GameObject* objects[10];
 	GameObject* pigs[30];
 	GameObject* alpacas[30];
 	GameObject* penguins[30];
 	GameObject* chics[30];
 	GameObject* foxes[30];
+
 	GameObject* townObjects[20];	// 원래 집도 짓게 하려고 한듯..
 
 	int otherPlayerIDs[2] = { -1, -1 };
@@ -106,7 +108,11 @@ public:
 	void removeOtherPlayer(int id);
 	void updateOtherPlayer(int id, float x, float z, float yaw);
 
+// 동물 관련
+	void isAnimalNear(glm::vec3 playerPos);
 	void spawnAnimal(const int animalType);
+	void sellAnimal(const int animalType, const int animalID);
+	void feedAnimals(const int animalType, const int animalID, const int growStep);
 	std::vector<int> spawnList = {};
 private:
 	GLint m_texShader_modelLoc, m_texShader_viewLoc, m_texShader_projLoc, 

@@ -14,6 +14,14 @@ enum direction {
 	D
 };
 
+enum AnimalType {
+	PIG = 0,
+	CHICKEN,
+	ALPACA,
+	PENGUIN,
+	FOX
+};
+
 enum class PacketType : uint16_t {
 	// C->S
 	CS_LOGIN_REQUEST = 1000, // 로그인 요청
@@ -30,6 +38,8 @@ enum class PacketType : uint16_t {
 	SC_STAT_CHANGE = 2005,
 	SC_LOGIN_NOTIFY = 2006,
 	SC_LOGOUT = 2007,
+	SC_UPDATE_ANIMAL_STATE = 2008,
+	SC_ANIMAL_COUNT = 2009,
 };
 
 struct PacketHeader {	// 2+2 바이트 고정, 모든 패킷 제일 앞에 붙여보내면됨
@@ -130,6 +140,7 @@ struct cs_request_clean_poop
 struct cs_request_feed_animal
 {
 	int AnimalID;
+	int AnimalType;
 };
 
 // 동물 판매 요청
@@ -137,4 +148,18 @@ struct cs_request_sell_animal
 {
 	int AnimalID;
 	int AnimalType;
+};
+
+struct sc_update_animal_state {
+	int AnimalID;
+	int AnimalType;
+	int GrowStep;
+};
+
+struct sc_animal_count {
+	int pigCount;
+	int chickenCount;
+	int alpacaCount;
+	int penguinCount;
+	int foxCount;
 };
