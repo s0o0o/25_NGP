@@ -89,7 +89,7 @@ DWORD WINAPI ClientThread(LPVOID arg)
 			newSession.playerID = (int)client_sock;			// 임시 ID (소켓 핸들)
 			strcpy_s(newSession.loginID, p->id);
 			newSession.x = 5.0f;	 // 초기 위치
-			newSession.y = 1.5f;	 // 초기 위치
+			newSession.y = 1.f;	 // 초기 위치
 			newSession.z = 5.0f;
 			newSession.currentYaw = 0.0f; 
 			newSession.lastInputDir = -1;				// h에서 이미 초기화 함.
