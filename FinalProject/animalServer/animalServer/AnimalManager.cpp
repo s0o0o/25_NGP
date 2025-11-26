@@ -267,3 +267,42 @@ void AnimalManager::BroadcastAnimalState(int animalID)
 	}
 	LeaveCriticalSection(&cs_connections);
 }
+
+
+//
+bool AnimalManager::RemovePoop(int poopID)
+{
+	bool isRemoved = false;
+
+	EnterCriticalSection(&cs_animals);
+
+	auto it = poops.find(poopID);
+	if (it != poops.end())
+	{
+		// 존재하면 삭제
+		poops.erase(it);
+		isRemoved = true;
+		printf("[AnimalManager] 똥 삭제 완료 (ID: %d)\n", poopID);
+	}
+
+	LeaveCriticalSection(&cs_animals);
+
+	if (isRemoved)
+	{
+		sc_remove_poop packet;
+		packet.poopID = poopID;
+
+		EnterCriticalSection(&cs_connections);
+		for (auto const& pair : g_sessions_map)
+		{
+			PlayerSession const& session = pair.second;
+			if (session.bActive)
+			{
+				sendPacket(session.sock, PacketType::SC_REMOVE_POOP, (char*)&packet, sizeof(sc_remove_poop));
+			}
+		}
+		LeaveCriticalSection(&cs_connections);
+	}
+
+	return isRemoved;
+}

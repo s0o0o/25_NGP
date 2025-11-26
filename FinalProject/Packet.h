@@ -28,6 +28,8 @@ enum class PacketType : uint16_t {
 	CS_MOVE = 1001,
 	CS_REQUEST_BUY_ANIMAL = 1060,
 	CS_REQUEST_FEED = 1070,
+	CS_REQUEST_CLEAN_POOP = 1050,
+
 
 	// S->C
 	SC_LOGIN_ACCEPT = 2000, // 로그인 ㅇㅋ
@@ -40,6 +42,8 @@ enum class PacketType : uint16_t {
 	SC_LOGOUT = 2007,
 	SC_UPDATE_ANIMAL_STATE = 2008,
 	SC_ANIMAL_COUNT = 2009,
+	SC_REMOVE_POOP = 2051,
+
 };
 
 struct PacketHeader {	// 2+2 바이트 고정, 모든 패킷 제일 앞에 붙여보내면됨
@@ -133,6 +137,10 @@ struct cs_request_buy_animal {
 struct cs_request_clean_poop
 {
 	int poopID;
+};
+
+struct sc_remove_poop {
+	int poopID;			
 };
 
 

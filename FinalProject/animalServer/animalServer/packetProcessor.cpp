@@ -66,6 +66,35 @@ void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 		sendPacket(client_sock, PacketType::SC_UPDATE_ANIMAL_STATE, (char*)&(updatePacket), sizeof(sc_update_animal_state));*/
 		break;
 	}
+
+	case PacketType::CS_REQUEST_CLEAN_POOP:
+	{
+		cs_request_clean_poop* p = (cs_request_clean_poop*)data;
+		printf("[청소] 플레이어(%d)가 똥(%d) 청소 요청\n", pSession->playerID, p->poopID);
+
+		bool success = ANIMALS.RemovePoop(p->poopID);
+
+		if (success)
+		{
+			pSession->feedNum += 1; 
+			if (pSession->feedNum > pSession->maxFeedNum)
+				pSession->feedNum = pSession->maxFeedNum; 
+
+			printf("플레이어(%d) 사료 획득 현재: %d\n", pSession->playerID, pSession->feedNum);
+
+			sc_stat_change statPacket;
+			statPacket.coin = pSession->coinNum;
+			statPacket.feed = pSession->feedNum;
+
+			sendPacket(pSession->sock, PacketType::SC_STAT_CHANGE, (char*)&statPacket, sizeof(sc_stat_change));
+		}
+		else
+		{
+			printf("[청소실패] 잘못된 ID\n");
+		}
+		break;
+	}
+
 	default:
 		printf("타입 정의 X 패킷 : %d\n", type);
 		break;

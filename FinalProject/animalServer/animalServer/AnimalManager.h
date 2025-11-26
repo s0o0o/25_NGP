@@ -35,6 +35,8 @@ public:
 	// 똥 생성
 	void SpawnPoop(float x, float y);
 
+	bool RemovePoop(int poopID);
+
 	// 접속한 유저에게 현재 나와있는 동물/똥 목록 전송
 	void SendExistingObjects(SOCKET client_sock);
 
