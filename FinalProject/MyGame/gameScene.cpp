@@ -871,10 +871,11 @@ void gameScene::draw()
 
 		// 글씨
 		glUniform1i(m_texShader_useLightLoc, GL_FALSE); // 글씨는 조명안받게.. 꺼준다
-
-		translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.65f, 11.6f));
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.55f, 11.6f));
 		rotMatrixY = glm::rotate(glm::mat4(1.f), glm::radians(20.f), glm::vec3(0.f, 1.f, 0.f));
-		sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(1.5f / 1.5f, 1.f / 1.5f, 0.001f));
+		sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(1.5f, 1.5f, 0.001f));
 		matrix = translateMatrix * rotMatrixY * sclaeMatrix;
 		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 		glBindVertexArray(cubeMesh.VAO); // 큐브 메시 사용
@@ -882,6 +883,7 @@ void gameScene::draw()
 		glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
 
 		glUniform1i(m_texShader_useLightLoc, GL_TRUE);
+		glDisable(GL_BLEND);
 	}
 
 	// 나무
@@ -1008,6 +1010,8 @@ void gameScene::draw()
 	// 상점 간판
 	GLuint storeSignTexture = m_resourceManager->getTexture("store");
 	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glUseProgram(texShader);
 		glBindVertexArray(cubeMesh.VAO);
 
@@ -1017,7 +1021,7 @@ void gameScene::draw()
 
 		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(10.f, 3.f, 1.8f));
 		glm::mat4 rotMatrixY = glm::rotate(glm::mat4(1.f), glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(2.f, 1.f, 0.001f)); // 오타 수정
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(3.f, 1.5f, 0.001f)); // 오타 수정
 		glm::mat4 matrix = translateMatrix * rotMatrixY * scaleMatrix;
 		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 
@@ -1025,83 +1029,12 @@ void gameScene::draw()
 		glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
 
 		glUniform1i(m_texShader_useLightLoc, GL_TRUE);
-	}
 
-	// 플레이어가 상점 근처에 오면 UI뜨게..
-	GLuint storeUITexture = m_resourceManager->getTexture("storeScene"); // UI 텍스처
-	if (player->isStoreShow) {
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glUseProgram(texShader);
-			glBindVertexArray(cubeMesh.VAO);
-			glDisable(GL_DEPTH_TEST); // UI는 보통 깊이 테스트를 끔..
-
-			glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
-
-			// 4. 모델 행렬 계산 및 전송 (UI 위치/크기)
-			// (아래 행렬은 3D 공간의 위치이므로, 화면 고정 UI라면 수정 필요)
-			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(10.f, 1.5f, 1.8f));
-			glm::mat4 rotMatrixY = glm::rotate(glm::mat4(1.f), glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
-			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(3.f, 3.f, 0.001f)); // 오타 수정
-			glm::mat4 matrix = translateMatrix * rotMatrixY * scaleMatrix;
-			glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
-
-			glBindTexture(GL_TEXTURE_2D, storeUITexture);
-			glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
-
-			glUniform1i(m_texShader_useLightLoc, GL_TRUE); // 조명 복원
-			glEnable(GL_DEPTH_TEST); // 깊이 테스트 복원
-			glDisable(GL_BLEND);
-		}
+		glDisable(GL_BLEND);
 	}
 
 
 
-	// 코인.. + 사료
-	cubeMesh = m_resourceManager->getMesh("cube");
-	GLuint coinTexture = m_resourceManager->getTexture("coin");
-	GLuint feedTexture = m_resourceManager->getTexture("feedpack");
-	GLuint sellTexture = m_resourceManager->getTexture("growNsell");
-	float uiStartX = 50.0f;           // ui 첫번째 x위치
-	float uiGap = 75.0f;              // 간격
-
-	glm::mat4 uiViewMatrix = glm::mat4(1.0f);
-	glm::mat4 uiProjMatrix = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
-	glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(uiViewMatrix));
-	glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(uiProjMatrix));
-
-	glUseProgram(texShader);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_DEPTH_TEST);
-
-	glBindVertexArray(cubeMesh.VAO);
-	glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
-
-	// 코인
-	glBindTexture(GL_TEXTURE_2D, coinTexture);
-	for (int i = 0; i < player->getCoin(); ++i) {
-		float xPos = uiStartX + (i * uiGap);
-		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(xPos, 840.f, 0.f));
-		glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(70.f, 70.f, 0.1f));
-		glm::mat4 matrix = translateMatrix * sclaeMatrix;
-		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-	}
-	// 사료
-	glBindTexture(GL_TEXTURE_2D, feedTexture);
-	for (int i = 0; i < player->getFeed(); ++i) {
-		float xPos = uiStartX + (i * uiGap);
-		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(xPos, 50.f, 0.f));
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(70.f, 70.f, 0.1f)); // 직접 계산된 값 사용
-		glm::mat4 matrix = translateMatrix * scaleMatrix; // 회전 없음
-		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-	}
-
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
 
 
 	
@@ -1165,7 +1098,50 @@ void gameScene::draw()
 	}
 	glDisable(GL_DEPTH_TEST);
 
-	// 플레이어 그리고 ui 그리기..
+
+	// ui 설정용
+	glm::mat4 uiViewMatrix = glm::mat4(1.0f);
+	glm::mat4 uiProjMatrix = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
+	glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(uiViewMatrix));
+	glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(uiProjMatrix));
+
+	// 코인.. + 사료
+	cubeMesh = m_resourceManager->getMesh("cube");
+	GLuint coinTexture = m_resourceManager->getTexture("coin");
+	GLuint feedTexture = m_resourceManager->getTexture("feedpack");
+	GLuint sellTexture = m_resourceManager->getTexture("growNsell");
+	float uiStartX = 50.0f;           // ui 첫번째 x위치
+	float uiGap = 75.0f;              // 간격
+
+	glUseProgram(texShader);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+
+	glBindVertexArray(cubeMesh.VAO);
+	glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
+
+	// 코인
+	glBindTexture(GL_TEXTURE_2D, coinTexture);
+	for (int i = 0; i < player->getCoin(); ++i) {
+		float xPos = uiStartX + (i * uiGap);
+		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(xPos, 840.f, 0.f));
+		glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(70.f, 70.f, 0.1f));
+		glm::mat4 matrix = translateMatrix * sclaeMatrix;
+		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+	// 사료
+	glBindTexture(GL_TEXTURE_2D, feedTexture);
+	for (int i = 0; i < player->getFeed(); ++i) {
+		float xPos = uiStartX + (i * uiGap);
+		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(xPos, 50.f, 0.f));
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(70.f, 70.f, 0.1f)); // 직접 계산된 값 사용
+		glm::mat4 matrix = translateMatrix * scaleMatrix; // 회전 없음
+		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+
 	glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(uiViewMatrix));
 	glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(uiProjMatrix));
 	glm::mat4 translateMatrixUI = glm::translate(glm::mat4(1.f), glm::vec3(width / 2, height / 2, 0.f)); // 화면 중앙 기준으로 가정
@@ -1335,7 +1311,36 @@ void gameScene::draw()
 			}
 		}
 	}
+
+	// 플레이어가 상점 근처에 오면 UI뜨게..
+	GLuint storeUITexture = m_resourceManager->getTexture("storeScene"); // UI 텍스처
+	if (player->isStoreShow) {
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glUseProgram(texShader);
+			glBindVertexArray(cubeMesh.VAO);
+			glDisable(GL_DEPTH_TEST); // UI는 보통 깊이 테스트를 끔..
+
+			glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
+
+			// 4. 모델 행렬 계산 및 전송 (UI 위치/크기)
+			// (아래 행렬은 3D 공간의 위치이므로, 화면 고정 UI라면 수정 필요)
+			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(width / 2, height / 2, 0.f));
+			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 1000.f, 0.001f)); // 오타 수정
+			glm::mat4 matrix = translateMatrix * scaleMatrix;
+			glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+
+			glBindTexture(GL_TEXTURE_2D, storeUITexture);
+			glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
+
+			glEnable(GL_DEPTH_TEST); // 깊이 테스트 복원
+			glDisable(GL_BLEND);
+		}
+	}
+
 	glUniform1i(m_texShader_useLightLoc, GL_TRUE); // UI는 조명 영향 안 받음..
+
 
 
 	if (isSnow)

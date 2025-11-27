@@ -200,12 +200,24 @@ void startScene::draw()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, fontTexture);
 
-		glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
-		glUniformMatrix4fv(font_projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glm::mat4 textProjection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
+		glUniformMatrix4fv(font_projLoc, 1, GL_FALSE, glm::value_ptr(textProjection));
 
-		// 왼쪽하단이 기준
-		DrawTextWithAtlas(m_idInput, 645, 277.0f, 45.0f); // (x, y, 픽셀size)
-		DrawTextWithAtlas(m_ipInput, 645.f, 207.0f, 45.0f);
+		glm::vec3 loginBoxPos(0.0f, -1.5f, 0.0f);	// 로그인창 좌표
+		glm::vec4 viewport(0.0f, 0.0f, (float)width, (float)height);
+		glm::vec3 screenPos = glm::project(loginBoxPos, viewMatrix, projMatrix, viewport);
+
+		float referenceHeight = 1080.0f; 
+		float scaleFactor = height / referenceHeight; // 창 크기에따라
+		float currentFontSize = 55.0f * scaleFactor; // 폰트 크기 자동으로 조절
+
+		float idOffsetY = 7.f * scaleFactor;
+		float ipOffsetY = -78.0f * scaleFactor;
+		float textOffsetX = -180.0f * scaleFactor; 
+		// id
+		DrawTextWithAtlas(m_idInput, screenPos.x + textOffsetX, screenPos.y + idOffsetY, currentFontSize);
+		// ip
+		DrawTextWithAtlas(m_ipInput, screenPos.x + textOffsetX, screenPos.y + ipOffsetY, currentFontSize);
 
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -218,6 +230,8 @@ void startScene::DrawTextWithAtlas(const std::string& text, float x, float y, fl
 {
 	float inputX = x; // 입력 처질 위치
 	float charWidth = size;
+	float referenceHeight = 1080.0f;
+	float scaleFactor = height / referenceHeight;
 
 	for (char c : text)
 	{
@@ -230,7 +244,7 @@ void startScene::DrawTextWithAtlas(const std::string& text, float x, float y, fl
 		glUniform4f(font_uvRectLoc, uv.uMin, uv.vMin, uv.uWidth, uv.vHeight);
 
 		glDrawArrays(GL_TRIANGLES, 0, fontQuadVertCount);
-		inputX += charWidth - 30.f;
+		inputX += charWidth - (35.f* scaleFactor);
 	}
 }
 

@@ -85,7 +85,7 @@ void ResourceManager::loadAllResource()
 	m_Textures["sky1"] = initTexture("./Img/sky1.png");
 	m_Textures["sky2"] = initTexture("./Img/sky2.png");
 	m_Textures["houseWood"] = initTexture("./Img/houseWood.png");
-	m_Textures["store"] = initTexture("./Img/store.png");
+	m_Textures["store"] = initTexture("./Img/storesign.png");
 	m_Textures["storeScene"] = initTexture("./Img/storeUI.png");
 	m_Textures["ddongButton"] = initTexture("./Img/ddongButton1.png");
 	m_Textures["feedButton"] = initTexture("./Img/feedButton1.png");
