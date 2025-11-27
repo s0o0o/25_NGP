@@ -127,7 +127,7 @@ void sceneManager::changeScene(const std::string& sceneName)
     {
         m_currentScene->sceneOnExit();
     }
-
+    
     auto it = m_scenes.find(sceneName); // scene있는지 찾고,
     if (it != m_scenes.end())
     {

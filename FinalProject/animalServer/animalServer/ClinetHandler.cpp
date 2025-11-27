@@ -3,6 +3,7 @@
 #include "packetProcessor.h"
 #include "AnimalManager.h"
 #include <stdio.h>        
+#include <iostream>
 
 #define BUFSIZE    4096 
 
@@ -105,6 +106,7 @@ DWORD WINAPI ClientThread(LPVOID arg)
 
 			// 3. 응답 패킷 준비
 			packet.id = pSession->playerID;
+			strcpy_s(packet.name, pSession->loginID);
 			packet.x = pSession->x;
 			packet.y = pSession->y;
 			packet.z = pSession->z;
@@ -112,7 +114,8 @@ DWORD WINAPI ClientThread(LPVOID arg)
 			packet.feed = pSession->feedNum;
 			packet.maxCoin = pSession->maxCoinNum;
 			packet.maxFeed = pSession->maxFeedNum;
-			printf("플레이어(%d) 로그인 성공: x=%.2f, y=%.2f, z=%.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
+			std::cout << "이름 : " << packet.name << std::endl;
+			printf("플레이어(%d] 로그인 성공: x=%.2f, y=%.2f, z=%.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
 				pSession->playerID, pSession->x, pSession->y, pSession->z, pSession->coinNum, pSession->feedNum, pSession->maxCoinNum, pSession->maxFeedNum);
 			strcpy_s(packet.message, "[S->C] 플레이어 로그인 ㅇㅋ");
 

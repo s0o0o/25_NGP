@@ -149,6 +149,7 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	if (g_loginInfo.hasReceivedInfo)
 	{
 		player->setPosition((float)g_loginInfo.x, (float)g_loginInfo.y, (float)g_loginInfo.z);
+		g_myPlayer->setName(g_loginInfo.name);
 		g_myPlayer->setCoin(g_loginInfo.coin);
 		g_myPlayer->setFeed(g_loginInfo.feed);
 		g_myPlayer->setMaxCoin(g_loginInfo.maxCoin);
@@ -156,6 +157,7 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		printf("[GameScene] 로그인 정보 적용 완료!\n");
 		printf("[클라] 내 플레이어 ,x=%.2f, y=%.2f, z= %.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
 			(float)g_loginInfo.x, (float)g_loginInfo.y, (float)g_loginInfo.z, player->getCoin(), player->getFeed(), player->getMaxCoin(), player->getMaxFeed());
+		std::cout << "이름 : " << g_myPlayer->getName() << std::endl;
 	}
 }
 
@@ -244,84 +246,6 @@ void gameScene::updateOtherPlayer(int id, float x, float z, float yaw)
 
 	printf("모르는 유저(%d)의 이동 패킷 수신\n", id);
 	createOtherPlayer(id, x, 1.5f, z);
-}
-
-void gameScene::isAnimalNear(glm::vec3 playerPosition)
-{
-	// 동물이랑 거리 체크 부분
-	for (int i = 0; i < pigCount; ++i) {
-		const glm::vec3 pigPosition = pigs[i]->getPosition();
-
-		if (playerPosition[0] > pigPosition[0] - 1.5f and
-			playerPosition[0] < pigPosition[0] + 1.5f and
-			playerPosition[2] > pigPosition[2] - 1.5f and
-			playerPosition[2] < pigPosition[2] + 1.5f) {
-
-			pigs[i]->isNear = true;
-		}
-		else {
-			pigs[i]->isNear = false;
-		}
-	}
-
-	for (int i = 0; i < alpacaCount; ++i) {
-		const glm::vec3 animalPosition = alpacas[i]->getPosition();
-
-		if (playerPosition[0] > animalPosition[0] - 1.5f and
-			playerPosition[0] < animalPosition[0] + 1.5f and
-			playerPosition[2] > animalPosition[2] - 1.5f and
-			playerPosition[2] < animalPosition[2] + 1.5f) {
-
-			alpacas[i]->isNear = true;
-		}
-		else {
-			alpacas[i]->isNear = false;
-		}
-	}
-
-	for (int i = 0; i < penguinCount; ++i) {
-		const glm::vec3 animalPosition = penguins[i]->getPosition();
-
-		if (playerPosition[0] > animalPosition[0] - 1.5f and
-			playerPosition[0] < animalPosition[0] + 1.5f and
-			playerPosition[2] > animalPosition[2] - 1.5f and
-			playerPosition[2] < animalPosition[2] + 1.5f) {
-
-			penguins[i]->isNear = true;
-		}
-		else {
-			penguins[i]->isNear = false;
-		}
-	}
-
-	for (int i = 0; i < chickenCount; ++i) {
-		const glm::vec3 animalPosition = chics[i]->getPosition();
-
-		if (playerPosition[0] > animalPosition[0] - 1.5f and
-			playerPosition[0] < animalPosition[0] + 1.5f and
-			playerPosition[2] > animalPosition[2] - 1.5f and
-			playerPosition[2] < animalPosition[2] + 1.5f) {
-			chics[i]->isNear = true;
-		}
-		else {
-			chics[i]->isNear = false;
-		}
-	}
-
-	for (int i = 0; i < foxCount; ++i) {
-		const glm::vec3 animalPosition = foxes[i]->getPosition();
-
-		if (playerPosition[0] > animalPosition[0] - 1.5f and
-			playerPosition[0] < animalPosition[0] + 1.5f and
-			playerPosition[2] > animalPosition[2] - 1.5f and
-			playerPosition[2] < animalPosition[2] + 1.5f) {
-
-			foxes[i]->isNear = true;
-		}
-		else {
-			foxes[i]->isNear = false;
-		}
-	}
 }
 
 void gameScene::spawnAnimal(const int animalType)
@@ -512,7 +436,8 @@ void gameScene::update(float elapsedTime)
 	}
 
 	// 동물 거리 체크
-	isAnimalNear(playerPosition);
+	//isAnimalNear(playerPosition);
+	checkInteraction(playerPosition);
 
 	// 해 움직이는거.. 
 	if (isLightMove) {
@@ -537,22 +462,7 @@ void gameScene::update(float elapsedTime)
 		ddongSpawnTimer -= DDONG_SPAWN_TIME;	// 타이머 리셋..
 	}
 
-	// 똥 근접 체크
-	for (auto& ddong : ddongs) {
-		if (ddong.isDraw)
-		{
-			if (playerPosition[0] > ddong.x - 1.2f and
-				playerPosition[0] < ddong.x + 1.2f and
-				playerPosition[2] > ddong.z - 1.2f and
-				playerPosition[2] < ddong.z + 1.2f) {
-				//std::cout << "똥과 만남!!" << std::endl;
-				ddong.isNear = true;
-			}
-			else {
-				ddong.isNear = false;
-			}
-		}
-	}
+
 
 	//std::cout << "elapsedTime : " << elapsedTime << std::endl;
 	if (not isAnimalSleep)	// 먹이 일정 갯수 이상 주면 어른됨.. -> 어른이 되면 팔수있당..
@@ -1037,7 +947,7 @@ void gameScene::draw()
 
 
 
-	
+
 	{
 		// 돼지
 		for (int i = 0; i < pigCount; ++i) pigs[i]->draw(viewMatrix, projMatrix, light);
@@ -1146,170 +1056,129 @@ void gameScene::draw()
 	glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(uiProjMatrix));
 	glm::mat4 translateMatrixUI = glm::translate(glm::mat4(1.f), glm::vec3(width / 2, height / 2, 0.f)); // 화면 중앙 기준으로 가정
 	glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
-	for (auto& ddong : ddongs) {
-		// 가까이 갔을때 나오는 똥 치우기 UI
-		if (ddong.isDraw and ddong.isNear) {
-			//printf("똥 ui어디감");
-			glUseProgram(texShader);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glDisable(GL_DEPTH_TEST);
-			glBindVertexArray(cubeMesh.VAO);
-			glBindTexture(GL_TEXTURE_2D, ddongButtonTexture);
 
-			glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-			glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
-			glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
+	if (m_currentInteractType == EInteractType::DDONG)
+	{
+		for (auto& ddong : ddongs) {
+			// 가까이 갔을때 나오는 똥 치우기 UI
+			if (ddong.isDraw and ddong.isNear) {
+				//printf("똥 ui어디감");
+				glUseProgram(texShader);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glDisable(GL_DEPTH_TEST);
+				glBindVertexArray(cubeMesh.VAO);
+				glBindTexture(GL_TEXTURE_2D, ddongButtonTexture);
 
-			glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
+				glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
+				glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
+				glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
 
-			glEnable(GL_DEPTH_TEST);
-			glDisable(GL_BLEND);
+				glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
+
+				glEnable(GL_DEPTH_TEST);
+				glDisable(GL_BLEND);
+			}
 		}
 	}
 
+
 	// 동물 근처일때 UI
-	{
+	if (m_currentInteractType == EInteractType::ANIMAL) {
 		glUseProgram(texShader);
 		glActiveTexture(GL_TEXTURE0);
+		bool isDrawn = false;
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_DEPTH_TEST);
+		glBindVertexArray(cubeMesh.VAO);
+
 		GLuint feedButtonTexture = m_resourceManager->getTexture("feedButton");
-		for (int i = 0; i < pigCount; ++i) {
-			if (pigs[i]->isNear) {
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glDisable(GL_DEPTH_TEST);
-				glBindVertexArray(cubeMesh.VAO);
+		if (not isDrawn) {
+			for (int i = 0; i < pigCount; ++i) {
+				if (pigs[i]->isNear) {
+					GLuint targetTex = pigs[i]->isBaby ? feedButtonTexture : sellTexture;
+					glBindTexture(GL_TEXTURE_2D, targetTex);
 
-				if (not pigs[i]->isBaby) { // 다 컸을 때...판매 UI 뜨는 곳
 					glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
+					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI;
 					glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
-					glBindTexture(GL_TEXTURE_2D, sellTexture);
+
 					glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
+
+					isDrawn = true;
+					break;
 				}
-				else {
-					//printf("test : %d", feedButtonTexture);
-					glBindTexture(GL_TEXTURE_2D, feedButtonTexture);
-					glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
-					glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
-					glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
-				}
-				glEnable(GL_DEPTH_TEST);
-				glDisable(GL_BLEND);
 			}
 		}
-		for (int i = 0; i < alpacaCount; ++i)
-		{
-			if (alpacas[i]->isNear) {
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glDisable(GL_DEPTH_TEST);
-				glBindVertexArray(cubeMesh.VAO);
-				if (not alpacas[i]->isBaby) { // 다 컸을때
+		if (not isDrawn) {
+			for (int i = 0; i < alpacaCount; ++i) {
+				if (alpacas[i]->isNear) {
+					GLuint targetTex = alpacas[i]->isBaby ? feedButtonTexture : sellTexture;
+					glBindTexture(GL_TEXTURE_2D, targetTex);
+
 					glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
+					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI;
 					glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
 
-					// 텍스처 바인딩 및 그리기
-					glBindTexture(GL_TEXTURE_2D, sellTexture);
 					glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
+					isDrawn = true;
+					break;
 				}
-				else {
-					glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
-					glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
-
-					glBindTexture(GL_TEXTURE_2D, feedButtonTexture);
-					glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
-				}
-
-				glEnable(GL_DEPTH_TEST);
-				glDisable(GL_BLEND);
 			}
 		}
-		for (int i = 0; i < penguinCount; ++i)
-		{
-			if (penguins[i]->isNear) {
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glDisable(GL_DEPTH_TEST);
-				glBindVertexArray(cubeMesh.VAO);
-				if (not penguins[i]->isBaby) { // 다 컸을때
+		if (not isDrawn) {
+			for (int i = 0; i < alpacaCount; ++i) {
+				if (penguins[i]->isNear) {
+					GLuint targetTex = penguins[i]->isBaby ? feedButtonTexture : sellTexture;
+					glBindTexture(GL_TEXTURE_2D, targetTex);
+
 					glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
+					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI;
 					glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
 
-					// 텍스처 바인딩 및 그리기
-					glBindTexture(GL_TEXTURE_2D, sellTexture);
 					glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
+					isDrawn = true;
+					break;
 				}
-				else {
-					glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
-					glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
-					glBindTexture(GL_TEXTURE_2D, feedButtonTexture);
-					glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
-				}
-
-				glEnable(GL_DEPTH_TEST);
-				glDisable(GL_BLEND);
 			}
 		}
-		for (int i = 0; i < chickenCount; ++i) {
-			if (chics[i]->isNear) {
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glDisable(GL_DEPTH_TEST);
-				glBindVertexArray(cubeMesh.VAO);
-				if (not chics[i]->isBaby) { // 다 컸을때
+		if (not isDrawn) {
+			for (int i = 0; i < alpacaCount; ++i) {
+				if (chics[i]->isNear) {
+					GLuint targetTex = chics[i]->isBaby ? feedButtonTexture : sellTexture;
+					glBindTexture(GL_TEXTURE_2D, targetTex);
+
 					glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
+					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI;
 					glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
 
-					// 텍스처 바인딩 및 그리기
-					glBindTexture(GL_TEXTURE_2D, sellTexture);
 					glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
+					isDrawn = true;
+					break;
 				}
-				else {
-					glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
-					glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
-
-					glBindTexture(GL_TEXTURE_2D, feedButtonTexture);
-					glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
-				}
-				glEnable(GL_DEPTH_TEST);
-				glDisable(GL_BLEND);
 			}
 		}
-		for (int i = 0; i < foxCount; ++i) {
-			if (foxes[i]->isNear) {
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glDisable(GL_DEPTH_TEST);
-				glBindVertexArray(cubeMesh.VAO);
-				if (not foxes[i]->isBaby) { // 다 컸을때
+		if (not isDrawn) {
+			for (int i = 0; i < alpacaCount; ++i) {
+				if (foxes[i]->isNear) {
+					GLuint targetTex = foxes[i]->isBaby ? feedButtonTexture : sellTexture;
+					glBindTexture(GL_TEXTURE_2D, targetTex);
+
 					glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
+					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI;
 					glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
 
-					// 텍스처 바인딩 및 그리기
-					glBindTexture(GL_TEXTURE_2D, sellTexture);
 					glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
+					isDrawn = true;
+					break;
 				}
-				else {
-					glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
-					glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI; // 회전 없음
-					glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
-
-					glBindTexture(GL_TEXTURE_2D, feedButtonTexture);
-					glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
-				}
-				glEnable(GL_DEPTH_TEST);
-				glDisable(GL_BLEND);
 			}
 		}
+
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
 	}
 
 	// 플레이어가 상점 근처에 오면 UI뜨게..
@@ -1324,10 +1193,8 @@ void gameScene::draw()
 
 			glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
 
-			// 4. 모델 행렬 계산 및 전송 (UI 위치/크기)
-			// (아래 행렬은 3D 공간의 위치이므로, 화면 고정 UI라면 수정 필요)
 			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(width / 2, height / 2, 0.f));
-			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 1000.f, 0.001f)); // 오타 수정
+			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 1000.f, 0.001f));
 			glm::mat4 matrix = translateMatrix * scaleMatrix;
 			glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 
@@ -1384,6 +1251,116 @@ void gameScene::draw()
 	glUniform3fv(m_animalShader_lightColorLoc, 1, glm::value_ptr(lightColorValue));
 }
 
+void gameScene::checkInteraction(glm::vec3 playerPosition) {
+	m_currentInteractType = EInteractType::NONE;
+
+	// 똥 근접 체크
+	for (auto& ddong : ddongs) {
+		if (ddong.isDraw)
+		{
+			bool isHit = (playerPosition[0] > ddong.x - 1.2f and
+				playerPosition[0] < ddong.x + 1.2f and
+				playerPosition[2] > ddong.z - 1.2f and
+				playerPosition[2] < ddong.z + 1.2f);
+
+			if (isHit and m_currentInteractType == EInteractType::NONE) {
+				m_currentInteractType = EInteractType::DDONG;
+				ddong.isNear = true;
+			}
+			else {
+				ddong.isNear = false;
+			}
+		}
+	}
+
+	// 똥  근접 아니면 동물 근접 체크
+	if (m_currentInteractType == EInteractType::NONE) {
+		for (int i = 0; i < pigCount; ++i) {
+			const glm::vec3 pigPosition = pigs[i]->getPosition();
+
+			bool isHit = (playerPosition[0] > pigPosition[0] - 1.5f and
+				playerPosition[0] < pigPosition[0] + 1.5f and
+				playerPosition[2] > pigPosition[2] - 1.5f and
+				playerPosition[2] < pigPosition[2] + 1.5f);
+
+			if (isHit and m_currentInteractType == EInteractType::NONE) {
+				m_currentInteractType = EInteractType::ANIMAL;
+				pigs[i]->isNear = true;
+			}
+			else {
+				pigs[i]->isNear = false;
+			}
+		}
+
+		for (int i = 0; i < alpacaCount; ++i) {
+			const glm::vec3 animalPosition = alpacas[i]->getPosition();
+
+			bool isHit = (playerPosition[0] > animalPosition[0] - 1.5f and
+				playerPosition[0] < animalPosition[0] + 1.5f and
+				playerPosition[2] > animalPosition[2] - 1.5f and
+				playerPosition[2] < animalPosition[2] + 1.5f);
+
+			if (isHit && m_currentInteractType == EInteractType::NONE) {
+				m_currentInteractType = EInteractType::ANIMAL;
+				alpacas[i]->isNear = true;
+			}
+			else {
+				alpacas[i]->isNear = false;
+			}
+		}
+
+		for (int i = 0; i < penguinCount; ++i) {
+			const glm::vec3 animalPosition = penguins[i]->getPosition();
+			bool isHit = (playerPosition[0] > animalPosition[0] - 1.5f and
+				playerPosition[0] < animalPosition[0] + 1.5f and
+				playerPosition[2] > animalPosition[2] - 1.5f and
+				playerPosition[2] < animalPosition[2] + 1.5f);
+
+			if (isHit and m_currentInteractType == EInteractType::NONE) {
+				m_currentInteractType = EInteractType::ANIMAL;
+				penguins[i]->isNear = true;
+			}
+			else {
+				penguins[i]->isNear = false;
+			}
+		}
+
+		for (int i = 0; i < chickenCount; ++i) {
+			const glm::vec3 animalPosition = chics[i]->getPosition();
+
+			bool isHit = (playerPosition[0] > animalPosition[0] - 1.5f and
+				playerPosition[0] < animalPosition[0] + 1.5f and
+				playerPosition[2] > animalPosition[2] - 1.5f and
+				playerPosition[2] < animalPosition[2] + 1.5f);
+
+			if (isHit and m_currentInteractType == EInteractType::NONE) {
+				m_currentInteractType = EInteractType::ANIMAL;
+				chics[i]->isNear = true;
+			}
+			else {
+				chics[i]->isNear = false;
+			}
+		}
+
+		for (int i = 0; i < foxCount; ++i) {
+			const glm::vec3 animalPosition = foxes[i]->getPosition();
+			bool isHit = (playerPosition[0] > animalPosition[0] - 1.5f and
+				playerPosition[0] < animalPosition[0] + 1.5f and
+				playerPosition[2] > animalPosition[2] - 1.5f and
+				playerPosition[2] < animalPosition[2] + 1.5f);
+
+			if (isHit and m_currentInteractType == EInteractType::NONE) {
+				m_currentInteractType = EInteractType::ANIMAL;
+				foxes[i]->isNear = true;
+			}
+			else {
+				foxes[i]->isNear = false;
+			}
+		}
+	}
+}
+
+
 void gameScene::keyboard(unsigned char key, bool isPressed)
 {
 	// 이동 처리 (WASD) 
@@ -1406,163 +1383,167 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 			}
 			break;
 		case 32: // 스페이스바
+			printf("test용 문구..스페이스바눌림\n");
 			// 똥 줍기..
-			for (auto& ddong : ddongs) {
-				if (ddong.isNear && ddong.isDraw) {
-					ddong.isDraw = false;
-					if (player->getFeed() < player->getMaxFeed()) {
-						int newFeed = player->getFeed();
-						player->setFeed(++newFeed);
+			if (m_currentInteractType == EInteractType::DDONG) {
+				for (auto& ddong : ddongs) {
+					if (ddong.isNear && ddong.isDraw) {
+						printf("test용 문구..똥치우기\n");
+						// 여기 패킷처리추가
+
 					}
 				}
 			}
 
 			// 동물들가까이 갔을 때.. 상호작용들
 			// 돼지
-			for (int i = 0; i < pigCount; ++i) {
-				if (pigs[i]->isNear) {
-					if (pigs[i]->isBaby) { // 아기 돼지?? -> 밥 주기
-						if (player->getFeed() > 0) {
-							// feed 요청 패킷 보내기
-							cs_request_feed_animal packet;
-							packet.AnimalID = i;
-							packet.AnimalType = AnimalType::PIG;
-							sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
-							break;
+			if (m_currentInteractType == EInteractType::ANIMAL) {
+
+				for (int i = 0; i < pigCount; ++i) {
+					if (pigs[i]->isNear) {
+						if (pigs[i]->isBaby) { // 아기 돼지?? -> 밥 주기
+							if (player->getFeed() > 0) {
+								// feed 요청 패킷 보내기
+								cs_request_feed_animal packet;
+								packet.AnimalID = i;
+								packet.AnimalType = AnimalType::PIG;
+								sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+								break;
+							}
 						}
-					}
-					else {
-						std::cout << " 돼지 팔음" << std::endl;
-						if (player->getCoin() < player->getMaxCoin() - 1) {
-							// 패킷 보내기
+						else {
+							std::cout << " 돼지 팔음" << std::endl;
+							if (player->getCoin() < player->getMaxCoin() - 1) {
+								// 패킷 보내기
+							}
+							delete pigs[i];
+							if (i != pigCount - 1) {
+								pigs[i] = pigs[pigCount - 1];
+							}
+							pigs[pigCount - 1] = nullptr;
+							pigCount--;
+							i--;
 						}
-						delete pigs[i];
-						if (i != pigCount - 1) {
-							pigs[i] = pigs[pigCount - 1];
-						}
-						pigs[pigCount - 1] = nullptr;
-						pigCount--;
-						i--;
 					}
 				}
-			}
 
-			for (int i = 0; i < alpacaCount; ++i) {
-				if (alpacas[i]->isNear) {
-					if (alpacas[i]->isBaby) { // 아기 돼지?? -> 밥 주기
-						if (player->getFeed() > 0) {
-							// feed 요청 패킷 보내기
-							cs_request_feed_animal packet;
-							packet.AnimalID = i;
-							packet.AnimalType = AnimalType::ALPACA;
-							sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
-							break;
+				for (int i = 0; i < alpacaCount; ++i) {
+					if (alpacas[i]->isNear) {
+						if (alpacas[i]->isBaby) { // 아기 돼지?? -> 밥 주기
+							if (player->getFeed() > 0) {
+								// feed 요청 패킷 보내기
+								cs_request_feed_animal packet;
+								packet.AnimalID = i;
+								packet.AnimalType = AnimalType::ALPACA;
+								sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+								break;
+							}
 						}
-					}
-					else {
-						std::cout << " 알파카 팔음" << std::endl;
-						if (player->getCoin() < player->getMaxCoin() - 1) {
-							// 패킷보내야지
+						else {
+							std::cout << " 알파카 팔음" << std::endl;
+							if (player->getCoin() < player->getMaxCoin() - 1) {
+								// 패킷보내야지
 
+							}
+							delete alpacas[i];
+							if (i != alpacaCount - 1) {
+								alpacas[i] = alpacas[alpacaCount - 1];
+							}
+							alpacas[alpacaCount - 1] = nullptr;
+							alpacaCount--;
+							i--;
 						}
-						delete alpacas[i];
-						if (i != alpacaCount - 1) {
-							alpacas[i] = alpacas[alpacaCount - 1];
-						}
-						alpacas[alpacaCount - 1] = nullptr;
-						alpacaCount--;
-						i--;
 					}
 				}
-			}
-			// 펭귄
-			for (int i = 0; i < penguinCount; ++i) {
-				if (penguins[i]->isNear) {
-					if (penguins[i]->isBaby) {
-						if (player->getFeed() > 0) {
-							// feed 요청 패킷 보내기
-							cs_request_feed_animal packet;
-							packet.AnimalID = i;
-							packet.AnimalType = AnimalType::PENGUIN;
-							sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
-							break;
+				// 펭귄
+				for (int i = 0; i < penguinCount; ++i) {
+					if (penguins[i]->isNear) {
+						if (penguins[i]->isBaby) {
+							if (player->getFeed() > 0) {
+								// feed 요청 패킷 보내기
+								cs_request_feed_animal packet;
+								packet.AnimalID = i;
+								packet.AnimalType = AnimalType::PENGUIN;
+								sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+								break;
+							}
 						}
-					}
-					else {
-						std::cout << " 펭귄 팔음" << std::endl;
-						if (player->getCoin() < player->getMaxCoin() - 1) {
-							// 패킷보내야지
+						else {
+							std::cout << " 펭귄 팔음" << std::endl;
+							if (player->getCoin() < player->getMaxCoin() - 1) {
+								// 패킷보내야지
 
+							}
+							delete penguins[i];
+							if (i != penguinCount - 1) {
+								penguins[i] = alpacas[penguinCount - 1];
+							}
+							penguins[penguinCount - 1] = nullptr;
+							penguinCount--;
+							i--;
 						}
-						delete penguins[i];
-						if (i != penguinCount - 1) {
-							penguins[i] = alpacas[penguinCount - 1];
-						}
-						penguins[penguinCount - 1] = nullptr;
-						penguinCount--;
-						i--;
-					}
 
+					}
 				}
-			}
-			// 양념 치킨
-			for (int i = 0; i < chickenCount; ++i) {
-				if (chics[i]->isNear) {
-					if (chics[i]->isBaby) {
-						if (player->getFeed() > 0) {
-							// feed 요청 패킷 보내기
-							cs_request_feed_animal packet;
-							packet.AnimalID = i;
-							packet.AnimalType = AnimalType::CHICKEN;
-							sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
-							break;
+				// 양념 치킨
+				for (int i = 0; i < chickenCount; ++i) {
+					if (chics[i]->isNear) {
+						if (chics[i]->isBaby) {
+							if (player->getFeed() > 0) {
+								// feed 요청 패킷 보내기
+								cs_request_feed_animal packet;
+								packet.AnimalID = i;
+								packet.AnimalType = AnimalType::CHICKEN;
+								sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+								break;
+							}
 						}
-					}
-					else {
-						std::cout << " 취킨 팔음" << std::endl;
-						if (player->getCoin() < player->getMaxCoin() - 1) {
-							// 패킷보내야지
+						else {
+							std::cout << " 취킨 팔음" << std::endl;
+							if (player->getCoin() < player->getMaxCoin() - 1) {
+								// 패킷보내야지
 
+							}
+							delete chics[i];
+							if (i != chickenCount - 1) {
+								chics[i] = alpacas[chickenCount - 1];
+							}
+							chics[chickenCount - 1] = nullptr;
+							chickenCount--;
+							i--;
 						}
-						delete chics[i];
-						if (i != chickenCount - 1) {
-							chics[i] = alpacas[chickenCount - 1];
-						}
-						chics[chickenCount - 1] = nullptr;
-						chickenCount--;
-						i--;
-					}
 
+					}
 				}
-			}
-			// 여우
-			for (int i = 0; i < foxCount; ++i) {
-				if (foxes[i]->isNear) {
-					if (foxes[i]->isBaby) {
-						if (player->getFeed() > 0) {
-							// feed 요청 패킷 보내기
-							cs_request_feed_animal packet;
-							packet.AnimalID = i;
-							packet.AnimalType = AnimalType::FOX;
-							sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
-							break;
+				// 여우
+				for (int i = 0; i < foxCount; ++i) {
+					if (foxes[i]->isNear) {
+						if (foxes[i]->isBaby) {
+							if (player->getFeed() > 0) {
+								// feed 요청 패킷 보내기
+								cs_request_feed_animal packet;
+								packet.AnimalID = i;
+								packet.AnimalType = AnimalType::FOX;
+								sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+								break;
+							}
 						}
-					}
-					else {
-						std::cout << " 여우 팔음" << std::endl;
-						if (player->getCoin() < player->getMaxCoin() - 1) {
-							// 패킷보내야지
+						else {
+							std::cout << " 여우 팔음" << std::endl;
+							if (player->getCoin() < player->getMaxCoin() - 1) {
+								// 패킷보내야지
 
+							}
+							delete foxes[i];
+							if (i != foxCount - 1) {
+								foxes[i] = alpacas[foxCount - 1];
+							}
+							foxes[foxCount - 1] = nullptr;
+							foxCount--;
+							i--;
 						}
-						delete foxes[i];
-						if (i != foxCount - 1) {
-							foxes[i] = alpacas[foxCount - 1];
-						}
-						foxes[foxCount - 1] = nullptr;
-						foxCount--;
-						i--;
-					}
 
+					}
 				}
 			}
 
@@ -1634,12 +1615,3 @@ void gameScene::setWindowSize(int winWidth, int winHeight)
 	height = winHeight;
 }
 
-//void gameScene::setPlayerDx(float n)
-//{
-//	player->dx = n;
-//}
-//
-//void gameScene::setPlayerDz(float n)
-//{
-//	player->dz = n;
-//}

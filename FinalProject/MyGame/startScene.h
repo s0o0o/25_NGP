@@ -53,5 +53,7 @@ public:
 	void mouseMove(int x, int y) override;
 
 	void setWindowSize(int winWidth, int winHeight) override;
+
+public:
 };
 

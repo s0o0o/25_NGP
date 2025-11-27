@@ -3,7 +3,7 @@
 #include "GameObject.h"
 #include "Pig.h"
 
-class PlayerObject : public GameObject{
+class PlayerObject : public GameObject {
 	GLint m_worldLoc;
 
 	GLint m_viewLoc;
@@ -24,16 +24,16 @@ class PlayerObject : public GameObject{
 	const float MIN_PITCH = -60.0f; // 최대 내림각
 	const float MOUSE_SENSITIVITY = 0.15f;
 
-
+	std::string m_name;
 	int coinNum;
 	int feedNum;
 	int coinMax;
 	int FeedMax;
 	float x, z;
-public :
+public:
 	PlayerObject();
 	virtual ~PlayerObject();
-	
+
 	virtual void initialize() override;
 	virtual void update(float elapseTime)override;
 	virtual void draw(const glm::mat4& viewMatrix,
@@ -48,7 +48,7 @@ public :
 
 	void keyboard(unsigned char key, bool isPressed);
 	void mouse(int button, int state, int x, int y);
-	void mouseMove(int x, int y); 
+	void mouseMove(int x, int y);
 
 	bool isInFarm;
 	bool isStoreShow;
@@ -68,5 +68,7 @@ public :
 	int getMaxFeed() const { return FeedMax; }
 	void setMaxCoin(int maxCoin) { this->coinMax = maxCoin; }
 	void setMaxFeed(int maxFeed) { this->FeedMax = maxFeed; }
+	void setName(const char* name) { m_name = name; }
+	std::string getName() const { return m_name; }
 };
 

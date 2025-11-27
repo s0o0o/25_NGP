@@ -17,6 +17,7 @@ void ProcessPacket(PacketType type, char* data)
 	{
 		SC_Login_Accept* p = (SC_Login_Accept*)data;
 		g_myPlayerID = p->id;
+		strcpy_s(g_loginInfo.name, p->name);
 		g_loginInfo.x = p->x;
 		g_loginInfo.y = p->y;
 		g_loginInfo.z = p->z;

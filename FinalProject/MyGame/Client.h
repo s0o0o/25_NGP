@@ -19,6 +19,7 @@ enum class GameState {
 };
 
 struct LoginInfo {
+    char name[20];
     float x, y, z;
     int coin, feed;
     int maxCoin, maxFeed;

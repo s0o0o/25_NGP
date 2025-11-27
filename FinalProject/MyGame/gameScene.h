@@ -29,6 +29,12 @@ struct Snow {
 	bool isDraw;
 };
 
+enum class EInteractType{
+	NONE = 1,
+	DDONG,
+	ANIMAL,
+};
+
 
 class gameScene : public MyScene
 {
@@ -109,7 +115,6 @@ public:
 	void updateOtherPlayer(int id, float x, float z, float yaw);
 
 // 동물 관련
-	void isAnimalNear(glm::vec3 playerPos);
 	void spawnAnimal(const int animalType);
 	void sellAnimal(const int animalType, const int animalID);
 	void feedAnimals(const int animalType, const int animalID, const int growStep);
@@ -124,7 +129,15 @@ private:
 	GLint m_animalShader_modelLoc, m_animalShader_viewLoc, m_animalShader_projLoc, 
 		m_animalShader_lightPosLoc, m_animalShader_lightColorLoc;
 	GLint m_defaultShader_viewLoc, m_defaultShader_projLoc, 
-		m_defaultShader_cameraPosLoc; // (이름이 'shader'였던 것)
+		m_defaultShader_cameraPosLoc; 
+
+public:
+	void checkInteraction(glm::vec3 playerPos);	// 여기서 동물+똥 상호작용
+private:
+	EInteractType m_currentInteractType;
+
+	std::string m_myPlayerID;	// 머리위에 띄울.. 변수저장용 
+public:
 };
 
 extern gameScene* g_gameScene;

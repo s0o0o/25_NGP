@@ -45,4 +45,5 @@ private:
     std::chrono::high_resolution_clock::duration accm_time;	// 누적 시간
 
     std::string m_windowTitle;
+
 };

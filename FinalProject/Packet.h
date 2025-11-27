@@ -54,13 +54,13 @@ struct PacketHeader {	// 2+2 바이트 고정, 모든 패킷 제일 앞에 붙여보내면됨
 // 로그인 요청. C -> S
 struct CS_Login_Request {
 	char id[MAX_ID_LEN];
-//	char password[MAX_PASS_LEN];
+	//	char password[MAX_PASS_LEN];
 };
 
 // 로그인 ㅇㅋ S -> C 
 struct SC_Login_Accept {
 	int id;
-
+	char name[MAX_ID_LEN];
 	float x, y, z; // 초기위치설정
 	int coin;
 	int feed;
@@ -140,7 +140,7 @@ struct cs_request_clean_poop
 };
 
 struct sc_remove_poop {
-	int poopID;			
+	int poopID;
 };
 
 
