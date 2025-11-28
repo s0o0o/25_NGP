@@ -52,10 +52,10 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		rotateTreeY[i] = static_cast<float>(std::rand()) / RAND_MAX * 360.0f;
 	}
 
-	// 동물 셋팅
+	// 서버에서 받은 값으로 초기 동물 셋팅
 	GLuint animalShader = m_resourceManager->getShader("animal");
 	MeshData animalMesh = m_resourceManager->getMesh("animal_cube");
-	pigCount = 2;	// 돼지 초기 자본은 2마리, 나머진 1마리씩 세팅..
+	
 	for (int i = 0; i < pigCount; ++i)
 	{
 		pigs[i] = new Pig(i);	// pig는 게임객체... 업캐스팅........
@@ -65,7 +65,6 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	}
 
 	// 알파카
-	alpacaCount = 1;
 	for (int i = 0; i < alpacaCount; ++i)
 	{
 		alpacas[i] = new Alpaca;	// pig는 게임객체... 업캐스팅........
@@ -73,8 +72,8 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		alpacas[i]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
 		alpacas[i]->initialize();
 	}
+
 	// 닭
-	chickenCount = 1;
 	for (int i = 0; i < chickenCount; ++i)
 	{
 		chics[i] = new Chic;	// pig는 게임객체... 업캐스팅........
@@ -82,8 +81,8 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		chics[i]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
 		chics[i]->initialize();
 	}
+
 	// 여우
-	foxCount = 1;
 	for (int i = 0; i < foxCount; ++i)
 	{
 		foxes[i] = new Fox;	// pig는 게임객체... 업캐스팅........
@@ -91,8 +90,8 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		foxes[i]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
 		foxes[i]->initialize();
 	}
+
 	// 펭귄
-	penguinCount = 1;
 	for (int i = 0; i < penguinCount; ++i)
 	{
 		penguins[i] = new Penguin(i);	// pig는 게임객체... 업캐스팅........
@@ -100,6 +99,8 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		penguins[i]->setVAO(animalMesh.VAO, animalMesh.vertexCount);
 		penguins[i]->initialize();
 	}
+
+	printf("pgiCount after init: %d\n", pigCount);
 
 	cameraY = 25.5f;
 	isTitleAniEnd = false;
@@ -246,6 +247,32 @@ void gameScene::updateOtherPlayer(int id, float x, float z, float yaw)
 
 	printf("모르는 유저(%d)의 이동 패킷 수신\n", id);
 	createOtherPlayer(id, x, 1.5f, z);
+}
+
+void gameScene::setAnimalCount(int animalType, int count)
+{
+	switch (animalType)
+	{
+		case AnimalType::PIG:
+		pigCount = count;
+		printf("pigCount %d\n", pigCount);
+		break;
+		case AnimalType::CHICKEN:
+		chickenCount = count;
+		printf("chickCount %d\n", chickenCount);
+		break;
+		case AnimalType::ALPACA:
+		alpacaCount = count;
+		printf("alpacaCount %d\n", alpacaCount);
+		break;
+		case AnimalType::PENGUIN:
+		penguinCount = count;
+		printf("pCount %d\n", penguinCount);
+		break;
+		case AnimalType::FOX:
+		foxCount = count;
+		break;
+	}
 }
 
 void gameScene::spawnAnimal(const int animalType)
@@ -947,9 +974,8 @@ void gameScene::draw()
 
 
 
-
+	// 동물 그리기
 	{
-		// 돼지
 		for (int i = 0; i < pigCount; ++i) pigs[i]->draw(viewMatrix, projMatrix, light);
 		// 알파카
 		for (int i = 0; i < alpacaCount; ++i) alpacas[i]->draw(viewMatrix, projMatrix, light);

@@ -7,39 +7,22 @@ void AnimalManager::Initialize()
 	InitializeCriticalSection(&cs_animals);
 	nextPoopID = 0;
 
-	pigCount = 1;
-	chickenCount = 1;
-	alpacaCount = 1;
-	penguinCount = 1;
-	foxCount = 1;
+	pigCount = 0;
+	chickenCount = 0;
+	alpacaCount = 0;
+	penguinCount = 0;
+	foxCount = 0;
 
 	// 초기 동물 생성 ( 돼지만 2마리 , 나머지는 1마리씩)
 	// 무한 루프 방지를 위해 변수 이름 대신 숫자 사용
 	EnterCriticalSection(&cs_animals);
-	for (int i = 0; i < 2; ++i)
-	{
-		SpawnAnimal(AnimalType::PIG, 0.5f, 0.5f, false);
-	}
+	SpawnAnimal(AnimalType::PIG, 0.5f, 0.5f, false);
+	SpawnAnimal(AnimalType::PIG, 0.5f, 0.5f, false);
+	SpawnAnimal(AnimalType::CHICKEN, 0.5f, 0.5f, false);
+	SpawnAnimal(AnimalType::ALPACA, 0.5f, 0.5f, false);
+	SpawnAnimal(AnimalType::PENGUIN, 0.5f, 0.5f, false);
+	SpawnAnimal(AnimalType::FOX, 0.5f, 0.5f, false);
 
-	for(int i = 0; i < 1; ++i)
-	{
-		SpawnAnimal(AnimalType::CHICKEN, 0.5f, 0.5f, false);
-	}
-
-	for (int i = 0; i < 1; ++i)
-	{
-		SpawnAnimal(AnimalType::ALPACA, 0.5f, 0.5f, false);
-	}
-
-	for (int i = 0; i < 1; ++i)
-	{
-		SpawnAnimal(AnimalType::PENGUIN, 0.5f, 0.5f, false);
-	}
-
-	for (int i = 0; i < 1; ++i)
-	{
-		SpawnAnimal(AnimalType::FOX, 0.5f, 0.5f, false);
-	}
 
 	LeaveCriticalSection(&cs_animals);
 }
@@ -139,6 +122,7 @@ void AnimalManager::SendExistingObjects(SOCKET client_sock)
 	animalCountPacket.penguinCount = penguinCount;
 	animalCountPacket.foxCount = foxCount;
 	sendPacket(client_sock, PacketType::SC_ANIMAL_COUNT, (char*)&animalCountPacket, sizeof(sc_animal_count));
+	printf("동물 변수 전송\n");
 
 	// 기존 동물들 전송
 	for (auto const& pair : animals)
@@ -152,9 +136,10 @@ void AnimalManager::SendExistingObjects(SOCKET client_sock)
 		packet.y = a.y;
 		sendPacket(client_sock, PacketType::SC_SPAWN_ANIMAL, (char*)&packet, sizeof(sc_spawn_animal));
 	}
+	printf("동물 생성 전송\n");
 
 	// 기존 똥들 전송
-	for (auto const& pair : poops)
+	/*for (auto const& pair : poops)
 	{
 		const PoopData& p = pair.second;
 		sc_spawn_poop packet;
@@ -162,7 +147,7 @@ void AnimalManager::SendExistingObjects(SOCKET client_sock)
 		packet.x = p.x;
 		packet.y = p.y;
 		sendPacket(client_sock, PacketType::SC_SPAWN_POOP, (char*)&packet, sizeof(sc_spawn_poop));
-	}
+	}*/
 
 	LeaveCriticalSection(&cs_animals);
 }

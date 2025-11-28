@@ -52,11 +52,11 @@ private:
 	GameObject* townObjects[20];	// 원래 집도 짓게 하려고 한듯..
 
 	int otherPlayerIDs[2] = { -1, -1 };
-	int pigCount;
-	int alpacaCount;
-	int penguinCount;
-	int chickenCount;
-	int foxCount;
+	int pigCount = 0;
+	int alpacaCount = 0;
+	int penguinCount = 0;
+	int chickenCount = 0;
+	int foxCount = 0;
 	int townObjectCount;
 
 	std::vector<Ddong> ddongs;
@@ -91,6 +91,7 @@ private:
 
 	bool isDay;
 	bool isAnimalSleep;
+	bool isSettingFinished = false;
 public:
 	// 게임 로직에서, update, draw..., 키 입력
 	gameScene(int winWidth, int winHeight);
@@ -113,6 +114,8 @@ public:
 	void createOtherPlayer(int id, float x, float y, float z);
 	void removeOtherPlayer(int id);
 	void updateOtherPlayer(int id, float x, float z, float yaw);
+
+	void setAnimalCount(int animalType, int count);
 
 // 동물 관련
 	void spawnAnimal(const int animalType);

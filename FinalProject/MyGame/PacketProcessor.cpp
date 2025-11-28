@@ -106,6 +106,22 @@ void ProcessPacket(PacketType type, char* data)
 		g_gameScene->feedAnimals(p->AnimalType, p->AnimalID, p->GrowStep);
 		break;
 	}
+	case PacketType::SC_ANIMAL_COUNT:
+	{
+		printf("동물 수 변경 패킷 옴\n");
+		sc_animal_count* p = (sc_animal_count*)data;
+		if (g_gameScene == nullptr)
+		{
+			printf("게임 씬 없음\n");
+			break;
+		}
+		g_gameScene->setAnimalCount(AnimalType::PIG, p->pigCount);
+		g_gameScene->setAnimalCount(AnimalType::CHICKEN, p->chickenCount);
+		g_gameScene->setAnimalCount(AnimalType::ALPACA, p->alpacaCount);
+		g_gameScene->setAnimalCount(AnimalType::PENGUIN, p->penguinCount);
+		g_gameScene->setAnimalCount(AnimalType::FOX, p->foxCount);
+		break;
+	}
 	default:
 	{
 		printf("[클라] 알 수 없는 패킷 수신: %d\n", type);
