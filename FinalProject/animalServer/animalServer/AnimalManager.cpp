@@ -156,36 +156,36 @@ int AnimalManager::GetNextAnimalID(int type)
 {
 	EnterCriticalSection(&cs_animals);
 
-	int returnCount = -1;
+	int returnCount;
 	switch (type)
 	{
 	case AnimalType::PIG:
 	{
-		returnCount = pigCount - 1;
+		returnCount = pigCount;
 		pigCount += 1;
 	}
 	break;
 	case AnimalType::CHICKEN:
 	{
-		returnCount = chickenCount - 1;
+		returnCount = chickenCount;
 		chickenCount += 1;
 	}
 	break;
 	case AnimalType::ALPACA:
 	{
-		returnCount = alpacaCount - 1;
+		returnCount = alpacaCount;
 		alpacaCount += 1;
 	}
 	break;
 	case AnimalType::PENGUIN:
 	{
-		returnCount = penguinCount - 1;
+		returnCount = penguinCount;
 		penguinCount += 1;
 	}
 	break;
 	case AnimalType::FOX:
 	{
-		returnCount = foxCount - 1;
+		returnCount = foxCount;
 		foxCount++;
 	}
 	break;
