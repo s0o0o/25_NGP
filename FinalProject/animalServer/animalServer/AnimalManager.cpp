@@ -203,7 +203,7 @@ void AnimalManager::GrowAnimal(int animalID, int animalType)
 	for(auto& pair : animals)
 	{
 		AnimalData& a = pair.second;
-		if (a.id == animalID)
+		if ((a.id == animalID) && animalType == (a.type))
 		{
 			a.growStep += 1;
 			printf("[AnimalManager] 동물 성장 (ID: %d, New GrowStep: %d)\n", a.id, a.growStep);
