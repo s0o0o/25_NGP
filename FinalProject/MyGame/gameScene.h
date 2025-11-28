@@ -122,6 +122,7 @@ public:
 	void sellAnimal(const int animalType, const int animalID);
 	void feedAnimals(const int animalType, const int animalID, const int growStep);
 	std::vector<int> spawnList = {};
+	std::vector<std::pair<int, int>> sellList = {}; // <Type, ID>
 private:
 	GLint m_texShader_modelLoc, m_texShader_viewLoc, m_texShader_projLoc, 
 		m_texShader_lightColorLoc, m_texShader_useLightLoc;

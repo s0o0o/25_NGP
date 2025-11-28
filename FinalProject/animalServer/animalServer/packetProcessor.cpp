@@ -6,7 +6,8 @@
 
 float playerLimit = 2.f;
 float limitX = 22.f;
-#define AnimalCost 2
+#define ANIMAL_COST 2
+#define SELL_PRICE 2
 
 void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 {
@@ -31,7 +32,7 @@ void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 
 		printf("[구매] 플레이어(%d)가 동물(%d) 구매 요청\n", pSession->playerID, p->animalType);
 
-		if (pSession->coinNum < AnimalCost)
+		if (pSession->coinNum < ANIMAL_COST)
 		{
 			printf("[구매실패] 플레이어(%d) 코인 부족\n", pSession->playerID);
 
@@ -39,8 +40,8 @@ void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 		}
 		else
 		{
-			pSession->coinNum -= AnimalCost; // 코인 차감
-			printf("[구매성공] 플레이어(%d) 코인 %d개 차감\n", pSession->playerID, AnimalCost);
+			pSession->coinNum -= ANIMAL_COST; // 코인 차감
+			printf("[구매성공] 플레이어(%d) 코인 %d개 차감\n", pSession->playerID, ANIMAL_COST);
 			sc_stat_change statChangePacket;
 			statChangePacket.coin = pSession->coinNum;	
 			statChangePacket.feed = pSession->feedNum;
@@ -94,7 +95,22 @@ void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 		}
 		break;
 	}
-
+	case PacketType::CS_REQUEST_SELL:
+	{
+		// 동물 판매 요청 처리
+		cs_request_sell_animal* p = (cs_request_sell_animal*)data;
+		printf("[판매] 플레이어(%d)가 동물(%d) 판매 요청\n", pSession->playerID, p->AnimalID);
+		// 동물 제거
+		ANIMALS.RemoveAnimal(p->AnimalID, p->AnimalType);
+		pSession->coinNum += SELL_PRICE; // 코인 추가
+		printf("[판매성공] 플레이어(%d) 코인 %d개 추가\n", pSession->playerID, SELL_PRICE);
+		// 플레이어 자원 패킷 전송
+		sc_stat_change statChangePacket;
+		statChangePacket.coin = pSession->coinNum;
+		statChangePacket.feed = pSession->feedNum;
+		sendPacket(client_sock, PacketType::SC_STAT_CHANGE, (char*)&(statChangePacket), sizeof(sc_stat_change));
+		break;
+	}
 	default:
 		printf("타입 정의 X 패킷 : %d\n", type);
 		break;

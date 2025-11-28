@@ -122,6 +122,13 @@ void ProcessPacket(PacketType type, char* data)
 		g_gameScene->setAnimalCount(AnimalType::FOX, p->foxCount);
 		break;
 	}
+	case PacketType::SC_REMOVE_ANIMAL:
+	{
+		printf("동물 제거 패킷 옴\n");
+		sc_remove_animal* p = (sc_remove_animal*)data;
+		g_gameScene->sellList.push_back(std::make_pair(p->animalType, p->animalID));
+		break;
+	}
 	default:
 	{
 		printf("[클라] 알 수 없는 패킷 수신: %d\n", type);

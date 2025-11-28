@@ -31,6 +31,7 @@ public:
 
 	// 悼拱 积己 
 	void SpawnAnimal(int type, float startX, float startY, bool broadcast = true);
+	void RemoveAnimal(int animalID, int animalType);
 
 	// 端 积己
 	void SpawnPoop(float x, float y);

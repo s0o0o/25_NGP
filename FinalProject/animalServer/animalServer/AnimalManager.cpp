@@ -79,6 +79,37 @@ void AnimalManager::SpawnAnimal(int type, float startX, float startY, bool broad
 	
 }
 
+void AnimalManager::RemoveAnimal(int animalID, int animalType)
+{
+	EnterCriticalSection(&cs_animals);
+	for (auto const& pair : animals)
+	{
+		AnimalData a = pair.second;
+		if (a.id == animalID and a.type == animalType)
+		{
+			animals.erase(pair.first);
+			printf("[AnimalManager] 동물 제거 (ID: %d, Type: %d)\n", animalID, animalType);
+			break;
+		}
+	}
+	LeaveCriticalSection(&cs_animals);
+
+	// 동물 제거 패킷 브로드캐스트
+	sc_remove_animal packet;
+	packet.animalID = animalID;
+	packet.animalType = animalType;
+	EnterCriticalSection(&cs_connections);
+	for (auto const& pair : g_sessions_map)
+	{
+		PlayerSession const& session = pair.second;
+		if (session.bActive)
+		{
+			sendPacket(session.sock, PacketType::SC_REMOVE_ANIMAL, (char*)&packet, sizeof(sc_remove_animal));
+		}
+	}
+	LeaveCriticalSection(&cs_connections);
+}
+
 void AnimalManager::SpawnPoop(float x, float y)
 {
 	EnterCriticalSection(&cs_animals);
@@ -253,8 +284,6 @@ void AnimalManager::BroadcastAnimalState(int animalID)
 	LeaveCriticalSection(&cs_connections);
 }
 
-
-//
 bool AnimalManager::RemovePoop(int poopID)
 {
 	bool isRemoved = false;
