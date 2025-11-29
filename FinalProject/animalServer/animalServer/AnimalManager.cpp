@@ -170,7 +170,7 @@ void AnimalManager::SendExistingObjects(SOCKET client_sock)
 	printf("동물 생성 전송\n");
 
 	// 기존 똥들 전송
-	/*for (auto const& pair : poops)
+	for (auto const& pair : poops)
 	{
 		const PoopData& p = pair.second;
 		sc_spawn_poop packet;
@@ -178,7 +178,7 @@ void AnimalManager::SendExistingObjects(SOCKET client_sock)
 		packet.x = p.x;
 		packet.y = p.y;
 		sendPacket(client_sock, PacketType::SC_SPAWN_POOP, (char*)&packet, sizeof(sc_spawn_poop));
-	}*/
+	}
 
 	LeaveCriticalSection(&cs_animals);
 }

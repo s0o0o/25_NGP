@@ -51,7 +51,7 @@
               "RelativeDocumentMoniker": "GameLoop.cpp",
               "ToolTip": "D:\\2025_network\\25_NGP\\FinalProject\\animalServer\\animalServer\\GameLoop.cpp",
               "RelativeToolTip": "GameLoop.cpp",
-              "ViewState": "AgIAADMAAAAAAAAAAAAAAA8AAAAbAAAAAAAAAA==",
+              "ViewState": "AgIAADkAAAAAAAAAAAAAAFsAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-11-29T06:25:46.074Z",
               "EditorCaption": ""
@@ -114,8 +114,7 @@
               "RelativeToolTip": "AnimalManager.cpp",
               "ViewState": "AgIAACsBAAAAAAAAAAAAAFEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-11-17T11:04:59.529Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-17T11:04:59.529Z"
             },
             {
               "$type": "Document",
@@ -127,8 +126,7 @@
               "RelativeToolTip": "AnimalManager.h",
               "ViewState": "AgIAACoAAAAAAAAAAAAAABEAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-11-17T11:10:46.975Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-17T11:10:46.975Z"
             }
           ]
         }
