@@ -160,6 +160,10 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 			(float)g_loginInfo.x, (float)g_loginInfo.y, (float)g_loginInfo.z, player->getCoin(), player->getFeed(), player->getMaxCoin(), player->getMaxFeed());
 		std::cout << "이름 : " << g_myPlayer->getName() << std::endl;
 	}
+
+	MeshData ddongMesh = m_resourceManager->getMesh("ddong");
+	ddongVAO = ddongMesh.VAO;
+	ddongVertexCount = ddongMesh.vertexCount;
 }
 
 void gameScene::sceneOnExit()
@@ -439,6 +443,38 @@ void gameScene::feedAnimals(const int animalType, const int animalID, const int 
 	printf("[게임씬] 동물 먹이주기 완료! 종류: %d, ID: %d, 성장단계: %d\n", animalType, animalID, growStep);
 }
 
+//
+void gameScene::spawnPoop(int id, float x, float z)
+{
+	if (poopMap.find(id) != poopMap.end()) return;
+
+	GameObject* newPoop = new GameObject();
+
+	GLuint objShader = m_resourceManager->getShader("obj");
+	newPoop->setShader(objShader);
+
+	// sceneOnEnter에서 저장해둔 VAO 사용
+	newPoop->setVAO(ddongVAO, ddongVertexCount);
+
+	newPoop->setPosition(x, 0.0f, z);
+
+	poopMap[id] = newPoop;
+
+	printf("똥 생성 완료! ID: %d, Pos: %.1f, %.1f\n", id, x, z);
+}
+
+
+void gameScene::removePoop(int id)
+{
+	auto it = poopMap.find(id);
+	if (it != poopMap.end()) {
+		delete it->second; 
+		poopMap.erase(it); 
+		 printf("똥 삭제 완료! ID: %d\n", id);
+	}
+}
+
+//
 void gameScene::update(float elapsedTime)
 {
 	player->update(elapsedTime);
@@ -492,14 +528,14 @@ void gameScene::update(float elapsedTime)
 		}
 	}
 
-	ddongSpawnTimer += elapsedTime;
-	if (ddongSpawnTimer >= DDONG_SPAWN_TIME) {
-		float x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 8.f));
-		float z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 15.f));
+	//ddongSpawnTimer += elapsedTime;
+	//if (ddongSpawnTimer >= DDONG_SPAWN_TIME) {
+	//	float x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 8.f));
+	//	float z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 15.f));
 
-		ddongs.emplace_back(Ddong{ x, 0.f, z , true ,false });
-		ddongSpawnTimer -= DDONG_SPAWN_TIME;	// 타이머 리셋..
-	}
+	//	ddongs.emplace_back(Ddong{ x, 0.f, z , true ,false });
+	//	ddongSpawnTimer -= DDONG_SPAWN_TIME;	// 타이머 리셋..
+	//}
 
 
 
@@ -1000,9 +1036,6 @@ void gameScene::draw()
 
 	}	// 동물 ㄱ리기 끝..
 
-
-
-	// 똥 그리기...
 	MeshData ddongMesh = m_resourceManager->getMesh("ddong");
 	GLuint ddongButtonTexture = m_resourceManager->getTexture("ddongButton");
 
@@ -1010,21 +1043,23 @@ void gameScene::draw()
 	glUniformMatrix4fv(m_objShader_viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(m_objShader_projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
 	glUniform1i(m_objShader_useGlobalColorLoc, GL_TRUE); // 단색 사용 ON
-	glUniform3f(m_objShader_globalColorLoc, 93 / 255.f, 44 / 255.f, 11 / 255.f); // 똥 색상....
+	glUniform3f(m_objShader_globalColorLoc, 93 / 255.f, 44 / 255.f, 11 / 255.f); // 똥 색상
 	glBindVertexArray(ddongMesh.VAO);
 
-	for (auto& ddong : ddongs) {
-		if (ddong.isDraw) {
-			// 모델 행렬 계산 및 전송
-			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(ddong.x, 0.f, ddong.z));
-			glm::mat4 rotMatrixY = glm::rotate(glm::mat4(1.f), glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
-			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.3f)); // 오타 수정
-			glm::mat4 matrix = translateMatrix * rotMatrixY * scaleMatrix;
-			glUniformMatrix4fv(m_objShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+	for (auto& pair : poopMap) {
+		GameObject* pObj = pair.second; // 맵에 저장된 GameObject 포인터
 
-			// 그리기 (VAO, 색상 등은 이미 설정됨)
-			glDrawArrays(GL_TRIANGLES, 0, ddongMesh.vertexCount);
-		}
+		// GameObject에서 현재 위치 가져오기
+		glm::vec3 pos = pObj->getPosition();
+
+		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), pos);
+		glm::mat4 rotMatrixY = glm::rotate(glm::mat4(1.f), glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.3f)); 
+
+		glm::mat4 matrix = translateMatrix * rotMatrixY * scaleMatrix;
+		glUniformMatrix4fv(m_objShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+
+		glDrawArrays(GL_TRIANGLES, 0, ddongMesh.vertexCount);
 	}
 
 	// 플레이어 그리기
@@ -1095,12 +1130,13 @@ void gameScene::draw()
 	glm::mat4 translateMatrixUI = glm::translate(glm::mat4(1.f), glm::vec3(width / 2, height / 2, 0.f)); // 화면 중앙 기준으로 가정
 	glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
 
+
 	if (m_currentInteractType == EInteractType::DDONG)
 	{
-		for (auto& ddong : ddongs) {
-			// 가까이 갔을때 나오는 똥 치우기 UI
-			if (ddong.isDraw and ddong.isNear) {
-				//printf("똥 ui어디감");
+		for (auto& pair : poopMap) {
+			GameObject* poop = pair.second;
+
+			if (poop->isNear) {
 				glUseProgram(texShader);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1116,6 +1152,8 @@ void gameScene::draw()
 
 				glEnable(GL_DEPTH_TEST);
 				glDisable(GL_BLEND);
+
+				break; 
 			}
 		}
 	}
@@ -1293,22 +1331,24 @@ void gameScene::checkInteraction(glm::vec3 playerPosition) {
 	m_currentInteractType = EInteractType::NONE;
 
 	// 똥 근접 체크
-	for (auto& ddong : ddongs) {
-		if (ddong.isDraw)
-		{
-			bool isHit = (playerPosition[0] > ddong.x - 1.2f and
-				playerPosition[0] < ddong.x + 1.2f and
-				playerPosition[2] > ddong.z - 1.2f and
-				playerPosition[2] < ddong.z + 1.2f);
+	for (auto& pair : poopMap) {
+			GameObject* poop = pair.second;
+
+			// 똥의 위치 가져오기
+			glm::vec3 poopPos = poop->getPosition();
+
+			bool isHit = (playerPosition[0] > poopPos.x - 1.2f and
+				playerPosition[0] < poopPos.x + 1.2f and
+				playerPosition[2] > poopPos.z - 1.2f and
+				playerPosition[2] < poopPos.z + 1.2f);
 
 			if (isHit and m_currentInteractType == EInteractType::NONE) {
 				m_currentInteractType = EInteractType::DDONG;
-				ddong.isNear = true;
+				poop->isNear = true;
 			}
 			else {
-				ddong.isNear = false;
+				poop->isNear = false;
 			}
-		}
 	}
 
 	// 똥  근접 아니면 동물 근접 체크
@@ -1423,13 +1463,21 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 			printf("test용 문구..스페이스바눌림\n");
 			// 똥 줍기..
 			if (m_currentInteractType == EInteractType::DDONG) {
-				for (auto& ddong : ddongs) {
-					if (ddong.isNear && ddong.isDraw) {
-						printf("test용 문구..똥치우기\n");
-						g_myPlayer->setFeed(1); // 코인 1개 추가
-						// 여기 패킷처리추가
 
+				int targetPoopID = -1;
+				for (auto& pair : poopMap) {
+					if (pair.second->isNear) {
+						targetPoopID = pair.first; 
+						break;
 					}
+				}
+
+				if (targetPoopID != -1) {
+					cs_request_clean_poop packet;
+					packet.poopID = targetPoopID;
+					sendPacket(g_sock, PacketType::CS_REQUEST_CLEAN_POOP, (char*)&packet, sizeof(cs_request_clean_poop));
+
+					printf("[클라] 똥(%d) 청소 요청 보냄\n", targetPoopID);
 				}
 			}
 
@@ -1669,4 +1717,5 @@ void gameScene::setWindowSize(int winWidth, int winHeight)
 	width = winWidth;
 	height = winHeight;
 }
+
 

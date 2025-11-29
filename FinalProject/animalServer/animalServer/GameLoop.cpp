@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <chrono>
 #include <cmath>
+#include "AnimalManager.h"
 #include "./glm/glm.hpp"
 #include "./glm/ext.hpp"
 
@@ -51,6 +52,25 @@ void GameLoop()
 
 void UpdateGameWorld(float deltaTime)
 {
+
+	// 똥 생성 타이머
+	// ---------------------------------------------------------
+	static float poopSpawnTimer = 0.0f;
+	const float POOP_SPAWN_INTERVAL = 5.0f; // 5초마다 생성 (원하는 시간으로 조절)
+
+	poopSpawnTimer += deltaTime;
+	if (poopSpawnTimer >= POOP_SPAWN_INTERVAL)
+	{
+		poopSpawnTimer = 0.0f; // 타이머 초기화
+
+		float randX = -10.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 8.0f));
+		float randZ = -5.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 15.0f));
+
+		// 똥 생성 및 브로드캐스팅
+		printf("[GameLoop] 똥 자동 생성 시도: %.2f, %.2f\n", randX, randZ);
+		ANIMALS.SpawnPoop(randX, randZ);
+	}
+
 	EnterCriticalSection(&cs_connections);
 
 	// 모든 세션을 순회하며 이동 처리

@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <random>
+#include <map>
 
 class GameObject;
 class PlayerObject;
@@ -92,6 +93,12 @@ private:
 	bool isDay;
 	bool isAnimalSleep;
 	bool isSettingFinished = false;
+
+	//dd
+	std::map<int, GameObject*> poopMap; 
+	GLuint ddongVAO = 0;               
+	GLsizei ddongVertexCount = 0;       
+
 public:
 	// 게임 로직에서, update, draw..., 키 입력
 	gameScene(int winWidth, int winHeight);
@@ -123,6 +130,11 @@ public:
 	void feedAnimals(const int animalType, const int animalID, const int growStep);
 	std::vector<int> spawnList = {};
 	std::vector<std::pair<int, int>> sellList = {}; // <Type, ID>
+
+	//dd
+	void spawnPoop(int id, float x, float z);
+	void removePoop(int id);
+
 private:
 	GLint m_texShader_modelLoc, m_texShader_viewLoc, m_texShader_projLoc, 
 		m_texShader_lightColorLoc, m_texShader_useLightLoc;

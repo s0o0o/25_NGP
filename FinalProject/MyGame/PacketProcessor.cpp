@@ -129,6 +129,26 @@ void ProcessPacket(PacketType type, char* data)
 		g_gameScene->sellList.push_back(std::make_pair(p->animalType, p->animalID));
 		break;
 	}
+
+	case PacketType::SC_SPAWN_POOP:
+	{
+		sc_spawn_poop* p = (sc_spawn_poop*)data;
+		if (g_gameScene) {
+			// 서버의 y-> 클라 z?
+			g_gameScene->spawnPoop(p->poopID, p->x, p->y);
+		}
+		break;
+	}
+
+	case PacketType::SC_REMOVE_POOP:
+	{
+		sc_remove_poop* p = (sc_remove_poop*)data;
+		if (g_gameScene) {
+			g_gameScene->removePoop(p->poopID);
+		}
+		break;
+	}
+
 	default:
 	{
 		printf("[클라] 알 수 없는 패킷 수신: %d\n", type);
