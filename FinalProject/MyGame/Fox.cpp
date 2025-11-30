@@ -4,42 +4,19 @@
 
 Fox::Fox()
 {
-	float x = -8.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 6.f));
-	float z = -3.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
+	setPosition(0.f, 0.f, 0.f);
+	m_targetPos = glm::vec3(0.f, 0.f, 0.f);
+	m_prevPos = glm::vec3(0.f, 0.f, 0.f);
+	targetAngle = 0.f;
+	currentAngle = 0.f;
+
 	MOVE_SPEED = 1.0f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 0.3f));
-
 	isBaby = true;
-	rangeLimit = 1.f;
-
-	foxXDir = (rand() % 2 == 0) ? 1.f : -1.f;
-	foxZDir = (rand() % 2 == 0) ? 1.f : -1.f;
-
-	if (foxXDir > 0 && foxZDir > 0)
-	{
-		rotateFaceFox = 45.f;
-		//std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
-	}
-	else if (foxXDir > 0 && foxZDir < 0) {
-		rotateFaceFox = 135.f;
-		//std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
-	}
-	else if (foxXDir < 0 && foxZDir > 0) {
-		rotateFaceFox = -45.f;
-		//std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
-	}
-	else if (foxXDir < 0 && foxZDir < 0) {
-		rotateFaceFox = -135.f; // 225 -> -135
-		//std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
-	}
-	rotateY(rotateFaceFox);
 
 	rotateFoxLeftLeg = 0.f;
 	rotateFoxRightLeg = 0.f;
 	adultY = 0.f;
-	adultScale = 1.f;
 	isMaxRotateFox = false; // 각도 제한
-
-	setPosition(x, 0.f, z);
 }
 
 Fox::~Fox()
@@ -86,51 +63,66 @@ void Fox::update(float elapseTime)
 			isMaxRotateFox = true;
 		}
 	}
+	
+	float diff = targetAngle - currentAngle;
+	if (diff > 180.0f) diff -= 360.0f;
+	if (diff < -180.0f) diff += 360.0f;
 
-	// 위치 변경
-	glm::vec3 currentPos = getPosition();
-	float deltaX = foxXDir * MOVE_SPEED * elapseTime;
-	float deltaZ = foxZDir * MOVE_SPEED * elapseTime;
-	glm::vec3 nextPos = currentPos + glm::vec3(deltaX, 0.f, deltaZ);
-
-	bool directionChanged = false;
-	if (nextPos.x <= -15.f + rangeLimit) { nextPos.x = -15.f + rangeLimit; foxXDir = 1.f; directionChanged = true; }	// x왼쪽끝
-	if (nextPos.x >= -1.f - rangeLimit) { nextPos.x = -1.f - rangeLimit;  foxXDir = -1.f; directionChanged = true; }	// x오른쪽끝
-	if (nextPos.z <= -8.f + rangeLimit) { nextPos.z = -8.f + rangeLimit;  foxZDir = 1.f; directionChanged = true; }		// z나무쪽
-	if (nextPos.z >= 9.f - rangeLimit) { nextPos.z = 9.f - rangeLimit;  foxZDir = -1.f; directionChanged = true; }		// z카메라쪽
-
-	setPosition(nextPos);
-	float currentFace = rotateFaceFox;
-
-	// 벽 부딪혓을때
-	if (directionChanged)
+	if (abs(diff) > 0.1f)
 	{
-		if (foxXDir > 0 && foxZDir > 0)
-		{
-			rotateFaceFox = 45.f;
-			//std::cout << "부딪힘, 오른쪽가면서 카메라앞으로" << std::endl;
-		}
-		else if (foxXDir > 0 && foxZDir < 0) {
-			rotateFaceFox = 135.f;
-			//std::cout << "부딪힘, 오른쪽가면서 뒤쪽으로" << std::endl;
-		}
-		else if (foxXDir < 0 && foxZDir > 0) {
-			rotateFaceFox = -45.f;
-			//std::cout << "부딪힘 왼쪽으로, 카메라쪽으로" << std::endl;
-		}
-		else if (foxXDir < 0 && foxZDir < 0) {
-			rotateFaceFox = -135.f;
-			//std::cout << "부딪힘, 왼쪽, 뒤쪽으로" << std::endl;
-		}
-		rotateY(-currentFace + rotateFaceFox);
+		float rotateStep = diff * 5.0f * elapseTime;
+		rotateY(rotateStep);
+
+		currentAngle += rotateStep;
+
+		if (currentAngle > 360.0f) currentAngle -= 360.0f;
+		if (currentAngle < 0.0f)   currentAngle += 360.0f;
 	}
+
+	glm::vec3 currentPos = getPosition();
+	glm::vec3 moveDir = m_targetPos - currentPos;
+	float dist = glm::length(moveDir);
+
+	if (dist > 5.0f) {
+		setPosition(m_targetPos);
+	}
+	else if (dist > 0.01f)
+	{
+		float moveStep = MOVE_SPEED * elapseTime; // 이동 속도
+
+		if (dist <= moveStep) {
+			setPosition(m_targetPos);
+		}
+		else {
+			setPosition(currentPos + (glm::normalize(moveDir) * moveStep));
+		}
+	}
+
 
 	if (not isBaby) {
 		adultY = 0.2f;
-		adultScale = 2.f;
+	}
+}
+
+void Fox::setTargetPosition(float x, float z)
+{
+	glm::vec3 newTarget(x, 0.f, z);
+	glm::vec3 dir = newTarget - m_prevPos;
+
+	if (glm::length(dir) > 0.05f)
+	{
+		dir = glm::normalize(dir);
+
+		float angleRad = atan2(dir.x, dir.z);
+		float angleDeg = glm::degrees(angleRad);
+
+		targetAngle = angleDeg;
+		m_prevPos = newTarget;
 	}
 
+	m_targetPos = newTarget;
 }
+
 
 void Fox::draw(const glm::mat4& viewMatrix, 
 	const glm::mat4& projMatrix, const glm::vec3& lightPos) const

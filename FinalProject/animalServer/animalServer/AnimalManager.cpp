@@ -16,13 +16,24 @@ void AnimalManager::Initialize()
 	// 초기 동물 생성 ( 돼지만 2마리 , 나머지는 1마리씩)
 	// 무한 루프 방지를 위해 변수 이름 대신 숫자 사용
 	EnterCriticalSection(&cs_animals);
-	SpawnAnimal(AnimalType::PIG, 0.5f, 0.5f, false);
-	SpawnAnimal(AnimalType::PIG, 0.5f, 0.5f, false);
-	SpawnAnimal(AnimalType::CHICKEN, 0.5f, 0.5f, false);
-	SpawnAnimal(AnimalType::ALPACA, 0.5f, 0.5f, false);
-	SpawnAnimal(AnimalType::PENGUIN, 0.5f, 0.5f, false);
-	SpawnAnimal(AnimalType::FOX, 0.5f, 0.5f, false);
-
+	float x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f)); 
+	float z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 10.f));
+	SpawnAnimal(AnimalType::PIG, x, z, false);
+	x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f)); 
+	z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 10.f));
+	SpawnAnimal(AnimalType::PIG, x, z, false);
+	x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
+	z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 10.f));
+	SpawnAnimal(AnimalType::CHICKEN, x, z, false);
+	x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
+	z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 10.f));
+	SpawnAnimal(AnimalType::ALPACA, x, z, false);
+	x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
+	z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 10.f));
+	SpawnAnimal(AnimalType::PENGUIN, x, z, false);
+	x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
+	z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 10.f));
+	SpawnAnimal(AnimalType::FOX, x, z, false);
 
 	LeaveCriticalSection(&cs_animals);
 }
@@ -282,6 +293,79 @@ void AnimalManager::BroadcastAnimalState(int animalID)
 		}
 	}
 	LeaveCriticalSection(&cs_connections);
+}
+
+void AnimalManager::animalUpdate(float deltaTime)
+{
+	EnterCriticalSection(&cs_animals);
+
+	for (auto& pair : animals)
+	{
+		AnimalData& animal = pair.second;
+
+		animal.moveTimer += deltaTime;
+		if (animal.moveTimer > 5.0f) 
+		{
+			animal.moveTimer = 0.f;
+			animal.xDir = (rand() % 3) - 1.0f; // -1, 0, 1 중 하나
+			animal.yDir = (rand() % 3) - 1.0f;
+		}
+
+		float nextX = animal.x + (animal.xDir * animal.moveSpeed * deltaTime);
+		float nextY = animal.y + (animal.yDir * animal.moveSpeed * deltaTime);
+
+		if (nextX <= -15.0f ) { nextX = -15.0f; animal.xDir *= -1; }
+		if (nextX >= -1.0f ) { nextX = -1.0f;  animal.xDir *= -1; }
+		if(nextY  <= -8.f ) { nextY = -8.f; animal.yDir *= -1; }
+		if(nextY  >= 9.f ) { nextY = 9.f; animal.yDir *= -1; }
+
+		animal.x = nextX;
+		animal.y = nextY;
+	}
+
+	LeaveCriticalSection(&cs_animals);
+
+	broadcastTimer += deltaTime;
+	if (broadcastTimer >= BROADCAST_INTERVAL)
+	{
+		broadcastTimer = 0.0f; // 타이머 초기화
+		broadcastMovement();     // 이때만 패킷을 쏜다!
+	}
+}
+
+void AnimalManager::broadcastMovement()
+{
+	EnterCriticalSection(&cs_animals);
+	EnterCriticalSection(&cs_connections);
+
+	for (auto& pair : animals)
+	{
+		AnimalData& a = pair.second;
+
+		float dist = sqrt(pow(a.x - a.lastSentX, 2) + pow(a.y - a.lastSentY, 2));
+
+		if (dist < 0.05f) continue;
+
+		a.lastSentX = a.x;
+		a.lastSentY = a.y;
+
+		sc_move_animal packet;
+		packet.animalID = a.id;
+		packet.animalType = a.type;
+		printf("type : %d, id : %d\n", a.type,  a.id);
+		packet.x = a.x;
+		packet.y = a.y;
+
+		for (auto const& session_pair : g_sessions_map)
+		{
+			printf("패킷보내긩\n");
+			if (session_pair.second.bActive)
+				sendPacket(session_pair.second.sock, PacketType::SC_MOVE_ANIMAL, (char*)&packet, sizeof(packet));
+		}
+	}
+
+	LeaveCriticalSection(&cs_connections);
+	LeaveCriticalSection(&cs_animals);
 }
 
 bool AnimalManager::RemovePoop(int poopID)

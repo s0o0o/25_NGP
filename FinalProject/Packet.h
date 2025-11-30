@@ -45,6 +45,7 @@ enum class PacketType : uint16_t {
 	SC_ANIMAL_COUNT = 2009,
 	SC_REMOVE_ANIMAL = 2010,
 	SC_REMOVE_POOP = 2051,
+	SC_MOVE_ANIMAL = 2011,
 };
 
 struct PacketHeader {	// 2+2 바이트 고정, 모든 패킷 제일 앞에 붙여보내면됨
@@ -177,4 +178,13 @@ struct sc_animal_count {
 struct sc_remove_animal {
 	int animalID;
 	int animalType;
+};
+
+struct sc_move_animal
+{
+	int animalID;
+	int animalType;
+	float x;
+	float y;
+	// float yaw;
 };

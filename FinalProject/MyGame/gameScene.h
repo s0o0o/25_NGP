@@ -149,11 +149,11 @@ private:
 
 public:
 	void checkInteraction(glm::vec3 playerPos);	// 여기서 동물+똥 상호작용
+	void updateAnimalPos(int type, int id, float x, float y);
 private:
 	EInteractType m_currentInteractType;
 
 	std::string m_myPlayerID;	// 머리위에 띄울.. 변수저장용 
-public:
 };
 
 extern gameScene* g_gameScene;

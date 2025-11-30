@@ -4,13 +4,15 @@
 
 Chic::Chic()
 {
-	float x = -8.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 7.f));
-	float z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
+	setPosition(0.f, 0.f, 0.f);
+	m_targetPos = glm::vec3(0.f, 0.f, 0.f);
+	m_prevPos = glm::vec3(0.f, 0.f, 0.f);
+	targetAngle = 0.f;
+	currentAngle = 0.f;
+
 	MOVE_SPEED = 1.0f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 0.3f));
 
 	isBaby = true;
-
-	rangeLimit = 1.f;
 
 	rotateChicLeftLeg = 0.f;
 	rotateChicRightLeg = 0.f;
@@ -20,29 +22,6 @@ Chic::Chic()
 
 	isMaxRotateChic = false; // 각도 제한
 	isMaxRotateAdultChic = false;
-
-	chicXDir = (rand() % 2 == 0) ? 1.f : -1.f;
-	chicZDir = (rand() % 2 == 0) ? 1.f : -1.f;
-
-	if (chicXDir > 0 && chicZDir > 0)
-	{
-		rotateFaceChic = 45.f;
-		//std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
-	}
-	else if (chicXDir > 0 && chicZDir < 0) {
-		rotateFaceChic = 135.f;
-		//std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
-	}
-	else if (chicXDir < 0 && chicZDir > 0) {
-		rotateFaceChic = -45.f;
-		//std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
-	}
-	else if (chicXDir < 0 && chicZDir < 0) {
-		rotateFaceChic = -135.f; // 225 -> -135
-		//std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
-	}
-	rotateY(rotateFaceChic);
-	setPosition(x, 0.f, z);
 }
 
 Chic::~Chic()
@@ -105,43 +84,60 @@ void Chic::update(float elapseTime)
 		}
 	}
 
-	glm::vec3 currentPos = getPosition();	// 현재 위치
+	float diff = targetAngle - currentAngle;
+	if (diff > 180.0f) diff -= 360.0f;
+	if (diff < -180.0f) diff += 360.0f;
 
-	float deltaX = chicXDir * MOVE_SPEED * elapseTime;
-	float deltaZ = chicZDir * MOVE_SPEED * elapseTime;
+	if (abs(diff) > 0.1f)
+	{
+		float rotateStep = diff * 5.0f * elapseTime;
+		rotateY(rotateStep);
 
-	glm::vec3 nextPos = currentPos + glm::vec3(deltaX, 0.0f, deltaZ); // 다음 위치..
+		currentAngle += rotateStep;
 
-	bool directionChanged = false;
-	if (nextPos.x <= -15.f + rangeLimit) { nextPos.x = -15.f + rangeLimit; chicXDir = 1.f; directionChanged = true; }	// x왼쪽끝
-	if (nextPos.x >= -1.f - rangeLimit) { nextPos.x = -1.f - rangeLimit;  chicXDir = -1.f; directionChanged = true; }	// x오른쪽끝
-	if (nextPos.z <= -8.f + rangeLimit) { nextPos.z = -8.f + rangeLimit;  chicZDir = 1.f; directionChanged = true; }		// z나무쪽
-	if (nextPos.z >= 9.f - rangeLimit) { nextPos.z = 9.f - rangeLimit;   chicZDir = -1.f; directionChanged = true; }		// z카메라쪽
+		if (currentAngle > 360.0f) currentAngle -= 360.0f;
+		if (currentAngle < 0.0f)   currentAngle += 360.0f;
+	}
 
-	setPosition(nextPos);
+	glm::vec3 currentPos = getPosition();
+	glm::vec3 moveDir = m_targetPos - currentPos;
+	float dist = glm::length(moveDir);
 
-	float currentFace = rotateFaceChic;
-	if (directionChanged) {
-		if (chicXDir > 0 && chicZDir > 0)
-		{
-			rotateFaceChic = 45.f;
-			//std::cout << "부딪힘, 오른쪽가면서 카메라앞으로" << std::endl;
+	if (dist > 5.0f) {
+		setPosition(m_targetPos);
+	}
+	else if (dist > 0.01f)
+	{
+		float moveStep = MOVE_SPEED * elapseTime; // 이동 속도
+
+		if (dist <= moveStep) {
+			setPosition(m_targetPos);
 		}
-		else if (chicXDir > 0 && chicZDir < 0) {
-			rotateFaceChic = 135.f;
-			//std::cout << "부딪힘, 오른쪽가면서 뒤쪽으로" << std::endl;
+		else {
+			setPosition(currentPos + (glm::normalize(moveDir) * moveStep));
 		}
-		else if (chicXDir < 0 && chicZDir > 0) {
-			rotateFaceChic = -45.f;
-			//std::cout << "부딪힘 왼쪽으로, 카메라쪽으로" << std::endl;
-		}
-		else if (chicXDir < 0 && chicZDir < 0) {
-			rotateFaceChic = -135.f;
-		//	std::cout << "부딪힘, 왼쪽, 뒤쪽으로" << std::endl;
-		}
-		rotateY(-currentFace + rotateFaceChic);
 	}
 }
+
+void Chic::setTargetPosition(float x, float z)
+{
+	glm::vec3 newTarget(x, 0.f, z);
+	glm::vec3 dir = newTarget - m_prevPos;
+
+	if (glm::length(dir) > 0.05f)
+	{
+		dir = glm::normalize(dir);
+
+		float angleRad = atan2(dir.x, dir.z);
+		float angleDeg = glm::degrees(angleRad);
+
+		targetAngle = angleDeg;
+		m_prevPos = newTarget;
+	}
+
+	m_targetPos = newTarget;
+}
+
 
 void Chic::draw(const glm::mat4& viewMatrix, 
 	const glm::mat4& projMatrix, const glm::vec3& lightPos) const

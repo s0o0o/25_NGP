@@ -12,16 +12,8 @@ private:
 	GLint m_projLoc;
 	GLint m_lightPosLoc;
 
-	float rangeLimit;
-
 	const float LEG_ROTATE_SPEED = 90.0f;
 	float MOVE_SPEED;
-
-	float alpacaXDir;
-	float alpacaZDir;
-
-	float rangeX;
-	float rangeZ;
 
 	float rotateAlpaLeftLeg;
 	float rotateAlpaRightLeg;
@@ -31,6 +23,12 @@ private:
 
 	bool isNear;
 	int feedNum;
+
+	glm::vec3 m_targetPos;
+	glm::vec3 m_prevPos;
+
+	float targetAngle;
+	float currentAngle;
 public:
 	Alpaca();
 	virtual ~Alpaca();
@@ -41,6 +39,7 @@ public:
 		const glm::mat4& projMatrix,
 		const glm::vec3& lightPos) const override;
 	virtual void release() override;
+	void setTargetPosition(float x, float z);
 
 };
 

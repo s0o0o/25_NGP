@@ -10,6 +10,13 @@ struct AnimalData {
 	int type;
 	int growStep;
 	float x, y;
+
+	float moveSpeed = 1.f;
+	float xDir = 0.f; // -1, 0, 1
+	float yDir = 0.f; // -1, 0, 1 
+	float moveTimer = 4.9f; // 시작하자마자 움직이게.. (5초가 기준)
+
+	float lastSentX, lastSentY;
 };
 
 
@@ -47,6 +54,10 @@ public:
 
 	// 동물 상태 브로드캐스팅
 	void BroadcastAnimalState(int animalID);
+
+	// 동물 움직임 업뎃
+	void animalUpdate(float deltaTime);
+	void broadcastMovement();
 private:
 	AnimalManager() : nextPoopID(0) {}
 	~AnimalManager() {}
@@ -64,6 +75,9 @@ private:
 	int penguinCount;
 	int chickenCount;
 	int foxCount;
+
+	float broadcastTimer = 0.1f; // 패킷 전송 주기 체크용 타이머
+	const float BROADCAST_INTERVAL = 0.1f; // 0.1초마다 전송
 };
 
 #define ANIMALS AnimalManager::GetInstance()

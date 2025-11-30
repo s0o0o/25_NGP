@@ -3,41 +3,20 @@
 
 Penguin::Penguin(int num) : penguinNum(num)
 {
-	float x = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 4.f));
-	float z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 10.f));
+	setPosition(0.f, 0.f, 0.f);
+	m_targetPos = glm::vec3(0.f, 0.f, 0.f);
+	m_prevPos = glm::vec3(0.f, 0.f, 0.f);
+	targetAngle = 0.f;
+	currentAngle = 0.f;
+
 	MOVE_SPEED = 1.0f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 0.3f));
 	isBaby = true;
-
-	rangeLimit = 1.f;
-
-	XDir = (rand() % 2 == 0) ? 1.f : -1.f;
-	ZDir = (rand() % 2 == 0) ? 1.f : -1.f;
-
-	if (XDir > 0 && ZDir > 0)
-	{
-		rotateFacePenguin = 45.f;
-		//std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
-	}
-	else if (XDir > 0 && ZDir < 0) {
-		rotateFacePenguin = 135.f;
-	//	std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
-	}
-	else if (XDir < 0 && ZDir > 0) {
-		rotateFacePenguin = -45.f;
-		//std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
-	}
-	else if (XDir < 0 && ZDir < 0) {
-		rotateFacePenguin = -135.f; // 225 -> -135
-		//std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
-	}
-	rotateY(rotateFacePenguin);
 
 	rotatePenguinLeftArm = -25.f;
 	rotatePenguinRightArm = 25.f;
 
 	isMaxRotatePenguin = false;
 
-	setPosition(x, 0.f, z);
 	isNear = false;
 }
 
@@ -86,42 +65,57 @@ void Penguin::update(float elapseTime)
 		}
 	}
 
-	// 위치 변경
-	glm::vec3 currentPos = getPosition();
-	float deltaX = XDir * MOVE_SPEED * elapseTime;
-	float deltaZ = ZDir * MOVE_SPEED * elapseTime;
-	glm::vec3 nextPos = currentPos + glm::vec3(deltaX, 0.f, deltaZ);
+	float diff = targetAngle - currentAngle;
+	if (diff > 180.0f) diff -= 360.0f;
+	if (diff < -180.0f) diff += 360.0f;
 
-	bool directionChanged = false;
-	if (nextPos.x <= -15.f + rangeLimit) { nextPos.x = -15.f + rangeLimit; XDir = 1.f; directionChanged = true; }	// x왼쪽끝
-	if (nextPos.x >= -1.f - rangeLimit) { nextPos.x = -1.f - rangeLimit;  XDir = -1.f; directionChanged = true; }	// x오른쪽끝
-	if (nextPos.z <= -8.f + rangeLimit) { nextPos.z = -8.f + rangeLimit;  ZDir = 1.f; directionChanged = true; }		// z나무쪽
-	if (nextPos.z >= 9.f - rangeLimit) { nextPos.z = 9.f - rangeLimit;  ZDir = -1.f; directionChanged = true; }		// z카메라쪽
-
-	setPosition(nextPos);
-	float currentFace = rotateFacePenguin;
-	// 벽 부딪혓을때
-	if (directionChanged)
+	if (abs(diff) > 0.1f)
 	{
-		if (XDir > 0 && ZDir > 0)
-		{
-			rotateFacePenguin = 45.f;
-			//std::cout << "부딪힘, 오른쪽가면서 카메라앞으로" << std::endl;
-		}
-		else if (XDir > 0 && ZDir < 0) {
-			rotateFacePenguin = 135.f;
-			//std::cout << "부딪힘, 오른쪽가면서 뒤쪽으로" << std::endl;
-		}
-		else if (XDir < 0 && ZDir > 0) {
-			rotateFacePenguin = -45.f;
-			//std::cout << "부딪힘 왼쪽으로, 카메라쪽으로" << std::endl;
-		}
-		else if (XDir < 0 && ZDir < 0) {
-			rotateFacePenguin = -135.f;
-			//std::cout << "부딪힘, 왼쪽, 뒤쪽으로" << std::endl;
-		}
-		rotateY(-currentFace + rotateFacePenguin);
+		float rotateStep = diff * 5.0f * elapseTime;
+		rotateY(rotateStep);
+
+		currentAngle += rotateStep;
+
+		if (currentAngle > 360.0f) currentAngle -= 360.0f;
+		if (currentAngle < 0.0f)   currentAngle += 360.0f;
 	}
+
+	glm::vec3 currentPos = getPosition();
+	glm::vec3 moveDir = m_targetPos - currentPos;
+	float dist = glm::length(moveDir);
+
+	if (dist > 5.0f) {
+		setPosition(m_targetPos);
+	}
+	else if (dist > 0.01f)
+	{
+		float moveStep = MOVE_SPEED * elapseTime; // 이동 속도
+		if (dist <= moveStep) {
+			setPosition(m_targetPos);
+		}
+		else {
+			setPosition(currentPos + (glm::normalize(moveDir) * moveStep));
+		}
+	}
+}
+
+void Penguin::setTargetPosition(float x, float z)
+{
+	glm::vec3 newTarget(x, 0.f, z);
+	glm::vec3 dir = newTarget - m_prevPos;
+
+	if (glm::length(dir) > 0.05f)
+	{
+		dir = glm::normalize(dir);
+
+		float angleRad = atan2(dir.x, dir.z);
+		float angleDeg = glm::degrees(angleRad);
+
+		targetAngle = angleDeg;
+		m_prevPos = newTarget;
+	}
+
+	m_targetPos = newTarget;
 }
 
 void Penguin::draw(const glm::mat4& viewMatrix,

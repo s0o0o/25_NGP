@@ -20,6 +20,7 @@ const float LIGHT_SPEED = 0.5f;
 const float CAMERA_ANIM_SPEED = 10.0f;
 const float SNOW_SPEED = 5.0f;
 gameScene* g_gameScene = nullptr;
+extern int g_myPlayerID;
 
 gameScene::gameScene(int winWidth, int winHeight)
 {
@@ -55,7 +56,7 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	// 서버에서 받은 값으로 초기 동물 셋팅
 	GLuint animalShader = m_resourceManager->getShader("animal");
 	MeshData animalMesh = m_resourceManager->getMesh("animal_cube");
-	
+
 	for (int i = 0; i < pigCount; ++i)
 	{
 		pigs[i] = new Pig(i);	// pig는 게임객체... 업캐스팅........
@@ -100,7 +101,7 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		penguins[i]->initialize();
 	}
 
-	printf("pgiCount after init: %d\n", pigCount);
+	//printf("pgiCount after init: %d\n", pigCount);
 
 	cameraY = 25.5f;
 	isTitleAniEnd = false;
@@ -257,23 +258,23 @@ void gameScene::setAnimalCount(int animalType, int count)
 {
 	switch (animalType)
 	{
-		case AnimalType::PIG:
+	case AnimalType::PIG:
 		pigCount = count;
 		printf("pigCount %d\n", pigCount);
 		break;
-		case AnimalType::CHICKEN:
+	case AnimalType::CHICKEN:
 		chickenCount = count;
 		printf("chickCount %d\n", chickenCount);
 		break;
-		case AnimalType::ALPACA:
+	case AnimalType::ALPACA:
 		alpacaCount = count;
 		printf("alpacaCount %d\n", alpacaCount);
 		break;
-		case AnimalType::PENGUIN:
+	case AnimalType::PENGUIN:
 		penguinCount = count;
 		printf("pCount %d\n", penguinCount);
 		break;
-		case AnimalType::FOX:
+	case AnimalType::FOX:
 		foxCount = count;
 		break;
 	}
@@ -468,9 +469,9 @@ void gameScene::removePoop(int id)
 {
 	auto it = poopMap.find(id);
 	if (it != poopMap.end()) {
-		delete it->second; 
-		poopMap.erase(it); 
-		 printf("똥 삭제 완료! ID: %d\n", id);
+		delete it->second;
+		poopMap.erase(it);
+		printf("똥 삭제 완료! ID: %d\n", id);
 	}
 }
 
@@ -648,6 +649,7 @@ void gameScene::update(float elapsedTime)
 		//std::cout << "밤" << std::endl;
 	}
 }
+
 
 void gameScene::draw()
 {
@@ -1054,7 +1056,7 @@ void gameScene::draw()
 
 		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), pos);
 		glm::mat4 rotMatrixY = glm::rotate(glm::mat4(1.f), glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.3f)); 
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(0.3f));
 
 		glm::mat4 matrix = translateMatrix * rotMatrixY * scaleMatrix;
 		glUniformMatrix4fv(m_objShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
@@ -1153,7 +1155,7 @@ void gameScene::draw()
 				glEnable(GL_DEPTH_TEST);
 				glDisable(GL_BLEND);
 
-				break; 
+				break;
 			}
 		}
 	}
@@ -1332,23 +1334,23 @@ void gameScene::checkInteraction(glm::vec3 playerPosition) {
 
 	// 똥 근접 체크
 	for (auto& pair : poopMap) {
-			GameObject* poop = pair.second;
+		GameObject* poop = pair.second;
 
-			// 똥의 위치 가져오기
-			glm::vec3 poopPos = poop->getPosition();
+		// 똥의 위치 가져오기
+		glm::vec3 poopPos = poop->getPosition();
 
-			bool isHit = (playerPosition[0] > poopPos.x - 1.2f and
-				playerPosition[0] < poopPos.x + 1.2f and
-				playerPosition[2] > poopPos.z - 1.2f and
-				playerPosition[2] < poopPos.z + 1.2f);
+		bool isHit = (playerPosition[0] > poopPos.x - 1.2f and
+			playerPosition[0] < poopPos.x + 1.2f and
+			playerPosition[2] > poopPos.z - 1.2f and
+			playerPosition[2] < poopPos.z + 1.2f);
 
-			if (isHit and m_currentInteractType == EInteractType::NONE) {
-				m_currentInteractType = EInteractType::DDONG;
-				poop->isNear = true;
-			}
-			else {
-				poop->isNear = false;
-			}
+		if (isHit and m_currentInteractType == EInteractType::NONE) {
+			m_currentInteractType = EInteractType::DDONG;
+			poop->isNear = true;
+		}
+		else {
+			poop->isNear = false;
+		}
 	}
 
 	// 똥  근접 아니면 동물 근접 체크
@@ -1438,6 +1440,32 @@ void gameScene::checkInteraction(glm::vec3 playerPosition) {
 	}
 }
 
+void gameScene::updateAnimalPos(int type, int id, float x, float y)
+{
+	switch (type) {
+	case AnimalType::PIG:
+		if (id >= 0 && id < pigCount) // 범위 체크
+			static_cast<Pig*>(pigs[id])->setTargetPosition(x, y);
+		break;
+	case AnimalType::PENGUIN:
+		if (id >= 0 && id < penguinCount) // 범위 체크
+			static_cast<Penguin*>(penguins[id])->setTargetPosition(x, y);
+		break;
+	case AnimalType::FOX:
+		if (id >= 0 && id < foxCount) // 범위 체크
+			static_cast<Fox*>(foxes[id])->setTargetPosition(x, y);
+		break;
+	case AnimalType::ALPACA:
+		if (id >= 0 && id < alpacaCount) // 범위 체크
+			static_cast<Alpaca*>(alpacas[id])->setTargetPosition(x, y);
+		break;
+	case AnimalType::CHICKEN:
+		if (id >= 0 && id < chickenCount) // 범위 체크
+			static_cast<Chic*>(chics[id])->setTargetPosition(x, y);
+		break;
+	}
+}
+
 void gameScene::keyboard(unsigned char key, bool isPressed)
 {
 	// 이동 처리 (WASD) 
@@ -1467,7 +1495,7 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 				int targetPoopID = -1;
 				for (auto& pair : poopMap) {
 					if (pair.second->isNear) {
-						targetPoopID = pair.first; 
+						targetPoopID = pair.first;
 						break;
 					}
 				}

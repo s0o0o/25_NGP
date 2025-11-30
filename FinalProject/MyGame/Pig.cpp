@@ -6,32 +6,13 @@
 
 Pig::Pig(int num) : pigNum(num)
 {
-	float x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
-	float z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 10.f));
-	MOVE_SPEED = 1.0f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 0.3f));
-	rangeLimit = 1.f;
+	setPosition(0.f, 0.f, 0.f);
+	m_targetPos = glm::vec3(0.f, 0.f, 0.f);
+	m_prevPos = glm::vec3(0.f, 0.f, 0.f);
+	targetAngle = 0.f;
+	currentAngle = 0.f;
 
-	pigXDir = (rand() % 2 == 0) ? 1.f : -1.f;
-	pigZDir = (rand() % 2 == 0) ? 1.f : -1.f;
-
-	if (pigXDir > 0 && pigZDir > 0)
-	{
-		rotateFacePig = 45.f;
-		//std::cout << " 오른쪽가면서 카메라앞으로" << std::endl;
-	}
-	else if (pigXDir > 0 && pigZDir < 0) {
-		rotateFacePig = 135.f;
-		//std::cout << " 오른쪽가면서 뒤쪽으로" << std::endl;
-	}
-	else if (pigXDir < 0 && pigZDir > 0) {
-		rotateFacePig = -45.f;
-		//std::cout << "왼쪽으로, 카메라쪽으로" << std::endl;
-	}
-	else if (pigXDir < 0 && pigZDir < 0) {
-		rotateFacePig = -135.f; // 225 -> -135
-		//std::cout << " 왼쪽, 뒤쪽으로" << std::endl;
-	}
-	rotateY(rotateFacePig);
+	MOVE_SPEED = 1.0f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 0.3f)); //
 
 	isNear = false;
 	isBaby = true;
@@ -48,8 +29,6 @@ Pig::Pig(int num) : pigNum(num)
 	isMaxRotateBaby = false; // 각도 제한
 	isMaxRotatePig = false;
 
-	setPosition(x, 0.f, z);
-	//std::cout << "pig [" << pigNum << "] x, y :" << x << ", " << z << std::endl;
 }
 
 // z방향.. 카메라에서 멀어질수록 -----
@@ -127,45 +106,58 @@ void Pig::update(float elapseTime)
 		}
 	}
 
+	float diff = targetAngle - currentAngle;
+	if (diff > 180.0f) diff -= 360.0f;
+	if (diff < -180.0f) diff += 360.0f;
 
-	glm::vec3 currentPos = getPosition();	// 현재 위치
+	if (abs(diff) > 0.1f)
+	{
+		float rotateStep = diff * 5.0f * elapseTime;
+		rotateY(rotateStep);
 
-	float deltaX = pigXDir * MOVE_SPEED * elapseTime;
-	float deltaZ = pigZDir * MOVE_SPEED * elapseTime;
+		currentAngle += rotateStep;
 
-	glm::vec3 nextPos = currentPos + glm::vec3(deltaX, 0.0f, deltaZ); // 다음 위치..
-
-	bool directionChanged = false;
-	if (nextPos.x <= -15.f + rangeLimit) { nextPos.x = -15.f + rangeLimit; pigXDir = 1.f; directionChanged = true; }	// x왼쪽끝
-	if (nextPos.x >= -1.f - rangeLimit) { nextPos.x = -1.f - rangeLimit;  pigXDir = -1.f; directionChanged = true; }	// x오른쪽끝
-	if (nextPos.z <= -8.f + rangeLimit) { nextPos.z = -8.f + rangeLimit;  pigZDir = 1.f; directionChanged = true; }		// z나무쪽
-	if (nextPos.z >= 9.f - rangeLimit) { nextPos.z = 9.f - rangeLimit;   pigZDir = -1.f; directionChanged = true; }		// z카메라쪽
-
-	setPosition(nextPos);
-
-	float currentFace = rotateFacePig;
-	if (directionChanged) {
-		if (pigXDir > 0 && pigZDir > 0)
-		{
-			rotateFacePig = 45.f;
-			//std::cout << "부딪힘, 오른쪽가면서 카메라앞으로" << std::endl;
-		}
-		else if (pigXDir > 0 && pigZDir < 0) {
-			rotateFacePig = 135.f;
-		//	std::cout << "부딪힘, 오른쪽가면서 뒤쪽으로" << std::endl;
-		}
-		else if (pigXDir < 0 && pigZDir > 0) {
-			rotateFacePig = -45.f;
-		//	std::cout << "부딪힘 왼쪽으로, 카메라쪽으로" << std::endl;
-		}
-		else if (pigXDir < 0 && pigZDir < 0) {
-			rotateFacePig = -135.f; // 225 -> -135
-			//std::cout << "부딪힘, 왼쪽, 뒤쪽으로" << std::endl;
-		}
-		rotateY(-currentFace + rotateFacePig);
+		if (currentAngle > 360.0f) currentAngle -= 360.0f;
+		if (currentAngle < 0.0f)   currentAngle += 360.0f;
 	}
-	/*if (glm::length(dir) >= glm::epsilon<float>())
-		move(dir, moveSpeed * elapseTime);*/
+
+	glm::vec3 currentPos = getPosition();
+	glm::vec3 moveDir = m_targetPos - currentPos;
+	float dist = glm::length(moveDir);
+
+	if (dist > 5.0f) {
+		setPosition(m_targetPos);
+	}
+	else if (dist > 0.01f)
+	{
+		float moveStep = MOVE_SPEED * elapseTime; // 이동 속도
+
+		if (dist <= moveStep) {
+			setPosition(m_targetPos);
+		}
+		else {
+			setPosition(currentPos + (glm::normalize(moveDir) * moveStep));
+		}
+	}
+}
+
+void Pig::setTargetPosition(float x, float z)
+{
+	glm::vec3 newTarget(x, 0.f, z);
+	glm::vec3 dir = newTarget - m_prevPos;
+
+	if (glm::length(dir) > 0.05f)
+	{
+		dir = glm::normalize(dir);
+
+		float angleRad = atan2(dir.x, dir.z);
+		float angleDeg = glm::degrees(angleRad);
+
+		targetAngle = angleDeg;
+		m_prevPos = newTarget;
+	}
+
+	m_targetPos = newTarget;      
 }
 
 void Pig::draw(const glm::mat4& viewMatrix,
@@ -360,7 +352,7 @@ void Pig::draw(const glm::mat4& viewMatrix,
 			finalMat = baseTransform * partTransform;
 
 			//왼쪽
-			/*finalMat = moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f)) 
+			/*finalMat = moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f))
 				* rotateleftleg * glm::translate(unitMat, glm::vec3(0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;*/
 			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glUniform3f(m_colorLoc, 1.f, 0.5f, 0.7f);
@@ -369,7 +361,7 @@ void Pig::draw(const glm::mat4& viewMatrix,
 			//오른쪽
 			partTransform = moveRightPos * rotaterightleg * scaleMat * moveYMat;
 			finalMat = baseTransform * partTransform;
-			/*finalMat = moveFinal * rotateDir * moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f)) 
+			/*finalMat = moveFinal * rotateDir * moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f))
 				* rotaterightleg * glm::translate(unitMat, glm::vec3(-0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;*/
 			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glUniform3f(m_colorLoc, 1.f, 0.5f, 0.7f);
@@ -404,7 +396,7 @@ void Pig::draw(const glm::mat4& viewMatrix,
 			finalMat = baseTransform * partTransform;
 
 			//왼쪽
-			/*finalMat = moveFinal * rotateDir * moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f)) 
+			/*finalMat = moveFinal * rotateDir * moveleftPos * glm::translate(unitMat, glm::vec3(-0.0625f, 0.15f, 0.f))
 				* rotateleftleg * glm::translate(unitMat, glm::vec3(0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;*/
 			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glUniform3f(m_colorLoc, 1.f, 0.5f, 0.7f);
@@ -413,7 +405,7 @@ void Pig::draw(const glm::mat4& viewMatrix,
 
 			partTransform = moveRightPos * rotaterightleg * scaleMat * moveYMat;
 			finalMat = baseTransform * partTransform;
-			/*finalMat = moveFinal * rotateDir * moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f)) 
+			/*finalMat = moveFinal * rotateDir * moveRightPos * glm::translate(unitMat, glm::vec3(0.0625f, 0.15f, 0.f))
 				* rotaterightleg * glm::translate(unitMat, glm::vec3(-0.0625f, -0.15f, 0.f)) * scaleMat * moveYMat;*/
 			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glUniform3f(m_colorLoc, 1.f, 0.5f, 0.7f);
@@ -426,7 +418,7 @@ void Pig::draw(const glm::mat4& viewMatrix,
 
 			glm::mat4 moveBottomUp = glm::translate(unitMat, glm::vec3(0.f, 0.4f, 0.5f));
 
-			glm::mat4 partTransform =  moveBottomUp * scaleMat * moveYMat;
+			glm::mat4 partTransform = moveBottomUp * scaleMat * moveYMat;
 			finalMat = baseTransform * partTransform;
 
 			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
@@ -442,7 +434,7 @@ void Pig::draw(const glm::mat4& viewMatrix,
 
 			glm::mat4 partTransform = moveBottomUp * scaleMat * moveYMat;
 			finalMat = baseTransform * partTransform;
-			
+
 			glUniformMatrix4fv(m_worldLoc, 1, GL_FALSE, glm::value_ptr(finalMat));
 			glUniform3f(m_colorLoc, 1.f, 0.5f, 0.7f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);

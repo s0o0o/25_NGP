@@ -52,6 +52,13 @@ void GameLoop()
 
 void UpdateGameWorld(float deltaTime)
 {
+	if (g_connectionCount <= 0)
+	{
+		return;
+	}
+
+	// 동물들 업뎃
+	ANIMALS.animalUpdate(deltaTime);
 
 	// 똥 생성 타이머
 	// ---------------------------------------------------------

@@ -148,7 +148,14 @@ void ProcessPacket(PacketType type, char* data)
 		}
 		break;
 	}
-
+	case PacketType::SC_MOVE_ANIMAL:
+	{
+		sc_move_animal* p = (sc_move_animal*)data;
+		if (g_gameScene) {
+			g_gameScene->updateAnimalPos(p->animalType, p->animalID, p->x, p->y);
+		}
+		break;
+	}
 	default:
 	{
 		printf("[클라] 알 수 없는 패킷 수신: %d\n", type);

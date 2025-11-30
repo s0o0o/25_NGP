@@ -16,15 +16,6 @@ private:
 	float MOVE_SPEED;
 
 	int pigNum;
-
-	float rangeLimit;
-
-	float pigXDir;
-	float pigZDir;
-
-	float rangeX;
-	float rangeZ;
-
 	bool isNear;
 
 	float rotatePigLeftLeg;
@@ -39,7 +30,11 @@ private:
 	bool isMaxRotatePig;
 
 	int feedNum;
+	glm::vec3 m_targetPos;
+	glm::vec3 m_prevPos;
 
+	float targetAngle;        
+	float currentAngle;
 public:
 	Pig(int num);
 	virtual ~Pig();
@@ -50,6 +45,8 @@ public:
 		const glm::mat4& projMatrix, 
 		const glm::vec3& lightPos) const override;
 	virtual void release() override;
+
+	void setTargetPosition(float x, float z);
 };
 
 
