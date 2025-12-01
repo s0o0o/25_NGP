@@ -1560,13 +1560,13 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 								packet.AnimalType = AnimalType::PIG;
 								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
 							}
-							delete pigs[i];
+							/*delete pigs[i];
 							if (i != pigCount - 1) {
 								pigs[i] = pigs[pigCount - 1];
 							}
 							pigs[pigCount - 1] = nullptr;
 							pigCount--;
-							i--;
+							i--;*/
 						}
 					}
 				}
@@ -1592,13 +1592,13 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 								packet.AnimalType = AnimalType::ALPACA;
 								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
 							}
-							delete alpacas[i];
+							/*delete alpacas[i];
 							if (i != alpacaCount - 1) {
 								alpacas[i] = alpacas[alpacaCount - 1];
 							}
 							alpacas[alpacaCount - 1] = nullptr;
 							alpacaCount--;
-							i--;
+							i--;*/
 						}
 					}
 				}
@@ -1625,13 +1625,13 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
 
 							}
-							delete penguins[i];
+							/*delete penguins[i];
 							if (i != penguinCount - 1) {
 								penguins[i] = alpacas[penguinCount - 1];
 							}
 							penguins[penguinCount - 1] = nullptr;
 							penguinCount--;
-							i--;
+							i--;*/
 						}
 
 					}
@@ -1658,13 +1658,13 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 								packet.AnimalType = AnimalType::CHICKEN;
 								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
 							}
-							delete chics[i];
+							/*delete chics[i];
 							if (i != chickenCount - 1) {
 								chics[i] = alpacas[chickenCount - 1];
 							}
 							chics[chickenCount - 1] = nullptr;
 							chickenCount--;
-							i--;
+							i--;*/
 						}
 
 					}
@@ -1691,13 +1691,13 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 								packet.AnimalType = AnimalType::ALPACA;
 								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
 							}
-							delete foxes[i];
+							/*delete foxes[i];
 							if (i != foxCount - 1) {
 								foxes[i] = alpacas[foxCount - 1];
 							}
 							foxes[foxCount - 1] = nullptr;
 							foxCount--;
-							i--;
+							i--;*/
 						}
 
 					}
