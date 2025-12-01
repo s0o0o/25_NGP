@@ -156,7 +156,6 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 		g_myPlayer->setFeed(g_loginInfo.feed);
 		g_myPlayer->setMaxCoin(g_loginInfo.maxCoin);
 		g_myPlayer->setMaxFeed(g_loginInfo.maxFeed);
-		printf("[GameScene] 로그인 정보 적용 완료!\n");
 		printf("[클라] 내 플레이어 ,x=%.2f, y=%.2f, z= %.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
 			(float)g_loginInfo.x, (float)g_loginInfo.y, (float)g_loginInfo.z, player->getCoin(), player->getFeed(), player->getMaxCoin(), player->getMaxFeed());
 		std::cout << "이름 : " << g_myPlayer->getName() << std::endl;
@@ -478,6 +477,8 @@ void gameScene::removePoop(int id)
 //
 void gameScene::update(float elapsedTime)
 {
+	ProcessAnimalMoveQueue();	// 큐에서 꺼내서 동물들 위치 동기화
+
 	player->update(elapsedTime);
 	const glm::vec3 playerPosition = player->getPosition();
 
@@ -1083,6 +1084,31 @@ void gameScene::draw()
 	}
 	glDisable(GL_DEPTH_TEST);
 
+	//// 플레이어 그리고 그 위에 id추가하기
+	//// 폰트 출력
+	//{
+	//	glEnable(GL_BLEND);
+	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//	glDisable(GL_DEPTH_TEST);
+
+	//	glUseProgram(fontShader);
+	//	glBindVertexArray(fontQuadVAO);
+	//	glActiveTexture(GL_TEXTURE0);
+	//	glBindTexture(GL_TEXTURE_2D, fontTexture);
+
+	//	glm::mat4 textProjection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
+	//	glUniformMatrix4fv(font_projLoc, 1, GL_FALSE, glm::value_ptr(textProjection));
+
+	//	// id
+	//	DrawTextWithAtlas(m_myPlayerID, screenPos.x + textOffsetX, screenPos.y + idOffsetY, currentFontSize);
+
+	//	glBindVertexArray(0);
+	//	glBindTexture(GL_TEXTURE_2D, 0);
+	//	glEnable(GL_DEPTH_TEST);
+	//	glDisable(GL_BLEND);
+	//}
+
+
 
 	// ui 설정용
 	glm::mat4 uiViewMatrix = glm::mat4(1.0f);
@@ -1686,6 +1712,35 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 	}
 
 
+}
+
+// 이게 큐에 넣는거
+void gameScene::EnqueueAnimalMove(int type, int id, float x, float y)
+{
+	std::lock_guard<std::mutex> lock(m_queueLock);
+
+	AnimalMoveInfo mv;
+	mv.type = type;
+	mv.id = id;
+	mv.x = x;
+	mv.y = y;
+
+	m_animalMoveQueue.push(mv);
+	printf("큐에넣음\n");
+}
+
+void gameScene::ProcessAnimalMoveQueue()	// 이제 여기서 처리.. 큐에있으면 업뎃
+{
+	std::lock_guard<std::mutex> lock(m_queueLock);
+
+	while (!m_animalMoveQueue.empty())	// 빈게 아니면
+	{
+		AnimalMoveInfo mv = m_animalMoveQueue.front();
+		m_animalMoveQueue.pop();
+
+		updateAnimalPos(mv.type, mv.id, mv.x, mv.y);
+		printf("업뎃함\n");
+	}
 }
 
 void gameScene::specialKeyboard(int key, bool isPressed)

@@ -8,6 +8,9 @@
 #include <random>
 #include <map>
 
+#include <queue>
+#include <mutex>
+
 class GameObject;
 class PlayerObject;
 class Pig;
@@ -16,6 +19,12 @@ class Penguin;
 class Chic;
 class Fox;
 
+struct AnimalMoveInfo {
+	int type; // 동물 종류
+	int id;   // 동물 번호
+	float x;
+	float y;
+};
 
 struct Ddong {
 	float x, y, z;
@@ -30,7 +39,7 @@ struct Snow {
 	bool isDraw;
 };
 
-enum class EInteractType{
+enum class EInteractType {
 	NONE = 1,
 	DDONG,
 	ANIMAL,
@@ -70,7 +79,7 @@ private:
 	bool isTitleAni;
 	bool isTitleAniEnd;
 	float cameraY;
-	
+
 	// 환경 상태
 	glm::vec3 light;
 	bool isLightMove;
@@ -95,9 +104,9 @@ private:
 	bool isSettingFinished = false;
 
 	//dd
-	std::map<int, GameObject*> poopMap; 
-	GLuint ddongVAO = 0;               
-	GLsizei ddongVertexCount = 0;       
+	std::map<int, GameObject*> poopMap;
+	GLuint ddongVAO = 0;
+	GLsizei ddongVertexCount = 0;
 
 public:
 	// 게임 로직에서, update, draw..., 키 입력
@@ -124,7 +133,7 @@ public:
 
 	void setAnimalCount(int animalType, int count);
 
-// 동물 관련
+	// 동물 관련
 	void spawnAnimal(const int animalType);
 	void sellAnimal(const int animalType, const int animalID);
 	void feedAnimals(const int animalType, const int animalID, const int growStep);
@@ -136,16 +145,16 @@ public:
 	void removePoop(int id);
 
 private:
-	GLint m_texShader_modelLoc, m_texShader_viewLoc, m_texShader_projLoc, 
+	GLint m_texShader_modelLoc, m_texShader_viewLoc, m_texShader_projLoc,
 		m_texShader_lightColorLoc, m_texShader_useLightLoc;
 	GLint m_bgShader_modelLoc;
-	GLint m_objShader_modelLoc, m_objShader_viewLoc, m_objShader_projLoc, 
+	GLint m_objShader_modelLoc, m_objShader_viewLoc, m_objShader_projLoc,
 		m_objShader_globalColorLoc, m_objShader_useGlobalColorLoc, m_objShader_lightColorLoc,
 		m_objShader_useLightLoc;
-	GLint m_animalShader_modelLoc, m_animalShader_viewLoc, m_animalShader_projLoc, 
+	GLint m_animalShader_modelLoc, m_animalShader_viewLoc, m_animalShader_projLoc,
 		m_animalShader_lightPosLoc, m_animalShader_lightColorLoc;
-	GLint m_defaultShader_viewLoc, m_defaultShader_projLoc, 
-		m_defaultShader_cameraPosLoc; 
+	GLint m_defaultShader_viewLoc, m_defaultShader_projLoc,
+		m_defaultShader_cameraPosLoc;
 
 public:
 	void checkInteraction(glm::vec3 playerPos);	// 여기서 동물+똥 상호작용
@@ -154,6 +163,16 @@ private:
 	EInteractType m_currentInteractType;
 
 	std::string m_myPlayerID;	// 머리위에 띄울.. 변수저장용 
+
+	std::queue<AnimalMoveInfo> m_animalMoveQueue;
+	std::mutex m_queueLock;
+
+public:
+	// 수신스레드에서 큐에 넣을때
+	void EnqueueAnimalMove(int type, int id, float x, float y);
+
+	// 메인스레드에서 큐에있는거 처리할때
+	void ProcessAnimalMoveQueue();
 };
 
 extern gameScene* g_gameScene;

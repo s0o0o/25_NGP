@@ -11,7 +11,7 @@
 struct UVRect {
 	float uMin, vMin; 
 	float uWidth, vHeight; 
-};	;
+};	
 
 class startScene : public MyScene
 {

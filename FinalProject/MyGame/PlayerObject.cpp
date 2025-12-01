@@ -23,6 +23,7 @@ PlayerObject::PlayerObject()
 
 	m_currentYaw = 0.f;
 	rotateY(0.f);
+
 }
 
 PlayerObject::~PlayerObject()
@@ -91,6 +92,7 @@ void PlayerObject::update(float elapseTime)
 void PlayerObject::draw(const glm::mat4& viewMatrix,
 	const glm::mat4& projMatrix, const glm::vec3& lightPos) const
 {
+
 	// 일단 큐브로 표현
 	glUseProgram(shader);
 	GLint viewLoc = glGetUniformLocation(shader, "viewTransform");
@@ -106,6 +108,11 @@ void PlayerObject::draw(const glm::mat4& viewMatrix,
 
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+
+
+
+
+
 }
 
 void PlayerObject::release()
@@ -159,6 +166,10 @@ void PlayerObject::keyboard(unsigned char key, bool isPressed)
 		break;
 		case 27:
 			glutSetCursor(GLUT_CURSOR_INHERIT);
+			break;
+		case'n':
+		case 'N':
+			std::cout << getName() << std::endl;
 			break;
 		default:
 			break;

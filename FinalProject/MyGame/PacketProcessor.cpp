@@ -150,9 +150,10 @@ void ProcessPacket(PacketType type, char* data)
 	}
 	case PacketType::SC_MOVE_ANIMAL:
 	{
+		printf("이동 패킷 도착 ");
 		sc_move_animal* p = (sc_move_animal*)data;
 		if (g_gameScene) {
-			g_gameScene->updateAnimalPos(p->animalType, p->animalID, p->x, p->y);
+			g_gameScene->EnqueueAnimalMove(p->animalType, p->animalID, p->x, p->y);
 		}
 		break;
 	}
