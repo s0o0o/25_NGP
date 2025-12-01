@@ -2,16 +2,12 @@
 
 #include "library.h"
 #include "MyScene.h"
-
+#include "../Packet.h"
 
 #include <string>
 #include <vector>
 #include <map>
 
-struct UVRect {
-	float uMin, vMin; 
-	float uWidth, vHeight; 
-};	
 
 class startScene : public MyScene
 {

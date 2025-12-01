@@ -2,6 +2,8 @@
 
 #include "MyScene.h"
 #include "library.h"
+#include "../Packet.h"
+
 
 #include <string>
 #include <vector>
@@ -128,7 +130,7 @@ public:
 
 	void setWindowSize(int winWidth, int winHeight) override;
 
-	void createOtherPlayer(int id, float x, float y, float z);
+	void createOtherPlayer(int id, const char* name, float x, float y, float z);
 	void removeOtherPlayer(int id);
 	void updateOtherPlayer(int id, float x, float z, float yaw);
 
@@ -174,6 +176,21 @@ public:
 
 	// 메인스레드에서 큐에있는거 처리할때
 	void ProcessAnimalMoveQueue();
+
+private:
+	GLuint fontShader;
+	GLuint fontTexture;
+	GLuint fontQuadVAO;
+	GLsizei fontQuadVertCount;
+
+	GLint font_modelLoc;
+	GLint font_projLoc;
+	GLint font_uvRectLoc;
+	GLint font_colorLoc;
+
+	std::map<char, UVRect> m_charUVMap;
+	void DrawTextWithAtlas(const std::string& text, float x, float y, float size);
+	void renderName(PlayerObject* other, const glm::mat4& view, const glm::mat4& proj);
 };
 
 extern gameScene* g_gameScene;

@@ -100,6 +100,7 @@ void ResourceManager::loadAllResource()
 	m_Textures["login"] = initTexture("./Img/loginUI.png");
 	m_Textures["title"] = initTexture("./Img/textAnimalFarm.png");
 	m_Textures["keyboard"] = initTexture("./Img/keyboard.png");
+	m_Textures["keyboard_noAlpha"] = initTexture("./Img/keyboard_noalpha.png");
 
 }
 

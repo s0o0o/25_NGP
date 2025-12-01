@@ -127,6 +127,7 @@ DWORD WINAPI ClientThread(LPVOID arg)
 			EnterCriticalSection(&cs_connections);
 			sc_login_notify myInfoPkt;
 			myInfoPkt.playerID = pSession->playerID;
+			strcpy_s(myInfoPkt.name, sizeof(myInfoPkt.name), pSession->loginID);
 			myInfoPkt.x = pSession->x;
 			myInfoPkt.y = pSession->y;
 			myInfoPkt.z = pSession->z;
@@ -136,14 +137,14 @@ DWORD WINAPI ClientThread(LPVOID arg)
 				if (otherSession.sock != client_sock && otherSession.bActive)
 				{
 					// 내정보 다른애들한테
-					printf("내정보 다른애들한테\n");
+					//printf("내정보 다른애들한테\n");
 					sendPacket(otherSession.sock, PacketType::SC_LOGIN_NOTIFY, (char*)&myInfoPkt, sizeof(sc_login_notify));
 					
 					// 다른애들정보 나한테
-					printf("다른애들정보 나한테\n");
+					//printf("다른애들정보 나한테\n");
 					sc_login_notify p;
 					p.playerID = otherSession.playerID;
-					p.x = otherSession.x;
+					strcpy_s(p.name, sizeof(p.name), otherSession.loginID);					p.x = otherSession.x;
 					p.y = otherSession.y;
 					p.z = otherSession.z;
 					sendPacket(client_sock, PacketType::SC_LOGIN_NOTIFY, (char*)&p, sizeof(sc_login_notify));

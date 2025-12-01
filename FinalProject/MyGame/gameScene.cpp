@@ -15,6 +15,7 @@
 #include <iostream>
 
 #include <stb_image.h>	// 얘 추가할말?
+#include <glm/gtc/matrix_transform.hpp>
 
 const float LIGHT_SPEED = 0.5f;
 const float CAMERA_ANIM_SPEED = 10.0f;
@@ -164,6 +165,66 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	MeshData ddongMesh = m_resourceManager->getMesh("ddong");
 	ddongVAO = ddongMesh.VAO;
 	ddongVertexCount = ddongMesh.vertexCount;
+
+	// 닉네임 띄울 폰트 관련
+	fontShader = m_resourceManager->getShader("font");
+	fontTexture = m_resourceManager->getTexture("keyboard_noAlpha");
+	MeshData quadMesh = m_resourceManager->getMesh("textQuad");
+	fontQuadVAO = quadMesh.VAO;
+	fontQuadVertCount = quadMesh.vertexCount;
+
+	glUseProgram(fontShader);
+
+	font_modelLoc = glGetUniformLocation(fontShader, "model");
+	font_projLoc = glGetUniformLocation(fontShader, "projection");
+	font_uvRectLoc = glGetUniformLocation(fontShader, "uvRect");
+	font_colorLoc = glGetUniformLocation(fontShader, "textColor");
+
+	const float TOTAL_TEXTURE_WIDTH = 450.0f;
+	const float TOTAL_TEXTURE_HEIGHT = 180.0f;
+	const float CELL_PX = 45.0f;	// 키 하나 45*45
+	const float CELL_UV_WIDTH = CELL_PX / TOTAL_TEXTURE_WIDTH;
+	const float CELL_UV_HEIGHT = CELL_PX / TOTAL_TEXTURE_HEIGHT;
+
+	// 행(위에서부터 0123행)
+	float v_row[4];
+	for (int row = 0; row < 4; ++row) {
+		v_row[row] = (TOTAL_TEXTURE_HEIGHT - (static_cast<float>(row) * CELL_PX) - CELL_PX) / TOTAL_TEXTURE_HEIGHT;
+	}
+
+	// 0~9
+	for (int i = 0; i < 10; ++i) {
+		char c = '0' + i; // '0', '1', '2', ...
+		float u = (static_cast<float>(i) * CELL_PX) / TOTAL_TEXTURE_WIDTH;
+		m_charUVMap[c] = { u, v_row[0], CELL_UV_WIDTH, CELL_UV_HEIGHT };
+	}
+
+	// 2행 a~
+	for (int i = 0; i < 10; ++i) {
+		char c = 'a' + i; // 'a', 'b', 'c', ...
+		float u = (static_cast<float>(i) * CELL_PX) / TOTAL_TEXTURE_WIDTH;
+		m_charUVMap[c] = { u, v_row[1], CELL_UV_WIDTH, CELL_UV_HEIGHT };
+	}
+
+	// 3행 k~
+	for (int i = 0; i < 10; ++i) {
+		char c = 'k' + i; // 'k', 'l', 'm', ...
+		float u = (static_cast<float>(i) * CELL_PX) / TOTAL_TEXTURE_WIDTH;
+		m_charUVMap[c] = { u, v_row[2], CELL_UV_WIDTH, CELL_UV_HEIGHT };
+	}
+
+	// 4행 소문자만 u~z
+	for (int i = 0; i < 6; ++i) {
+		char c = 'u' + i; // 'u', 'v', 'w', ...
+		float u = (static_cast<float>(i) * CELL_PX) / TOTAL_TEXTURE_WIDTH;
+		m_charUVMap[c] = { u, v_row[3], CELL_UV_WIDTH, CELL_UV_HEIGHT };
+	}
+
+	m_charUVMap['.'] = { (6.0f * CELL_PX) / TOTAL_TEXTURE_WIDTH, v_row[3], CELL_UV_WIDTH, CELL_UV_HEIGHT };
+	m_charUVMap['!'] = { (7.0f * CELL_PX) / TOTAL_TEXTURE_WIDTH, v_row[3], CELL_UV_WIDTH, CELL_UV_HEIGHT };
+	m_charUVMap['?'] = { (8.0f * CELL_PX) / TOTAL_TEXTURE_WIDTH, v_row[3], CELL_UV_WIDTH, CELL_UV_HEIGHT };
+	m_charUVMap['*'] = { (9.0f * CELL_PX) / TOTAL_TEXTURE_WIDTH, v_row[3], CELL_UV_WIDTH, CELL_UV_HEIGHT };
+
 }
 
 void gameScene::sceneOnExit()
@@ -191,7 +252,7 @@ void gameScene::sceneOnExit()
 	//CloseClient(); // 클라이언트 종료
 }
 
-void gameScene::createOtherPlayer(int id, float x, float y, float z)
+void gameScene::createOtherPlayer(int id, const char* name, float x, float y, float z)
 {
 	GLuint texShader = m_resourceManager->getShader("tex");
 	MeshData cubeMesh = m_resourceManager->getMesh("cube"); // 기존 코드 참고
@@ -211,6 +272,7 @@ void gameScene::createOtherPlayer(int id, float x, float y, float z)
 			otherPlayer[i]->setShader(texShader);
 			otherPlayer[i]->initialize();
 			otherPlayer[i]->setPosition(x, y, z);
+			otherPlayer[i]->setName(name);
 			otherPlayerIDs[i] = id;
 
 			return;
@@ -250,7 +312,7 @@ void gameScene::updateOtherPlayer(int id, float x, float z, float yaw)
 	}
 
 	printf("모르는 유저(%d)의 이동 패킷 수신\n", id);
-	createOtherPlayer(id, x, 1.5f, z);
+	//createOtherPlayer(id,  x, 1.5f, z);
 }
 
 void gameScene::setAnimalCount(int animalType, int count)
@@ -657,12 +719,7 @@ void gameScene::draw()
 	glm::mat4 projMatrix = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = glm::lookAt(glm::vec3(0.f, cameraY, 15.f), glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 	glm::vec3 cameraPos = glm::vec3(1.f);
-	//if (isTitleAniEnd) {
-	//	cameraPos = player->getPosition();		// 플레이어 위치에서
-	//	cameraPos.y = 1.5f;
-	//	glm::vec3 targetPos = cameraPos + player->getLook(); // 플레이어 앞을 바라본다
-	//	viewMatrix = glm::lookAt(cameraPos, targetPos, glm::vec3(0.f, 1.f, 0.f));
-	//}
+	 
 	if (not isTitleAniEnd) {
 		viewMatrix = glm::lookAt(glm::vec3(0.f, cameraY, 25.f), glm::vec3(0.f, 2.5f, 10.f), glm::vec3(0.f, 1.f, 0.f));
 	}
@@ -681,8 +738,7 @@ void gameScene::draw()
 	}
 	projMatrix = glm::perspective(glm::radians(45.f), float(width) / float(height), 0.1f, 100.f);
 
-
-
+	
 	GLuint texShader = m_resourceManager->getShader("tex");
 	GLuint objShader = m_resourceManager->getShader("obj");
 	GLuint animalShader = m_resourceManager->getShader("animal");
@@ -1065,6 +1121,31 @@ void gameScene::draw()
 		glDrawArrays(GL_TRIANGLES, 0, ddongMesh.vertexCount);
 	}
 
+	// 플레이어 이름 그리기
+	{
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glUseProgram(fontShader);
+		glBindVertexArray(fontQuadVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, fontTexture);
+
+		glm::mat4 textProjection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
+		glUniformMatrix4fv(font_projLoc, 1, GL_FALSE, glm::value_ptr(textProjection));
+
+		renderName(g_myPlayer, viewMatrix, projMatrix); // 내꺼
+		for (int i = 0; i < 2; ++i)
+		{
+			renderName(otherPlayer[i], viewMatrix, projMatrix);	// 다른애들꺼
+		}
+
+		glBindVertexArray(0);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+	}
+
 	// 플레이어 그리기
 	glEnable(GL_DEPTH_TEST);
 	glm::vec3 lightPos(50.0f, 100.0f, 50.0f);
@@ -1083,32 +1164,6 @@ void gameScene::draw()
 		}
 	}
 	glDisable(GL_DEPTH_TEST);
-
-	//// 플레이어 그리고 그 위에 id추가하기
-	//// 폰트 출력
-	//{
-	//	glEnable(GL_BLEND);
-	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//	glDisable(GL_DEPTH_TEST);
-
-	//	glUseProgram(fontShader);
-	//	glBindVertexArray(fontQuadVAO);
-	//	glActiveTexture(GL_TEXTURE0);
-	//	glBindTexture(GL_TEXTURE_2D, fontTexture);
-
-	//	glm::mat4 textProjection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
-	//	glUniformMatrix4fv(font_projLoc, 1, GL_FALSE, glm::value_ptr(textProjection));
-
-	//	// id
-	//	DrawTextWithAtlas(m_myPlayerID, screenPos.x + textOffsetX, screenPos.y + idOffsetY, currentFontSize);
-
-	//	glBindVertexArray(0);
-	//	glBindTexture(GL_TEXTURE_2D, 0);
-	//	glEnable(GL_DEPTH_TEST);
-	//	glDisable(GL_BLEND);
-	//}
-
-
 
 	// ui 설정용
 	glm::mat4 uiViewMatrix = glm::mat4(1.0f);
@@ -1726,7 +1781,7 @@ void gameScene::EnqueueAnimalMove(int type, int id, float x, float y)
 	mv.y = y;
 
 	m_animalMoveQueue.push(mv);
-	printf("큐에넣음\n");
+	//printf("큐에넣음\n");
 }
 
 void gameScene::ProcessAnimalMoveQueue()	// 이제 여기서 처리.. 큐에있으면 업뎃
@@ -1739,7 +1794,7 @@ void gameScene::ProcessAnimalMoveQueue()	// 이제 여기서 처리.. 큐에있으면 업뎃
 		m_animalMoveQueue.pop();
 
 		updateAnimalPos(mv.type, mv.id, mv.x, mv.y);
-		printf("업뎃함\n");
+		//printf("업뎃함\n");
 	}
 }
 
@@ -1802,3 +1857,47 @@ void gameScene::setWindowSize(int winWidth, int winHeight)
 }
 
 
+
+void gameScene::DrawTextWithAtlas(const std::string& text, float x, float y, float size)
+{
+	float inputX = x; 
+	float charWidth = size;
+	float referenceHeight = 1080.0f;
+	float scaleFactor = height / referenceHeight;
+
+	for (char c : text)
+	{
+		UVRect uv = m_charUVMap[c];
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(inputX, y, 0.0f));
+		model = glm::scale(model, glm::vec3(charWidth, charWidth, 1.0f));
+
+		glUniformMatrix4fv(font_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform4f(font_uvRectLoc, uv.uMin, uv.vMin, uv.uWidth, uv.vHeight);
+
+		glDrawArrays(GL_TRIANGLES, 0, fontQuadVertCount);
+		inputX += charWidth - (35.f * scaleFactor);
+	}
+}
+
+void gameScene::renderName(PlayerObject* other, const glm::mat4& view, const glm::mat4& proj)
+{
+	
+	if (other == nullptr) return;
+	
+	glm::vec3 pos = other->getPosition();
+	pos.y += 0.75f;
+
+	glm::vec4 viewport(0.0f, 0.0f, (float)width, (float)height);
+	glm::vec3 screenPos = glm::project(pos, view, proj, viewport);
+
+	if (screenPos.z >= 0.0f && screenPos.z <= 1.0f)
+	{
+		float fontSize = 45.0f;
+		std::string name = other->getName(); // 이름 가져오기
+
+		float textOffset = (name.length() * fontSize * 0.5f) / 2.5f;
+
+		DrawTextWithAtlas(name, screenPos.x - textOffset, screenPos.y, fontSize);
+	}
+}
