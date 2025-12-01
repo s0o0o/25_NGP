@@ -26,7 +26,7 @@ DWORD WINAPI GameLoopThread(LPVOID arg)
 void GameLoop()
 {
 	auto lastTickTime = std::chrono::high_resolution_clock::now();
-	printf("[Game Loop] 틱 시작 (초당 %d회 목표)\n", SERVER_TICK_RATE);
+	//printf("[Game Loop] 틱 시작 (초당 %d회)\n", SERVER_TICK_RATE);
 
 	while (true)
 	{

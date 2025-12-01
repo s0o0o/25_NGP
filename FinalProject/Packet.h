@@ -14,6 +14,7 @@ enum direction {
 	D
 };
 
+
 enum AnimalType {
 	PIG = 0,
 	CHICKEN,
@@ -46,6 +47,8 @@ enum class PacketType : uint16_t {
 	SC_REMOVE_ANIMAL = 2010,
 	SC_REMOVE_POOP = 2051,
 	SC_MOVE_ANIMAL = 2011,
+
+	SC_ENVIRONMENT_UPDATE = 2052
 };
 
 struct PacketHeader {	// 2+2 바이트 고정, 모든 패킷 제일 앞에 붙여보내면됨
@@ -187,4 +190,11 @@ struct sc_move_animal
 	float x;
 	float y;
 	// float yaw;
+};
+
+//===================
+//날씨 s --> c
+struct sc_environment_update {
+	bool isDay;  // true: 낮
+	bool isSnow; // true: 눈
 };

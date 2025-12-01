@@ -281,7 +281,7 @@ void AnimalManager::BroadcastAnimalState(int animalID)
 	updatePacket.GrowStep = target.growStep;
 	printf("[AnimalManager] 동물 상태 브로드캐스트 (ID: %d, Type: %d, GrowStep: %d)\n",
 		target.id, target.type, target.growStep);
-
+		
 	// 브로드캐스트
 	EnterCriticalSection(&cs_connections);
 	for (auto const& pair : g_sessions_map)

@@ -19,6 +19,7 @@ class Penguin;
 class Chic;
 class Fox;
 
+
 struct AnimalMoveInfo {
 	int type; // 동물 종류
 	int id;   // 동물 번호

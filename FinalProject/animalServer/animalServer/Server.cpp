@@ -3,6 +3,7 @@
 #include "ClientHandler.h" 
 #include "GameLoop.h"
 #include "AnimalManager.h"
+#include "EnvironmentManager.h"
 #include <map> 
 
 #define SERVERPORT 9000
@@ -24,6 +25,7 @@ int main(int argc, char* argv[])
 		return 1;
 
 	ANIMALS.Initialize();
+	EN_MANAGER.Initialize();
 
 	InitializeCriticalSection(&cs_connections);
 	hServerFullEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
