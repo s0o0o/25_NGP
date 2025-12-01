@@ -48,7 +48,7 @@ void ProcessPacket(PacketType type, char* data)
 
 		if (g_gameScene) {
 			printf("다른 클라 보이게하기\n");
-			g_gameScene->createOtherPlayer(p->playerID, p->x, p->y, p->z);
+			g_gameScene->createOtherPlayer(p->playerID, p->name, p->x, p->y, p->z);
 		}
 		printf("[클라] 다른 유저(%d) 접속! 위치: %.2f, %.2f\n", p->playerID, p->x, p->z);
 		break;
@@ -150,7 +150,7 @@ void ProcessPacket(PacketType type, char* data)
 	}
 	case PacketType::SC_MOVE_ANIMAL:
 	{
-		printf("이동 패킷 도착 ");
+		//printf("이동 패킷 도착 ");
 		sc_move_animal* p = (sc_move_animal*)data;
 		if (g_gameScene) {
 			g_gameScene->EnqueueAnimalMove(p->animalType, p->animalID, p->x, p->y);

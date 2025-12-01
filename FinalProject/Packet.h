@@ -4,8 +4,14 @@
 // 패킷 프로토콜 정의 - 2025.11.04
 //======================================================== 
 
-#define MAX_ID_LEN 10
+#define MAX_ID_LEN 15
 #define MAX_PASS_LEN 10
+
+struct UVRect {
+	float uMin, vMin;
+	float uWidth, vHeight;
+};
+
 
 enum direction {
 	W = 1,
@@ -78,6 +84,7 @@ struct SC_Login_Fail {
 
 struct sc_login_notify {
 	int playerID;
+	char name[20];
 	float x;
 	float y;
 	float z;
