@@ -1288,7 +1288,7 @@ void gameScene::draw()
 			}
 		}
 		if (not isDrawn) {
-			for (int i = 0; i < alpacaCount; ++i) {
+			for (int i = 0; i < penguinCount; ++i) {
 				if (penguins[i]->isNear) {
 					GLuint targetTex = penguins[i]->isBaby ? feedButtonTexture : sellTexture;
 					glBindTexture(GL_TEXTURE_2D, targetTex);
@@ -1304,7 +1304,7 @@ void gameScene::draw()
 			}
 		}
 		if (not isDrawn) {
-			for (int i = 0; i < alpacaCount; ++i) {
+			for (int i = 0; i < chickenCount; ++i) {
 				if (chics[i]->isNear) {
 					GLuint targetTex = chics[i]->isBaby ? feedButtonTexture : sellTexture;
 					glBindTexture(GL_TEXTURE_2D, targetTex);
@@ -1320,7 +1320,7 @@ void gameScene::draw()
 			}
 		}
 		if (not isDrawn) {
-			for (int i = 0; i < alpacaCount; ++i) {
+			for (int i = 0; i < foxCount; ++i) {
 				if (foxes[i]->isNear) {
 					GLuint targetTex = foxes[i]->isBaby ? feedButtonTexture : sellTexture;
 					glBindTexture(GL_TEXTURE_2D, targetTex);
@@ -1743,7 +1743,7 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 								// 패킷 보내기
 								cs_request_sell_animal packet;
 								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::ALPACA;
+								packet.AnimalType = AnimalType::FOX;
 								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
 							}
 							/*delete foxes[i];
