@@ -177,6 +177,12 @@ public:
 	// 메인스레드에서 큐에있는거 처리할때
 	void ProcessAnimalMoveQueue();
 
+	void setEnvironment(bool day, bool snow) {
+		isDay = day;
+		isSnow = snow;
+		// isAnimalSleep = !isDay; 
+	}
+
 private:
 	GLuint fontShader;
 	GLuint fontTexture;

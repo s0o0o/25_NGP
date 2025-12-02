@@ -33,8 +33,11 @@ private:
     float dayTimer;
     float snowTimer;
 
-    const float DAY_TIME = 30.f;        // ³·¹ã 30ÃÊ
-	const float SNOW_TIME = 20.f;       // ³¯¾¾ 20ÃÊ
+    //===============³¯¾¾ Å¸ÀÌ¸Ó ===============
+    const float DAY_TIME = 300.f;        // ³·¹ã 30ÃÊ
+	const float SNOW_TIME = 30.f;       // ³¯¾¾ 20ÃÊ
+    ///=========================================
+
 
     void BroadcastEnvironment();
 };

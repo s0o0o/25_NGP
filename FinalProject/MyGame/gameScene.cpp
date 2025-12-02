@@ -604,8 +604,6 @@ void gameScene::update(float elapsedTime)
 
 
 	//std::cout << "elapsedTime : " << elapsedTime << std::endl;
-	if (not isAnimalSleep)	// ¸ÔÀÌ ÀÏÁ¤ °¹¼ö ÀÌ»ó ÁÖ¸é ¾î¸¥µÊ.. -> ¾î¸¥ÀÌ µÇ¸é ÆÈ¼öÀÖ´ç..
-	{
 		for (int i = 0; i < pigCount; ++i) {
 			pigs[i]->update(elapsedTime);
 			if (pigs[i]->feedNum >= 5) {
@@ -665,16 +663,15 @@ void gameScene::update(float elapsedTime)
 				}
 			}
 		}
-	}
 
 
 	// ´«³»¸®´Â°Å
-	snowTimer += elapsedTime;
-	if (snowTimer >= SNOW_TIME) {
-		isSnow = not isSnow;
-		snowTimer -= SNOW_TIME;
-		snows.clear();
-	}
+	//snowTimer += elapsedTime;
+	//if (snowTimer >= SNOW_TIME) {
+	//	isSnow = not isSnow;
+	//	snowTimer -= SNOW_TIME;
+	//	snows.clear();
+	//}
 
 	if (isSnow) {
 		snowSpawnTimer += elapsedTime;
@@ -697,18 +694,18 @@ void gameScene::update(float elapsedTime)
 		}
 	}
 
-	dayTimer += elapsedTime;
-	if (dayTimer >= DAY_TIME) {
-		dayTimer -= DAY_TIME;
-		isDay = not isDay;
-	}
+	//dayTimer += elapsedTime;
+	//if (dayTimer >= DAY_TIME) {
+	//	dayTimer -= DAY_TIME;
+	//	isDay = not isDay;
+	//}
 
 	if (isDay) {
 		isAnimalSleep = false;
 		//std::cout << "³·" << std::endl;
 	}
 	else if (not isDay) {
-		isAnimalSleep = true;
+		isAnimalSleep = false;
 		//std::cout << "¹ã" << std::endl;
 	}
 }

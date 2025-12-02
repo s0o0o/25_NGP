@@ -157,6 +157,16 @@ void ProcessPacket(PacketType type, char* data)
 		}
 		break;
 	}
+
+	case PacketType::SC_ENVIRONMENT_UPDATE:
+	{
+		sc_environment_update* p = (sc_environment_update*)data;
+		if (g_gameScene) {
+			g_gameScene->setEnvironment(p->isDay, p->isSnow);
+		}
+		break;
+	}
+
 	default:
 	{
 		printf("[클라] 알 수 없는 패킷 수신: %d\n", type);
