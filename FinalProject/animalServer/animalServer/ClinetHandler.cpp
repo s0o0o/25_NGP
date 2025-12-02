@@ -144,7 +144,8 @@ DWORD WINAPI ClientThread(LPVOID arg)
 					//printf("다른애들정보 나한테\n");
 					sc_login_notify p;
 					p.playerID = otherSession.playerID;
-					strcpy_s(p.name, sizeof(p.name), otherSession.loginID);					p.x = otherSession.x;
+					strcpy_s(p.name, sizeof(p.name), otherSession.loginID);					
+					p.x = otherSession.x;
 					p.y = otherSession.y;
 					p.z = otherSession.z;
 					sendPacket(client_sock, PacketType::SC_LOGIN_NOTIFY, (char*)&p, sizeof(sc_login_notify));

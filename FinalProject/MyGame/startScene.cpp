@@ -44,6 +44,8 @@ void startScene::sceneOnEnter()
 	font_uvRectLoc = glGetUniformLocation(fontShader, "uvRect");
 	font_colorLoc = glGetUniformLocation(fontShader, "textColor");
 
+	m_texShader_useLightLoc = glGetUniformLocation(texShader, "useLight");
+
 	const float TOTAL_TEXTURE_WIDTH = 450.0f;
 	const float TOTAL_TEXTURE_HEIGHT = 180.0f;
 	const float CELL_PX = 45.0f;	// 키 하나 45*45
@@ -124,6 +126,8 @@ void startScene::draw()
 	GLuint loginTex = m_resourceManager->getTexture("login");
 	GLuint titleTex = m_resourceManager->getTexture("title");
 
+	
+
 	{	// 배경  // z뒤
 		glUseProgram(bgShader);
 		glDisable(GL_DEPTH_TEST);
@@ -147,6 +151,7 @@ void startScene::draw()
 	glEnable(GL_DEPTH_TEST);
 
 	glUseProgram(texShader);
+	glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
 
 	// 로그인+title 1105
 	{
@@ -225,6 +230,7 @@ void startScene::draw()
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
 	}
+	glUniform1i(m_texShader_useLightLoc, GL_TRUE); // UI는 조명 영향 안 받음..
 }
 
 void startScene::DrawTextWithAtlas(const std::string& text, float x, float y, float size)

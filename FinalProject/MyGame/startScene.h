@@ -31,6 +31,9 @@ private:
 	GLint font_uvRectLoc;
 	GLint font_colorLoc;
 
+	GLint texShader;
+	GLint m_texShader_useLightLoc;
+
 	std::map<char, UVRect> m_charUVMap;
 	void DrawTextWithAtlas(const std::string& text, float x, float y, float size);
 public:

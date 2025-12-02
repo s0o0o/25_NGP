@@ -388,13 +388,13 @@ void AnimalManager::broadcastMovement()
 		sc_move_animal packet;
 		packet.animalID = a.id;
 		packet.animalType = a.type;
-		printf("type : %d, id : %d\n", a.type,  a.id);
+		//printf("type : %d, id : %d\n", a.type,  a.id);
 		packet.x = a.x;
 		packet.y = a.y;
 
 		for (auto const& session_pair : g_sessions_map)
 		{
-			printf("패킷보내긩\n");
+			//printf("패킷보내긩\n");
 			if (session_pair.second.bActive)
 				sendPacket(session_pair.second.sock, PacketType::SC_MOVE_ANIMAL, (char*)&packet, sizeof(packet));
 		}

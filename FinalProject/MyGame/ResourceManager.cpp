@@ -81,7 +81,7 @@ void ResourceManager::loadAllResource()
 	m_Textures["farmsign_rest"] = initTexture("./Img/farmsign_rest.png");
 	m_Textures["farmsign"] = initTexture("./Img/farmsign.png");
 	m_Textures["grass"] = initTexture("./Img/grass.jpg");
-	m_Textures["snowGrass"] = initTexture("./Img/snowGrass.png");
+	m_Textures["snowGrass"] = initTexture("./Img/snowGrass2.png");
 	m_Textures["sky1"] = initTexture("./Img/sky1.png");
 	m_Textures["sky2"] = initTexture("./Img/sky2.png");
 	m_Textures["houseWood"] = initTexture("./Img/houseWood.png");

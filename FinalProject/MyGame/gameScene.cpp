@@ -123,6 +123,7 @@ void gameScene::sceneOnEnter()	// 이게 init역할
 	m_texShader_projLoc = glGetUniformLocation(texShader, "projTransform");
 	m_texShader_lightColorLoc = glGetUniformLocation(texShader, "lightColor");
 	m_texShader_useLightLoc = glGetUniformLocation(texShader, "useLight");
+	m_texShader_drawGrassLoc = glGetUniformLocation(texShader, "drawGrass");
 
 	m_bgShader_modelLoc = glGetUniformLocation(bgShader, "modelTransform");
 
@@ -604,65 +605,65 @@ void gameScene::update(float elapsedTime)
 
 
 	//std::cout << "elapsedTime : " << elapsedTime << std::endl;
-		for (int i = 0; i < pigCount; ++i) {
-			pigs[i]->update(elapsedTime);
-			if (pigs[i]->feedNum >= 5) {
-				if (pigs[i]->isBaby) {
-					pigs[i]->isBaby = false;
-				}
-				if (not pigs[i]->isBaby) {
-				}
+	for (int i = 0; i < pigCount; ++i) {
+		pigs[i]->update(elapsedTime);
+		if (pigs[i]->feedNum >= 5) {
+			if (pigs[i]->isBaby) {
+				pigs[i]->isBaby = false;
+			}
+			if (not pigs[i]->isBaby) {
+			}
+		}
+	}
+
+	for (int i = 0; i < alpacaCount; ++i)
+	{
+		alpacas[i]->update(elapsedTime);
+		if (alpacas[i]->feedNum >= 7) {
+			if (alpacas[i]->isBaby) {
+				alpacas[i]->isBaby = false;
+			}
+			if (not alpacas[i]->isBaby) {
+			}
+		}
+	}
+
+	for (int i = 0; i < penguinCount; ++i)
+	{
+		penguins[i]->update(elapsedTime);
+		if (penguins[i]->feedNum >= 5) {
+			if (penguins[i]->isBaby) {
+				penguins[i]->isBaby = false;
+			}
+			if (not penguins[i]->isBaby) {
+			}
+		}
+	}
+
+	for (int i = 0; i < chickenCount; ++i)
+	{
+		chics[i]->update(elapsedTime);
+		if (chics[i]->feedNum >= 5) {
+			if (chics[i]->isBaby) {
+				chics[i]->isBaby = false;
+			}
+			if (not chics[i]->isBaby) {
 			}
 		}
 
-		for (int i = 0; i < alpacaCount; ++i)
-		{
-			alpacas[i]->update(elapsedTime);
-			if (alpacas[i]->feedNum >= 7) {
-				if (alpacas[i]->isBaby) {
-					alpacas[i]->isBaby = false;
-				}
-				if (not alpacas[i]->isBaby) {
-				}
+	}
+
+	for (int i = 0; i < foxCount; ++i) {
+		foxes[i]->update(elapsedTime);
+		if (foxes[i]->feedNum >= 5) {
+			if (foxes[i]->isBaby) {
+				foxes[i]->isBaby = false;
+			}
+			if (not foxes[i]->isBaby) {
+				//std::cout << " 이제 돼지 어른" << std::endl;
 			}
 		}
-
-		for (int i = 0; i < penguinCount; ++i)
-		{
-			penguins[i]->update(elapsedTime);
-			if (penguins[i]->feedNum >= 5) {
-				if (penguins[i]->isBaby) {
-					penguins[i]->isBaby = false;
-				}
-				if (not penguins[i]->isBaby) {
-				}
-			}
-		}
-
-		for (int i = 0; i < chickenCount; ++i)
-		{
-			chics[i]->update(elapsedTime);
-			if (chics[i]->feedNum >= 5) {
-				if (chics[i]->isBaby) {
-					chics[i]->isBaby = false;
-				}
-				if (not chics[i]->isBaby) {
-				}
-			}
-
-		}
-
-		for (int i = 0; i < foxCount; ++i) {
-			foxes[i]->update(elapsedTime);
-			if (foxes[i]->feedNum >= 5) {
-				if (foxes[i]->isBaby) {
-					foxes[i]->isBaby = false;
-				}
-				if (not foxes[i]->isBaby) {
-					//std::cout << " 이제 돼지 어른" << std::endl;
-				}
-			}
-		}
+	}
 
 
 	// 눈내리는거
@@ -716,7 +717,7 @@ void gameScene::draw()
 	glm::mat4 projMatrix = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = glm::lookAt(glm::vec3(0.f, cameraY, 15.f), glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 	glm::vec3 cameraPos = glm::vec3(1.f);
-	 
+
 	if (not isTitleAniEnd) {
 		viewMatrix = glm::lookAt(glm::vec3(0.f, cameraY, 25.f), glm::vec3(0.f, 2.5f, 10.f), glm::vec3(0.f, 1.f, 0.f));
 	}
@@ -735,7 +736,6 @@ void gameScene::draw()
 	}
 	projMatrix = glm::perspective(glm::radians(45.f), float(width) / float(height), 0.1f, 100.f);
 
-	
 	GLuint texShader = m_resourceManager->getShader("tex");
 	GLuint objShader = m_resourceManager->getShader("obj");
 	GLuint animalShader = m_resourceManager->getShader("animal");
@@ -744,6 +744,25 @@ void gameScene::draw()
 
 	MeshData bgMesh = m_resourceManager->getMesh("background");
 	GLuint skyTexture = m_resourceManager->getTexture("sky2");
+
+
+	// 낮/밤 조명..
+	glm::vec3 lightColorValue;
+	if (isDay) {
+		lightColorValue = glm::vec3(255.f / 255.f, 242.f / 255.f, 230.f / 255.f); // 밝은 색
+	}
+	else { // not isDay
+		lightColorValue = glm::vec3(0.f / 255.f, 40.f / 255.f, 145.f / 255.f);   // 어두운 색 (파란색 계열)
+	}
+
+	glUseProgram(texShader);
+	glUniform3fv(m_texShader_lightColorLoc, 1, glm::value_ptr(lightColorValue));
+
+	glUseProgram(objShader);
+	glUniform3fv(m_objShader_lightColorLoc, 1, glm::value_ptr(lightColorValue));
+
+	glUseProgram(animalShader);
+	glUniform3fv(m_animalShader_lightColorLoc, 1, glm::value_ptr(lightColorValue));
 
 	// 배경 먼저
 	glUseProgram(texShader);
@@ -803,6 +822,9 @@ void gameScene::draw()
 		glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(25.f));
 		glm::mat4 matrix = translateMatrix * rotMatrixX * sclaeMatrix;
 
+		glUniform1i(m_texShader_drawGrassLoc, GL_TRUE);
+	
+
 		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 		glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 		glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
@@ -814,7 +836,10 @@ void gameScene::draw()
 		else groundTexture = m_resourceManager->getTexture("grass");
 
 		glBindTexture(GL_TEXTURE_2D, groundTexture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // 가로 반복
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glDrawArrays(GL_TRIANGLES, 0, bgMesh.vertexCount);
+		glUniform1i(m_texShader_drawGrassLoc, GL_FALSE);
 	}
 
 	{
@@ -1058,7 +1083,6 @@ void gameScene::draw()
 
 		glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 		glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
-		glUniform1i(m_texShader_useLightLoc, GL_FALSE); // 간판은 조명 안 받게....
 
 		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(10.f, 3.f, 1.8f));
 		glm::mat4 rotMatrixY = glm::rotate(glm::mat4(1.f), glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
@@ -1069,14 +1093,8 @@ void gameScene::draw()
 		glBindTexture(GL_TEXTURE_2D, storeSignTexture);
 		glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
 
-		glUniform1i(m_texShader_useLightLoc, GL_TRUE);
-
 		glDisable(GL_BLEND);
 	}
-
-
-
-
 
 	// 동물 그리기
 	{
@@ -1208,7 +1226,6 @@ void gameScene::draw()
 	glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(uiViewMatrix));
 	glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(uiProjMatrix));
 	glm::mat4 translateMatrixUI = glm::translate(glm::mat4(1.f), glm::vec3(width / 2, height / 2, 0.f)); // 화면 중앙 기준으로 가정
-	glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
 
 
 	if (m_currentInteractType == EInteractType::DDONG)
@@ -1335,6 +1352,7 @@ void gameScene::draw()
 
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
+		glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
 	}
 
 	// 플레이어가 상점 근처에 오면 UI뜨게..
@@ -1388,23 +1406,6 @@ void gameScene::draw()
 	}
 
 
-	// 낮/밤 조명..
-	glm::vec3 lightColorValue;
-	if (isDay) {
-		lightColorValue = glm::vec3(255.f / 255.f, 242.f / 255.f, 230.f / 255.f); // 밝은 색
-	}
-	else { // not isDay
-		lightColorValue = glm::vec3(0.f / 255.f, 40.f / 255.f, 145.f / 255.f);   // 어두운 색 (파란색 계열)
-	}
-
-	glUseProgram(texShader);
-	glUniform3fv(m_texShader_lightColorLoc, 1, glm::value_ptr(lightColorValue));
-
-	glUseProgram(objShader);
-	glUniform3fv(m_objShader_lightColorLoc, 1, glm::value_ptr(lightColorValue));
-
-	glUseProgram(animalShader);
-	glUniform3fv(m_animalShader_lightColorLoc, 1, glm::value_ptr(lightColorValue));
 }
 
 void gameScene::checkInteraction(glm::vec3 playerPosition) {
@@ -1553,6 +1554,10 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 	{
 		switch (key)
 		{
+		case 'c':
+			std::cout << "isday : " << isDay << std::endl;
+			std::cout << "isSnow : " << isSnow << std::endl;
+			break;
 		case '0': // 돼지 구매
 		case '1': // 병아리 구매
 		case '2': // 알파카 구매
@@ -1857,7 +1862,7 @@ void gameScene::setWindowSize(int winWidth, int winHeight)
 
 void gameScene::DrawTextWithAtlas(const std::string& text, float x, float y, float size)
 {
-	float inputX = x; 
+	float inputX = x;
 	float charWidth = size;
 	float referenceHeight = 1080.0f;
 	float scaleFactor = height / referenceHeight;
@@ -1879,9 +1884,9 @@ void gameScene::DrawTextWithAtlas(const std::string& text, float x, float y, flo
 
 void gameScene::renderName(PlayerObject* other, const glm::mat4& view, const glm::mat4& proj)
 {
-	
+
 	if (other == nullptr) return;
-	
+
 	glm::vec3 pos = other->getPosition();
 	pos.y += 0.75f;
 

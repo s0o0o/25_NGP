@@ -4,7 +4,7 @@
 #include "library.h"
 #include "../Packet.h"
 
-
+#include <iostream>
 #include <string>
 #include <vector>
 #include <random>
@@ -149,7 +149,7 @@ public:
 
 private:
 	GLint m_texShader_modelLoc, m_texShader_viewLoc, m_texShader_projLoc,
-		m_texShader_lightColorLoc, m_texShader_useLightLoc;
+		m_texShader_lightColorLoc, m_texShader_useLightLoc, m_texShader_drawGrassLoc;
 	GLint m_bgShader_modelLoc;
 	GLint m_objShader_modelLoc, m_objShader_viewLoc, m_objShader_projLoc,
 		m_objShader_globalColorLoc, m_objShader_useGlobalColorLoc, m_objShader_lightColorLoc,
@@ -180,6 +180,7 @@ public:
 	void setEnvironment(bool day, bool snow) {
 		isDay = day;
 		isSnow = snow;
+		std::cout << "패킷받음 isDay : " << isDay << ", isSnow :" << isSnow << std::endl;
 		// isAnimalSleep = !isDay; 
 	}
 

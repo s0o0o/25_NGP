@@ -10,11 +10,28 @@ uniform sampler2D outSampler;
 uniform vec3 cameraPos;
 uniform vec3 lightColor;
 
+uniform bool useLight;
+uniform bool drawGrass;
+
 void main()
 {
 	vec4 outColor = texture(outSampler, outTexcoord.st);
-	vec3 result = outColor.rgb;		
-	
-    FragColor = outColor;
-
+    vec3 result;
+    
+    if (drawGrass)
+    {
+        vec2 scaledUV = outTexcoord.st * 5.0f;
+        outColor = texture(outSampler, scaledUV);
+    }
+    
+    if (useLight)
+    {
+        result = outColor.rgb * lightColor;
+    }
+    else
+    {
+        result = outColor.rgb;
+    }
+   
+    FragColor = vec4(result, outColor.a);
 }

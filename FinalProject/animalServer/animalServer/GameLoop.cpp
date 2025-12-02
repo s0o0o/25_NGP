@@ -59,7 +59,7 @@ void UpdateGameWorld(float deltaTime)
 
 	// 동물들 업뎃
 	ANIMALS.animalUpdate(deltaTime);
-	EN_MANAGER.Update(deltaTime);
+	EN_MANAGER.Update(deltaTime);	// 이게 날씨
 
 	// 똥 생성 타이머
 	// ---------------------------------------------------------
