@@ -16,10 +16,10 @@ void AnimalManager::Initialize()
 	// 초기 동물 생성 ( 돼지만 2마리 , 나머지는 1마리씩)
 	// 무한 루프 방지를 위해 변수 이름 대신 숫자 사용
 	EnterCriticalSection(&cs_animals);
-	float x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f)); 
+	float x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
 	float z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 10.f));
 	SpawnAnimal(AnimalType::PIG, x, z, false);
-	x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f)); 
+	x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
 	z = -5.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 10.f));
 	SpawnAnimal(AnimalType::PIG, x, z, false);
 	x = -10.f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / 5.f));
@@ -65,7 +65,7 @@ void AnimalManager::SpawnAnimal(int type, float startX, float startY, bool broad
 
 	LeaveCriticalSection(&cs_animals);
 
-	if (broadcast) 
+	if (broadcast)
 	{
 		//패킷
 		sc_spawn_animal packet;
@@ -87,7 +87,7 @@ void AnimalManager::SpawnAnimal(int type, float startX, float startY, bool broad
 		}
 		LeaveCriticalSection(&cs_connections);
 	}
-	
+
 }
 
 void AnimalManager::RemoveAnimal(int animalID, int animalType)
@@ -126,11 +126,12 @@ void AnimalManager::RemoveAnimal(int animalID, int animalType)
 			}
 
 			if (animalCount > 1) {
-				for (auto const& pair : animals)
+				for (auto& pair : animals)
 				{
-					AnimalData a2 = pair.second;
+					AnimalData& a2 = pair.second;
 					if (a2.id == animalCount - 1 && a2.type == animalType)
 					{
+						printf("[AnimalManager] 새로운 아이디로 변경 (ID: %d->%d, Type: %d)================================\n", a2.id, animalID, animalType);
 						a2.id = animalID;
 						break;
 					}
@@ -167,7 +168,7 @@ void AnimalManager::SpawnPoop(float x, float y)
 	newPoop.y = y;
 
 	poops[newPoop.id] = newPoop;
-	printf("[AnimalManager] 똥 생성 (ID: %d)\n", newPoop.id);
+	//printf("[AnimalManager] 똥 생성 (ID: %d)\n", newPoop.id);
 
 	LeaveCriticalSection(&cs_animals);
 
@@ -275,49 +276,34 @@ int AnimalManager::GetNextAnimalID(int type)
 
 void AnimalManager::GrowAnimal(int animalID, int animalType)
 {
+	int growStep = -1;
 	EnterCriticalSection(&cs_animals);
-	int id = (animalID << 8) | (animalType & 0xFF);
-
-	for(auto& pair : animals)
+	for (auto& pair : animals)
 	{
 		AnimalData& a = pair.second;
 		if ((a.id == animalID) && animalType == (a.type))
 		{
 			a.growStep += 1;
+			growStep = a.growStep;
 			printf("[AnimalManager] 동물 성장 (ID: %d, New GrowStep: %d)\n", a.id, a.growStep);
 			break;
 		}
 	}
 	LeaveCriticalSection(&cs_animals);
 
-	BroadcastAnimalState(id); // 상태 업데이트 브로드 캐스트
+	BroadcastAnimalState(animalID, animalType, growStep); // 상태 업데이트 브로드 캐스트
 }
 
-void AnimalManager::BroadcastAnimalState(int animalID)
+void AnimalManager::BroadcastAnimalState(int animalID, int animalType, int growStep)
 {
-	// 안전하게 동물 상태 취득
-	AnimalData target;
-	bool found = false;
-
-	EnterCriticalSection(&cs_animals);
-	auto it = animals.find(animalID);
-	if (it != animals.end())
-	{
-		target = it->second; // 복사
-		found = true;
-	}
-	LeaveCriticalSection(&cs_animals);
-
-	if (!found) return;
-
 	// 업데이트 패킷 구성
 	sc_update_animal_state updatePacket;
-	updatePacket.AnimalID = target.id;
-	updatePacket.AnimalType = target.type;
-	updatePacket.GrowStep = target.growStep;
+	updatePacket.AnimalID = animalID;
+	updatePacket.AnimalType = animalType;
+	updatePacket.GrowStep = growStep;
 	printf("[AnimalManager] 동물 상태 브로드캐스트 (ID: %d, Type: %d, GrowStep: %d)\n",
-		target.id, target.type, target.growStep);
-		
+		animalID, animalType, growStep);
+
 	// 브로드캐스트
 	EnterCriticalSection(&cs_connections);
 	for (auto const& pair : g_sessions_map)
@@ -340,7 +326,7 @@ void AnimalManager::animalUpdate(float deltaTime)
 		AnimalData& animal = pair.second;
 
 		animal.moveTimer += deltaTime;
-		if (animal.moveTimer > 5.0f) 
+		if (animal.moveTimer > 5.0f)
 		{
 			animal.moveTimer = 0.f;
 			animal.xDir = (rand() % 3) - 1.0f; // -1, 0, 1 중 하나
@@ -350,10 +336,10 @@ void AnimalManager::animalUpdate(float deltaTime)
 		float nextX = animal.x + (animal.xDir * animal.moveSpeed * deltaTime);
 		float nextY = animal.y + (animal.yDir * animal.moveSpeed * deltaTime);
 
-		if (nextX <= -15.0f ) { nextX = -15.0f; animal.xDir *= -1; }
-		if (nextX >= -1.0f ) { nextX = -1.0f;  animal.xDir *= -1; }
-		if(nextY  <= -8.f ) { nextY = -8.f; animal.yDir *= -1; }
-		if(nextY  >= 9.f ) { nextY = 9.f; animal.yDir *= -1; }
+		if (nextX <= -15.0f) { nextX = -15.0f; animal.xDir *= -1; }
+		if (nextX >= -1.0f) { nextX = -1.0f;  animal.xDir *= -1; }
+		if (nextY <= -8.f) { nextY = -8.f; animal.yDir *= -1; }
+		if (nextY >= 9.f) { nextY = 9.f; animal.yDir *= -1; }
 
 		animal.x = nextX;
 		animal.y = nextY;
@@ -416,7 +402,7 @@ bool AnimalManager::RemovePoop(int poopID)
 		// 존재하면 삭제
 		poops.erase(it);
 		isRemoved = true;
-		printf("[AnimalManager] 똥 삭제 완료 (ID: %d)\n", poopID);
+		//printf("[AnimalManager] 똥 삭제 완료 (ID: %d)\n", poopID);
 	}
 
 	LeaveCriticalSection(&cs_animals);

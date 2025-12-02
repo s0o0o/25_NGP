@@ -53,7 +53,7 @@ public:
 	void GrowAnimal(int animalID, int animalType);
 
 	// 동물 상태 브로드캐스팅
-	void BroadcastAnimalState(int animalID);
+	void BroadcastAnimalState(int animalID, int animalType, int growStep);
 
 	// 동물 움직임 업뎃
 	void animalUpdate(float deltaTime);
