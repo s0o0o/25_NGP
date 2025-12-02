@@ -2,6 +2,7 @@
 #include "ClientHandler.h" 
 #include "packetProcessor.h"
 #include "AnimalManager.h"
+#include "EnvironmentManager.h"
 #include <stdio.h>        
 #include <iostream>
 
@@ -32,7 +33,6 @@ int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize
 			return SOCKET_ERROR;
 		}
 	}
-
 	return (sizeof(PacketHeader) + dataSize); // 총 보낸 바이트 수 반환
 }
 
@@ -153,6 +153,9 @@ DWORD WINAPI ClientThread(LPVOID arg)
 
 			LeaveCriticalSection(&cs_connections);
 			ANIMALS.SendExistingObjects(client_sock);
+
+			EN_MANAGER.SendCurrentEnvironment(client_sock);
+
 		}
 		else {
 			printf("[TCP 서버] 클라이언트(%lld)가 로그인 요청 대신 비정상 패킷 전송 (%d)\n", client_sock, header.type);
