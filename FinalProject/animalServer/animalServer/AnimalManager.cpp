@@ -100,6 +100,42 @@ void AnimalManager::RemoveAnimal(int animalID, int animalType)
 		{
 			animals.erase(pair.first);
 			printf("[AnimalManager] 동물 제거 (ID: %d, Type: %d)\n", animalID, animalType);
+			int animalCount = -1;
+			switch (animalType)
+			{
+			case AnimalType::PIG:
+				animalCount = pigCount;
+				pigCount--;
+				break;
+			case AnimalType::ALPACA:
+				animalCount = alpacaCount;
+				alpacaCount--;
+				break;
+			case AnimalType::CHICKEN:
+				animalCount = chickenCount;
+				chickenCount--;
+				break;
+			case AnimalType::PENGUIN:
+				animalCount = penguinCount;
+				penguinCount--;
+				break;
+			case AnimalType::FOX:
+				animalCount = foxCount;
+				foxCount--;
+				break;
+			}
+
+			if (animalCount > 1) {
+				for (auto const& pair : animals)
+				{
+					AnimalData a2 = pair.second;
+					if (a2.id == animalCount - 1 && a2.type == animalType)
+					{
+						a2.id = animalID;
+						break;
+					}
+				}
+			}
 			break;
 		}
 	}

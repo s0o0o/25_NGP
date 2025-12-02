@@ -43,7 +43,6 @@ void GameLoop()
 		}
 		else
 		{
-
 			Sleep(1);
 		}
 	}
