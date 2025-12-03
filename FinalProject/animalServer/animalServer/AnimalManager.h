@@ -15,6 +15,7 @@ struct AnimalData {
 	float xDir = 0.f; // -1, 0, 1
 	float yDir = 0.f; // -1, 0, 1 
 	float moveTimer = 4.9f; // 시작하자마자 움직이게.. (5초가 기준)
+	float nextMoveTime = 3.0f;
 
 	float lastSentX, lastSentY;
 };

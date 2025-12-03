@@ -37,6 +37,8 @@ enum class PacketType : uint16_t {
 	CS_REQUEST_FEED = 1070,
 	CS_REQUEST_CLEAN_POOP = 1050,
 	CS_REQUEST_SELL = 1080,
+	CS_ENTER_FARM = 1090,
+	CS_OUT_FARM = 1091,
 
 
 	// S->C
@@ -204,4 +206,13 @@ struct sc_move_animal
 struct sc_environment_update {
 	bool isDay;  // true: ³·
 	bool isSnow; // true: ´«
+};
+
+// ³óÀå µé¾î°¡±â
+struct cs_enter_farm {
+
+};
+
+struct cs_out_farm {
+
 };

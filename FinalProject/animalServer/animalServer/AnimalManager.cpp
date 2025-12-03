@@ -326,9 +326,10 @@ void AnimalManager::animalUpdate(float deltaTime)
 		AnimalData& animal = pair.second;
 
 		animal.moveTimer += deltaTime;
-		if (animal.moveTimer > 5.0f)
+		if (animal.moveTimer > animal.nextMoveTime)
 		{
 			animal.moveTimer = 0.f;
+			animal.nextMoveTime = 2.0f + (rand() % 4);
 			animal.xDir = (rand() % 3) - 1.0f; // -1, 0, 1 Áß ÇÏ³ª
 			animal.yDir = (rand() % 3) - 1.0f;
 		}

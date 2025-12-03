@@ -66,8 +66,9 @@ void PlayerObject::update(float elapseTime)
 		sendPacket(g_sock, PacketType::CS_MOVE, reinterpret_cast<char*>(&move_pk), sizeof(move_pk));
 	}
 
-		if (playerZ > -8.f && playerZ < 10.f &&
-			playerX > -15.f && playerX < 1.f) {
+	glm::vec3 newPosition = worldTransform[3];
+		if (newPosition.z > -8.f && newPosition.z < 10.f &&
+			newPosition.x > -17.f && newPosition.x < 1.f) {
 			//std::cout << "농장안에 들어옴" << std::endl;
 			isInFarm = true;
 		}
@@ -77,7 +78,7 @@ void PlayerObject::update(float elapseTime)
 
 	// 상점에 왔는지 체크
 	{
-		glm::vec3 newPosition = worldTransform[3];
+		
 		if (newPosition.x > 6.f and newPosition.x <= 12.f and
 			newPosition.z > 2.f and newPosition.z < 6.f) {
 			//std::cout << "상점 앞에 옴" << std::endl;

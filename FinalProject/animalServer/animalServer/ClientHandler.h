@@ -36,6 +36,7 @@ struct PlayerSession {
 	int maxFeedNum = 15;
 
 	bool bActive; // (로그인 완료 여부)
+	bool bInFarm;
 };
 
 extern std::map<SOCKET, PlayerSession> g_sessions_map;

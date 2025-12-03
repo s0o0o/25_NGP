@@ -823,7 +823,7 @@ void gameScene::draw()
 		glm::mat4 matrix = translateMatrix * rotMatrixX * sclaeMatrix;
 
 		glUniform1i(m_texShader_drawGrassLoc, GL_TRUE);
-	
+
 
 		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 		glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
@@ -1355,13 +1355,28 @@ void gameScene::draw()
 		glUniform1i(m_texShader_useLightLoc, GL_FALSE); // UI는 조명 영향 안 받음..
 	}
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	GLuint inFarmTex = m_resourceManager->getTexture("inFarm");
+	GLuint outFarmTex = m_resourceManager->getTexture("outFarm");
+
+	glUseProgram(texShader);
+	if (m_currentInteractType == EInteractType::FENCE) {
+		GLuint uiTex = player->isInFarm ? outFarmTex : inFarmTex;
+		glBindTexture(GL_TEXTURE_2D, uiTex);
+
+		glm::mat4 scaleMatrixUI = glm::scale(glm::mat4(1.f), glm::vec3(1000.f, 500.f, 0.001f));
+		glm::mat4 matrixUI = translateMatrixUI * scaleMatrixUI;
+		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrixUI));
+
+		glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
+	}
+
 	// 플레이어가 상점 근처에 오면 UI뜨게..
 	GLuint storeUITexture = m_resourceManager->getTexture("storeScene"); // UI 텍스처
 	if (player->isStoreShow) {
 		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glUseProgram(texShader);
+
 			glBindVertexArray(cubeMesh.VAO);
 			glDisable(GL_DEPTH_TEST); // UI는 보통 깊이 테스트를 끔..
 
@@ -1375,11 +1390,10 @@ void gameScene::draw()
 			glBindTexture(GL_TEXTURE_2D, storeUITexture);
 			glDrawArrays(GL_TRIANGLES, 0, cubeMesh.vertexCount);
 
-			glEnable(GL_DEPTH_TEST); // 깊이 테스트 복원
-			glDisable(GL_BLEND);
 		}
 	}
-
+	glEnable(GL_DEPTH_TEST); // 깊이 테스트 복원
+	glDisable(GL_BLEND);
 	glUniform1i(m_texShader_useLightLoc, GL_TRUE); // UI는 조명 영향 안 받음..
 
 
@@ -1408,8 +1422,18 @@ void gameScene::draw()
 
 }
 
+const glm::vec3 FARM_ENTRANCE_POS(0.0f, 0.0f, 11.5f);
+
 void gameScene::checkInteraction(glm::vec3 playerPosition) {
 	m_currentInteractType = EInteractType::NONE;
+
+	float distToGate = glm::distance(playerPosition, FARM_ENTRANCE_POS);
+
+	if (distToGate < 4.0f)
+	{
+		printf("닿음\n");
+		m_currentInteractType = EInteractType::FENCE;
+	}
 
 	// 똥 근접 체크
 	for (auto& pair : poopMap) {
@@ -1573,190 +1597,208 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 		case 32: // 스페이스바
 			printf("test용 문구..스페이스바눌림\n");
 			// 똥 줍기..
-			if (m_currentInteractType == EInteractType::DDONG) {
-
-				int targetPoopID = -1;
-				for (auto& pair : poopMap) {
-					if (pair.second->isNear) {
-						targetPoopID = pair.first;
-						break;
-					}
-				}
-
-				if (targetPoopID != -1) {
-					cs_request_clean_poop packet;
-					packet.poopID = targetPoopID;
-					sendPacket(g_sock, PacketType::CS_REQUEST_CLEAN_POOP, (char*)&packet, sizeof(cs_request_clean_poop));
-
-					printf("[클라] 똥(%d) 청소 요청 보냄\n", targetPoopID);
-				}
+			if (m_currentInteractType == EInteractType::FENCE and not player->isInFarm)
+			{
+				printf("농장 드갈거야\n");
+				cs_enter_farm packet;
+				sendPacket(g_sock, PacketType::CS_ENTER_FARM, (char*)&packet, sizeof(packet));
+				//player->isInFarm = true;
+			}
+			else if (m_currentInteractType == EInteractType::FENCE and player->isInFarm)
+			{
+				printf("농장 나갈거야\n");
+				cs_out_farm packet;
+				sendPacket(g_sock, PacketType::CS_OUT_FARM, (char*)&packet, sizeof(packet));
+				//player->isInFarm = false;
 			}
 
-			// 동물들가까이 갔을 때.. 상호작용들
-			// 돼지
-			if (m_currentInteractType == EInteractType::ANIMAL) {
+			if (player->isInFarm) {
 
-				for (int i = 0; i < pigCount; ++i) {
-					if (pigs[i]->isNear) {
-						if (pigs[i]->isBaby) { // 아기 돼지?? -> 밥 주기
-							if (player->getFeed() > 0) {
-								// feed 요청 패킷 보내기
-								cs_request_feed_animal packet;
-								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::PIG;
-								sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
-								break;
-							}
+				if (m_currentInteractType == EInteractType::DDONG) {
+
+					int targetPoopID = -1;
+					for (auto& pair : poopMap) {
+						if (pair.second->isNear) {
+							targetPoopID = pair.first;
+							break;
 						}
-						else {
-							std::cout << " 돼지 팔음" << std::endl;
-							if (player->getCoin() < player->getMaxCoin() - 1) {
-								// 패킷 보내기
-								cs_request_sell_animal packet;
-								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::PIG;
-								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
-							}
-							/*delete pigs[i];
-							if (i != pigCount - 1) {
-								pigs[i] = pigs[pigCount - 1];
-							}
-							pigs[pigCount - 1] = nullptr;
-							pigCount--;
-							i--;*/
-						}
+					}
+
+					if (targetPoopID != -1) {
+						cs_request_clean_poop packet;
+						packet.poopID = targetPoopID;
+						sendPacket(g_sock, PacketType::CS_REQUEST_CLEAN_POOP, (char*)&packet, sizeof(cs_request_clean_poop));
+
+						printf("[클라] 똥(%d) 청소 요청 보냄\n", targetPoopID);
 					}
 				}
 
-				for (int i = 0; i < alpacaCount; ++i) {
-					if (alpacas[i]->isNear) {
-						if (alpacas[i]->isBaby) { // 아기 돼지?? -> 밥 주기
-							if (player->getFeed() > 0) {
-								// feed 요청 패킷 보내기
-								cs_request_feed_animal packet;
-								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::ALPACA;
-								sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
-								break;
+				// 동물들가까이 갔을 때.. 상호작용들
+				// 돼지
+				if (m_currentInteractType == EInteractType::ANIMAL) {
+
+					for (int i = 0; i < pigCount; ++i) {
+						if (pigs[i]->isNear) {
+							if (pigs[i]->isBaby) { // 아기 돼지?? -> 밥 주기
+								if (player->getFeed() > 0) {
+									// feed 요청 패킷 보내기
+									cs_request_feed_animal packet;
+									packet.AnimalID = i;
+									packet.AnimalType = AnimalType::PIG;
+									sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+									break;
+								}
 							}
-						}
-						else {
-							std::cout << " 알파카 팔음" << std::endl;
-							if (player->getCoin() < player->getMaxCoin() - 1) {
-								// 패킷 보내기
-								cs_request_sell_animal packet;
-								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::ALPACA;
-								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+							else {
+								std::cout << " 돼지 팔음" << std::endl;
+								if (player->getCoin() < player->getMaxCoin() - 1) {
+									// 패킷 보내기
+									cs_request_sell_animal packet;
+									packet.AnimalID = i;
+									packet.AnimalType = AnimalType::PIG;
+									sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+								}
+								/*delete pigs[i];
+								if (i != pigCount - 1) {
+									pigs[i] = pigs[pigCount - 1];
+								}
+								pigs[pigCount - 1] = nullptr;
+								pigCount--;
+								i--;*/
 							}
-							/*delete alpacas[i];
-							if (i != alpacaCount - 1) {
-								alpacas[i] = alpacas[alpacaCount - 1];
-							}
-							alpacas[alpacaCount - 1] = nullptr;
-							alpacaCount--;
-							i--;*/
 						}
 					}
-				}
-				// 펭귄
-				for (int i = 0; i < penguinCount; ++i) {
-					if (penguins[i]->isNear) {
-						if (penguins[i]->isBaby) {
-							if (player->getFeed() > 0) {
-								// feed 요청 패킷 보내기
-								cs_request_feed_animal packet;
-								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::PENGUIN;
-								sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
-								break;
+
+					for (int i = 0; i < alpacaCount; ++i) {
+						if (alpacas[i]->isNear) {
+							if (alpacas[i]->isBaby) { // 아기 돼지?? -> 밥 주기
+								if (player->getFeed() > 0) {
+									// feed 요청 패킷 보내기
+									cs_request_feed_animal packet;
+									packet.AnimalID = i;
+									packet.AnimalType = AnimalType::ALPACA;
+									sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+									break;
+								}
+							}
+							else {
+								std::cout << " 알파카 팔음" << std::endl;
+								if (player->getCoin() < player->getMaxCoin() - 1) {
+									// 패킷 보내기
+									cs_request_sell_animal packet;
+									packet.AnimalID = i;
+									packet.AnimalType = AnimalType::ALPACA;
+									sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+								}
+								/*delete alpacas[i];
+								if (i != alpacaCount - 1) {
+									alpacas[i] = alpacas[alpacaCount - 1];
+								}
+								alpacas[alpacaCount - 1] = nullptr;
+								alpacaCount--;
+								i--;*/
 							}
 						}
-						else {
-							std::cout << " 펭귄 팔음" << std::endl;
-							if (player->getCoin() < player->getMaxCoin() - 1) {
-								// 패킷 보내기
-								cs_request_sell_animal packet;
-								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::PENGUIN;
-								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
-
-							}
-							/*delete penguins[i];
-							if (i != penguinCount - 1) {
-								penguins[i] = alpacas[penguinCount - 1];
-							}
-							penguins[penguinCount - 1] = nullptr;
-							penguinCount--;
-							i--;*/
-						}
-
 					}
-				}
-				// 양념 치킨
-				for (int i = 0; i < chickenCount; ++i) {
-					if (chics[i]->isNear) {
-						if (chics[i]->isBaby) {
-							if (player->getFeed() > 0) {
-								// feed 요청 패킷 보내기
-								cs_request_feed_animal packet;
-								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::CHICKEN;
-								sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
-								break;
+					// 펭귄
+					for (int i = 0; i < penguinCount; ++i) {
+						if (penguins[i]->isNear) {
+							if (penguins[i]->isBaby) {
+								if (player->getFeed() > 0) {
+									// feed 요청 패킷 보내기
+									cs_request_feed_animal packet;
+									packet.AnimalID = i;
+									packet.AnimalType = AnimalType::PENGUIN;
+									sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+									break;
+								}
 							}
-						}
-						else {
-							std::cout << " 취킨 팔음" << std::endl;
-							if (player->getCoin() < player->getMaxCoin() - 1) {
-								// 패킷보내야지
-								cs_request_sell_animal packet;
-								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::CHICKEN;
-								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
-							}
-							/*delete chics[i];
-							if (i != chickenCount - 1) {
-								chics[i] = alpacas[chickenCount - 1];
-							}
-							chics[chickenCount - 1] = nullptr;
-							chickenCount--;
-							i--;*/
-						}
+							else {
+								std::cout << " 펭귄 팔음" << std::endl;
+								if (player->getCoin() < player->getMaxCoin() - 1) {
+									// 패킷 보내기
+									cs_request_sell_animal packet;
+									packet.AnimalID = i;
+									packet.AnimalType = AnimalType::PENGUIN;
+									sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
 
+								}
+								/*delete penguins[i];
+								if (i != penguinCount - 1) {
+									penguins[i] = alpacas[penguinCount - 1];
+								}
+								penguins[penguinCount - 1] = nullptr;
+								penguinCount--;
+								i--;*/
+							}
+
+						}
 					}
-				}
-				// 여우
-				for (int i = 0; i < foxCount; ++i) {
-					if (foxes[i]->isNear) {
-						if (foxes[i]->isBaby) {
-							if (player->getFeed() > 0) {
-								// feed 요청 패킷 보내기
-								cs_request_feed_animal packet;
-								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::FOX;
-								sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
-								break;
+					// 양념 치킨
+					for (int i = 0; i < chickenCount; ++i) {
+						if (chics[i]->isNear) {
+							if (chics[i]->isBaby) {
+								if (player->getFeed() > 0) {
+									// feed 요청 패킷 보내기
+									cs_request_feed_animal packet;
+									packet.AnimalID = i;
+									packet.AnimalType = AnimalType::CHICKEN;
+									sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+									break;
+								}
 							}
-						}
-						else {
-							std::cout << " 여우 팔음" << std::endl;
-							if (player->getCoin() < player->getMaxCoin() - 1) {
-								// 패킷 보내기
-								cs_request_sell_animal packet;
-								packet.AnimalID = i;
-								packet.AnimalType = AnimalType::FOX;
-								sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+							else {
+								std::cout << " 취킨 팔음" << std::endl;
+								if (player->getCoin() < player->getMaxCoin() - 1) {
+									// 패킷보내야지
+									cs_request_sell_animal packet;
+									packet.AnimalID = i;
+									packet.AnimalType = AnimalType::CHICKEN;
+									sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+								}
+								/*delete chics[i];
+								if (i != chickenCount - 1) {
+									chics[i] = alpacas[chickenCount - 1];
+								}
+								chics[chickenCount - 1] = nullptr;
+								chickenCount--;
+								i--;*/
 							}
-							/*delete foxes[i];
-							if (i != foxCount - 1) {
-								foxes[i] = alpacas[foxCount - 1];
-							}
-							foxes[foxCount - 1] = nullptr;
-							foxCount--;
-							i--;*/
-						}
 
+						}
+					}
+					// 여우
+					for (int i = 0; i < foxCount; ++i) {
+						if (foxes[i]->isNear) {
+							if (foxes[i]->isBaby) {
+								if (player->getFeed() > 0) {
+									// feed 요청 패킷 보내기
+									cs_request_feed_animal packet;
+									packet.AnimalID = i;
+									packet.AnimalType = AnimalType::FOX;
+									sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+									break;
+								}
+							}
+							else {
+								std::cout << " 여우 팔음" << std::endl;
+								if (player->getCoin() < player->getMaxCoin() - 1) {
+									// 패킷 보내기
+									cs_request_sell_animal packet;
+									packet.AnimalID = i;
+									packet.AnimalType = AnimalType::FOX;
+									sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+								}
+								/*delete foxes[i];
+								if (i != foxCount - 1) {
+									foxes[i] = alpacas[foxCount - 1];
+								}
+								foxes[foxCount - 1] = nullptr;
+								foxCount--;
+								i--;*/
+							}
+
+						}
 					}
 				}
 			}

@@ -18,6 +18,13 @@ const float LIMIT_Z = 20.f;
 const int SERVER_TICK_RATE = 128;		 // 1초에 128번 업데이트
 const float MILLISECONDS_PER_TICK = 1000.f / SERVER_TICK_RATE;
 
+const float FENCE_MIN_X = -17.0f;
+const float FENCE_MAX_X = 1.0f;
+const float FENCE_MIN_Z = -8.0f;
+const float FENCE_MAX_Z = 10.0f;
+
+const float P_RADIUS = 0.3f;
+
 DWORD WINAPI GameLoopThread(LPVOID arg)
 {
 	GameLoop();
@@ -38,7 +45,7 @@ void GameLoop()
 		if (delta.count() >= MILLISECONDS_PER_TICK)
 		{
 			lastTickTime = now;
-			float deltaTime = delta.count() / 1000.0f; 
+			float deltaTime = delta.count() / 1000.0f;
 
 			UpdateGameWorld(deltaTime);
 		}
@@ -126,6 +133,48 @@ void UpdateGameWorld(float deltaTime)
 		if (nextPos.z > LIMIT_Z - PLAYER_LIMIT) nextPos.z = LIMIT_Z - PLAYER_LIMIT;
 		if (nextPos.z < -LIMIT_Z + PLAYER_LIMIT) nextPos.z = -LIMIT_Z + PLAYER_LIMIT;
 
+		if (currentPos.z >= FENCE_MIN_Z - P_RADIUS && currentPos.z <= FENCE_MAX_Z + P_RADIUS)
+		{
+			if (currentPos.x > FENCE_MIN_X && nextPos.x <= FENCE_MIN_X + P_RADIUS)
+			{
+				nextPos.x = FENCE_MIN_X + P_RADIUS; // 안쪽에 가둠
+			}
+			else if (currentPos.x < FENCE_MIN_X && nextPos.x >= FENCE_MIN_X - P_RADIUS)
+			{
+				nextPos.x = FENCE_MIN_X - P_RADIUS; // 바깥에 막음
+			}
+
+			if (currentPos.x < FENCE_MAX_X && nextPos.x >= FENCE_MAX_X - P_RADIUS)
+			{
+				nextPos.x = FENCE_MAX_X - P_RADIUS; // 안쪽에 가둠
+			}
+			else if (currentPos.x > FENCE_MAX_X && nextPos.x <= FENCE_MAX_X + P_RADIUS)
+			{
+				nextPos.x = FENCE_MAX_X + P_RADIUS; // 바깥에 막음
+			}
+		}
+
+		if (currentPos.x >= FENCE_MIN_X - P_RADIUS && currentPos.x <= FENCE_MAX_X + P_RADIUS)
+		{
+			if (currentPos.z > FENCE_MIN_Z && nextPos.z <= FENCE_MIN_Z + P_RADIUS)
+			{
+				nextPos.z = FENCE_MIN_Z + P_RADIUS;
+			}
+			else if (currentPos.z < FENCE_MIN_Z && nextPos.z >= FENCE_MIN_Z - P_RADIUS)
+			{
+				nextPos.z = FENCE_MIN_Z - P_RADIUS;
+			}
+
+			if (currentPos.z < FENCE_MAX_Z && nextPos.z >= FENCE_MAX_Z - P_RADIUS)
+			{
+				nextPos.z = FENCE_MAX_Z - P_RADIUS;
+			}
+			else if (currentPos.z > FENCE_MAX_Z && nextPos.z <= FENCE_MAX_Z + P_RADIUS)
+			{
+				nextPos.z = FENCE_MAX_Z + P_RADIUS;
+			}
+		}
+
 		// 세션에 최종 위치 반영
 		session.x = nextPos.x;
 		session.y = nextPos.y;
@@ -147,7 +196,7 @@ void UpdateGameWorld(float deltaTime)
 		}
 
 		// 입력 처리 완료 후 초기화 
-		session.lastInputDir = -1; 
+		session.lastInputDir = -1;
 	}
 
 	LeaveCriticalSection(&cs_connections);

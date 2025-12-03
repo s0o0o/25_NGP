@@ -46,6 +46,7 @@ enum class EInteractType {
 	NONE = 1,
 	DDONG,
 	ANIMAL,
+	FENCE
 };
 
 

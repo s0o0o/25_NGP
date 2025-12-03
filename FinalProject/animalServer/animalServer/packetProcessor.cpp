@@ -111,6 +111,46 @@ void ProcessPacket(PlayerSession* pSession, PacketType type, char* data)
 		sendPacket(client_sock, PacketType::SC_STAT_CHANGE, (char*)&(statChangePacket), sizeof(sc_stat_change));
 		break;
 	}
+	case PacketType::CS_ENTER_FARM:
+	{
+		PlayerSession& session = g_sessions_map[client_sock];
+		session.x = -8.0f;
+		session.z = 7.0f;
+
+		sc_move_update packet;
+		packet.playerID = session.playerID;
+		packet.x = session.x;
+		packet.z = session.z;
+		packet.yaw = session.currentYaw;
+
+		// 모든 클라에게 전송
+		for (auto& pair : g_sessions_map) {
+			if (pair.second.bActive)
+				sendPacket(pair.second.sock, PacketType::SC_MOVE_UPDATE, (char*)&packet, sizeof(packet));
+		}		
+		printf("CS_ENTER_FARM왔고, 다시 무브업뎃함\n");
+		break;
+	}
+	case PacketType::CS_OUT_FARM:
+	{
+		PlayerSession& session = g_sessions_map[client_sock];
+		session.x = 3.0f;
+		session.z = 12.0f;
+
+		sc_move_update packet;
+		packet.playerID = session.playerID;
+		packet.x = session.x;
+		packet.z = session.z;
+		packet.yaw = session.currentYaw;
+
+		// 모든 클라에게 전송
+		for (auto& pair : g_sessions_map) {
+			if (pair.second.bActive)
+				sendPacket(pair.second.sock, PacketType::SC_MOVE_UPDATE, (char*)&packet, sizeof(packet));
+		}
+		printf("CS_OUT_FARM왔고, 다시 무브업뎃함\n");
+		break;
+	}
 	default:
 		printf("타입 정의 X 패킷 : %d\n", type);
 		break;

@@ -30,6 +30,7 @@ class PlayerObject : public GameObject {
 	int coinMax;
 	int FeedMax;
 	float x, z;
+
 public:
 	PlayerObject();
 	virtual ~PlayerObject();
