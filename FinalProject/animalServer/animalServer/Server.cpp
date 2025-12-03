@@ -34,6 +34,16 @@ int main(int argc, char* argv[])
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (listen_sock == INVALID_SOCKET) err_quit("socket()");
 
+	//소켓 옵션 설정
+	DWORD bEnable = 1;
+	retval = setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&bEnable, sizeof(bEnable));
+	if (retval == SOCKET_ERROR) err_quit("setsockopt(SO_REUSEADDR)");
+	printf("[TCP 서버] SO_REUSEADDR 옵션 설정 완료\n");
+
+	retval = setsockopt(listen_sock, SOL_SOCKET, SO_KEEPALIVE, (const char*)&bEnable, sizeof(bEnable));
+	if (retval == SOCKET_ERROR) err_quit("setsockopt()");
+	printf("[TCP 서버] SO_KEEPALIVE 옵션 설정 완료\n");
+
 	struct sockaddr_in serveraddr;
 	memset(&serveraddr, 0, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
