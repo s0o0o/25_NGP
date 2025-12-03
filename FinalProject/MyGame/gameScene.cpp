@@ -824,7 +824,6 @@ void gameScene::draw()
 
 		glUniform1i(m_texShader_drawGrassLoc, GL_TRUE);
 
-
 		glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 		glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 		glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
@@ -840,6 +839,30 @@ void gameScene::draw()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glDrawArrays(GL_TRIANGLES, 0, bgMesh.vertexCount);
 		glUniform1i(m_texShader_drawGrassLoc, GL_FALSE);
+	}
+
+	{
+		glUseProgram(texShader);
+		glBindVertexArray(bgMesh.VAO);
+
+		for (int i = 0; i < 10; ++i) {
+			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(5.0f, 0.01f, 22.5f + i*(-5.0)));
+			glm::mat4 rotMatrixX = glm::rotate(glm::mat4(1.f), glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+
+			glm::mat4 sclaeMatrix = glm::scale(glm::mat4(1.f), glm::vec3(2.5f));
+			glm::mat4 matrix = translateMatrix * rotMatrixX * sclaeMatrix;
+
+			glUniformMatrix4fv(m_texShader_modelLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+			glUniformMatrix4fv(m_texShader_viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+			glUniformMatrix4fv(m_texShader_projLoc, 1, GL_FALSE, glm::value_ptr(projMatrix));
+			GLuint roadTexture;
+			if (isSnow) {
+				roadTexture = m_resourceManager->getTexture("snowroad");
+			}
+			else roadTexture = m_resourceManager->getTexture("road");
+			glBindTexture(GL_TEXTURE_2D, roadTexture);
+			glDrawArrays(GL_TRIANGLES, 0, bgMesh.vertexCount);
+		}
 	}
 
 	{

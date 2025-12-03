@@ -96,6 +96,8 @@ void ResourceManager::loadAllResource()
 	m_Textures["tino"] = initTexture("./Img/tino.png");
 	m_Textures["inFarm"] = initTexture("./Img/inFarm.png");
 	m_Textures["outFarm"] = initTexture("./Img/outFarm.png");
+	m_Textures["road"] = initTexture("./Img/road.png");
+	m_Textures["snowroad"] = initTexture("./Img/snowroad.png");
 
 	// 시작화면에 필요한거
 	m_Textures["pushSpaceBar"] = initTexture("./Img/enterSpaceBar.png");

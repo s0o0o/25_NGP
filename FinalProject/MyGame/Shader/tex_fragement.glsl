@@ -20,7 +20,7 @@ void main()
     
     if (drawGrass)
     {
-        vec2 scaledUV = outTexcoord.st * 5.0f;
+        vec2 scaledUV = outTexcoord.st * 10.0f;
         outColor = texture(outSampler, scaledUV);
     }
     
