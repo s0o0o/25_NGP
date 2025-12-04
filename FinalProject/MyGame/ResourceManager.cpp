@@ -75,9 +75,7 @@ void ResourceManager::loadAllResource()
 	m_Meshes["background"] = initBackGroundBuffer(); // (배경 VAO)
 	m_Meshes["textQuad"] = initTextQuad(); // 폰트그리는 vao
 
-	// 시작화면에 필요한거
-	m_Meshes["titleobj"] = initBufferWithUV("./OBJ/title.obj");
-
+	// png
 	m_Textures["farmsign_rest"] = initTexture("./Img/farmsign_rest.png");
 	m_Textures["farmsign"] = initTexture("./Img/farmsign.png");
 	m_Textures["grass"] = initTexture("./Img/grass.jpg");
@@ -90,7 +88,6 @@ void ResourceManager::loadAllResource()
 	m_Textures["ddongButton"] = initTexture("./Img/ddongButton1.png");
 	m_Textures["feedButton"] = initTexture("./Img/feedButton1.png");
 	m_Textures["coin"] = initTexture("./Img/coin.png");
-	m_Textures["buy"] = initTexture("./Img/buy.png");
 	m_Textures["feedpack"] = initTexture("./Img/feed.png");
 	m_Textures["growNsell"] = initTexture("./Img/growNsell2.png");
 	m_Textures["tino"] = initTexture("./Img/tino.png");
@@ -100,7 +97,6 @@ void ResourceManager::loadAllResource()
 	m_Textures["snowroad"] = initTexture("./Img/snowroad.png");
 
 	// 시작화면에 필요한거
-	m_Textures["pushSpaceBar"] = initTexture("./Img/enterSpaceBar.png");
 	m_Textures["login"] = initTexture("./Img/loginUI.png");
 	m_Textures["title"] = initTexture("./Img/textAnimalFarm.png");
 	m_Textures["keyboard"] = initTexture("./Img/keyboard.png");

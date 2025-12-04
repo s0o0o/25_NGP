@@ -120,7 +120,6 @@ void startScene::draw()
 	GLuint texShader = m_resourceManager->getShader("tex");
 
 	GLuint skyTex = m_resourceManager->getTexture("sky2");
-	GLuint buttonTex = m_resourceManager->getTexture("pushSpaceBar");
 
 	// login 1105
 	GLuint loginTex = m_resourceManager->getTexture("login");
