@@ -121,7 +121,7 @@ DWORD WINAPI ClientThread(LPVOID arg)
 			std::cout << "이름 : " << packet.name << std::endl;
 			printf("플레이어(%d] 로그인 성공: x=%.2f, y=%.2f, z=%.2f, coin=%d, feed=%d, maxCoin=%d, maxFeed=%d\n",
 				pSession->playerID, pSession->x, pSession->y, pSession->z, pSession->coinNum, pSession->feedNum, pSession->maxCoinNum, pSession->maxFeedNum);
-			strcpy_s(packet.message, "[S->C] 플레이어 로그인 ㅇㅋ");
+			strcpy_s(packet.message, "[S->C] 플레이어 로그인 완료");
 
 			LeaveCriticalSection(&cs_connections);
 

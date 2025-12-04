@@ -34,8 +34,8 @@ private:
     float snowTimer;
 
     //===============³¯¾¾ Å¸ÀÌ¸Ó ===============
-    const float DAY_TIME = 3.f;        // ³·¹ã 30ÃÊ
-	const float SNOW_TIME = 5.f;       // ³¯¾¾ 20ÃÊ
+    const float DAY_TIME = 10.f;        // ³·¹ã 10ÃÊ
+	const float SNOW_TIME = 30.f;       // ³¯¾¾ 30ÃÊ
     ///=========================================
 
 
