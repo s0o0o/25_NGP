@@ -18,6 +18,8 @@ int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize
 	header.type = type;
 	header.size = dataSize;
 
+	EnterCriticalSection(&cs_connections);
+
 	// 헤더 전송 (4바이트)
 	int retval = send(sock, (const char*)&header, sizeof(PacketHeader), 0);
 	if (retval == SOCKET_ERROR) {
@@ -33,6 +35,8 @@ int sendPacket(SOCKET sock, PacketType type, const char* data, uint16_t dataSize
 			return SOCKET_ERROR;
 		}
 	}
+
+	LeaveCriticalSection(&cs_connections);
 	return (sizeof(PacketHeader) + dataSize); // 총 보낸 바이트 수 반환
 }
 
