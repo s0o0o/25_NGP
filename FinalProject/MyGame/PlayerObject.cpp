@@ -259,7 +259,7 @@ void PlayerObject::mouseMove(int x, int y)
 // 서버에서 받은 위치로..
 void PlayerObject::movePosition(float serverX, float serverZ)
 {
-	glm::vec3 serverPos(serverX, worldTransform[3].y, serverZ);
+	glm::vec3 serverPos(serverX, 1.0f, serverZ);
 	worldTransform[3] = glm::vec4(serverPos, 1.0f);
 
 	playerX = serverX;
