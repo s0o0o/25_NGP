@@ -460,6 +460,8 @@ void gameScene::sellAnimal(const int animalType, const int animalID)
 	default:
 		break;
 	}
+
+	printf("[게임씬] 동물 판매 완료! 종류: %d, ID: %d\n", animalType, animalID);
 }
 
 void gameScene::feedAnimals(const int animalType, const int animalID, const int growStep)
@@ -1454,7 +1456,7 @@ void gameScene::checkInteraction(glm::vec3 playerPosition) {
 
 	if (distToGate < 4.0f)
 	{
-		printf("닿음\n");
+		//printf("닿음\n");
 		m_currentInteractType = EInteractType::FENCE;
 	}
 
@@ -1618,18 +1620,18 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 			}
 			break;
 		case 32: // 스페이스바
-			printf("test용 문구..스페이스바눌림\n");
+			//printf("test용 문구..스페이스바눌림\n");
 			// 똥 줍기..
 			if (m_currentInteractType == EInteractType::FENCE and not player->isInFarm)
 			{
-				printf("농장 드갈거야\n");
+				printf("농장 들어감\n");
 				cs_enter_farm packet;
 				sendPacket(g_sock, PacketType::CS_ENTER_FARM, (char*)&packet, sizeof(packet));
 				//player->isInFarm = true;
 			}
 			else if (m_currentInteractType == EInteractType::FENCE and player->isInFarm)
 			{
-				printf("농장 나갈거야\n");
+				printf("농장 나감\n");
 				cs_out_farm packet;
 				sendPacket(g_sock, PacketType::CS_OUT_FARM, (char*)&packet, sizeof(packet));
 				//player->isInFarm = false;
@@ -1669,17 +1671,19 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 									packet.AnimalID = i;
 									packet.AnimalType = AnimalType::PIG;
 									sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+									std::cout << "사료 급여 요청 전송" << std::endl;
 									break;
 								}
 							}
 							else {
-								std::cout << " 돼지 팔음" << std::endl;
+								//std::cout << " 돼지 팔음" << std::endl;
 								if (player->getCoin() < player->getMaxCoin() - 1) {
 									// 패킷 보내기
 									cs_request_sell_animal packet;
 									packet.AnimalID = i;
 									packet.AnimalType = AnimalType::PIG;
 									sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+									std::cout << "판매 요청 전송\n" << std::endl;
 								}
 								/*delete pigs[i];
 								if (i != pigCount - 1) {
@@ -1701,17 +1705,19 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 									packet.AnimalID = i;
 									packet.AnimalType = AnimalType::ALPACA;
 									sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+									std::cout << "사료 급여 요청 전송" << std::endl;
 									break;
 								}
 							}
 							else {
-								std::cout << " 알파카 팔음" << std::endl;
+								//std::cout << " 알파카 팔음" << std::endl;
 								if (player->getCoin() < player->getMaxCoin() - 1) {
 									// 패킷 보내기
 									cs_request_sell_animal packet;
 									packet.AnimalID = i;
 									packet.AnimalType = AnimalType::ALPACA;
 									sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+									std::cout << "판매 요청 전송\n" << std::endl;
 								}
 								/*delete alpacas[i];
 								if (i != alpacaCount - 1) {
@@ -1733,17 +1739,19 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 									packet.AnimalID = i;
 									packet.AnimalType = AnimalType::PENGUIN;
 									sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+									std::cout << "사료 급여 요청 전송" << std::endl;
 									break;
 								}
 							}
 							else {
-								std::cout << " 펭귄 팔음" << std::endl;
+								//std::cout << " 펭귄 팔음" << std::endl;
 								if (player->getCoin() < player->getMaxCoin() - 1) {
 									// 패킷 보내기
 									cs_request_sell_animal packet;
 									packet.AnimalID = i;
 									packet.AnimalType = AnimalType::PENGUIN;
 									sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+									std::cout << "판매 요청 전송\n" << std::endl;
 
 								}
 								/*delete penguins[i];
@@ -1767,17 +1775,19 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 									packet.AnimalID = i;
 									packet.AnimalType = AnimalType::CHICKEN;
 									sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+									std::cout << "사료 급여 요청 전송" << std::endl;
 									break;
 								}
 							}
 							else {
-								std::cout << " 취킨 팔음" << std::endl;
+								//std::cout << " 취킨 팔음" << std::endl;
 								if (player->getCoin() < player->getMaxCoin() - 1) {
 									// 패킷보내야지
 									cs_request_sell_animal packet;
 									packet.AnimalID = i;
 									packet.AnimalType = AnimalType::CHICKEN;
 									sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+									std::cout << "판매 요청 전송\n" << std::endl;
 								}
 								/*delete chics[i];
 								if (i != chickenCount - 1) {
@@ -1800,17 +1810,18 @@ void gameScene::keyboard(unsigned char key, bool isPressed)
 									packet.AnimalID = i;
 									packet.AnimalType = AnimalType::FOX;
 									sendPacket(g_sock, PacketType::CS_REQUEST_FEED, (char*)(&packet), sizeof(cs_request_feed_animal));
+									std::cout << "사료 급여 요청 전송" << std::endl;
 									break;
 								}
 							}
 							else {
-								std::cout << " 여우 팔음" << std::endl;
 								if (player->getCoin() < player->getMaxCoin() - 1) {
 									// 패킷 보내기
 									cs_request_sell_animal packet;
 									packet.AnimalID = i;
 									packet.AnimalType = AnimalType::FOX;
 									sendPacket(g_sock, PacketType::CS_REQUEST_SELL, (char*)(&packet), sizeof(cs_request_feed_animal));
+									std::cout << "판매 요청 전송" << std::endl;
 								}
 								/*delete foxes[i];
 								if (i != foxCount - 1) {

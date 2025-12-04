@@ -204,13 +204,13 @@ void PlayerObject::mouse(int button, int state, int x, int y)
 {
 	if (button == GLUT_LEFT_BUTTON) {
 		if (state == GLUT_DOWN) {
-			std::cout << "Å¬¸¯" << std::endl;
+			//std::cout << "Å¬¸¯" << std::endl;
 			isLeftMousePressed = true;
 			befMousePosX = x;
 			befMousePosY = y;
 		}
 		else if (state == GLUT_UP) {
-			std::cout << "¶À" << std::endl;
+			//std::cout << "¶À" << std::endl;
 			isLeftMousePressed = false;
 		}
 	}

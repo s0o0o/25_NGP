@@ -3,7 +3,7 @@
 #include "Common.h"
 #include "ClientHandler.h" 
 #include "../../Packet.h"
-#include <map>
+#include <vector>
 
 struct AnimalData {
 	int id;
@@ -65,7 +65,7 @@ private:
 
 	CRITICAL_SECTION cs_animals; 
 
-	std::map<int, AnimalData> animals;
+	std::vector<AnimalData> animals;
 	std::map<int, PoopData> poops;
 
 	int nextPoopID;

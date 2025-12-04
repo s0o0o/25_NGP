@@ -57,9 +57,7 @@ void AnimalManager::SpawnAnimal(int type, float startX, float startY, bool broad
 	newAnimal.x = startX;
 	newAnimal.y = startY;
 
-	int id = (newAnimal.id << 8) | (newAnimal.type & 0xFF);
-
-	animals[id] = newAnimal;
+	animals.push_back(newAnimal);
 	printf("[AnimalManager] 동물 생성 (ID: %d, Type: %d, Pos: %.1f, %.1f)\n",
 		newAnimal.id, newAnimal.type, newAnimal.x, newAnimal.y);
 
@@ -93,14 +91,17 @@ void AnimalManager::SpawnAnimal(int type, float startX, float startY, bool broad
 void AnimalManager::RemoveAnimal(int animalID, int animalType)
 {
 	EnterCriticalSection(&cs_animals);
-	for (auto const& pair : animals)
+	for (auto it = animals.begin(); it != animals.end(); ++it)
 	{
-		AnimalData a = pair.second;
-		if (a.id == animalID and a.type == animalType)
+		AnimalData& a = *it;
+		if (a.id == animalID && a.type == animalType)
 		{
-			animals.erase(pair.first);
+			// 먼저 삭제
+			animals.erase(it);
 			printf("[AnimalManager] 동물 제거 (ID: %d, Type: %d)\n", animalID, animalType);
+
 			int animalCount = -1;
+
 			switch (animalType)
 			{
 			case AnimalType::PIG:
@@ -125,21 +126,25 @@ void AnimalManager::RemoveAnimal(int animalID, int animalType)
 				break;
 			}
 
+			// ID 재정렬
 			if (animalCount > 1) {
-				for (auto& pair : animals)
+				for (auto& a2 : animals)
 				{
-					AnimalData& a2 = pair.second;
 					if (a2.id == animalCount - 1 && a2.type == animalType)
 					{
-						printf("[AnimalManager] 새로운 아이디로 변경 (ID: %d->%d, Type: %d)================================\n", a2.id, animalID, animalType);
+						//printf("[AnimalManager] 새로운 아이디로 변경 (ID: %d->%d, Type: %d)================================\n",
+						// a2.id, animalID, animalType);
+
 						a2.id = animalID;
 						break;
 					}
 				}
 			}
-			break;
+
+			break; 
 		}
 	}
+
 	LeaveCriticalSection(&cs_animals);
 
 	// 동물 제거 패킷 브로드캐스트
@@ -204,9 +209,9 @@ void AnimalManager::SendExistingObjects(SOCKET client_sock)
 	printf("동물 변수 전송\n");
 
 	// 기존 동물들 전송
-	for (auto const& pair : animals)
+	for (auto const animal : animals)
 	{
-		const AnimalData& a = pair.second;
+		const AnimalData& a = animal;
 		sc_spawn_animal packet;
 		packet.animalID = a.id;
 		packet.animalType = a.type;
@@ -278,9 +283,8 @@ void AnimalManager::GrowAnimal(int animalID, int animalType)
 {
 	int growStep = -1;
 	EnterCriticalSection(&cs_animals);
-	for (auto& pair : animals)
+	for (auto& a : animals)
 	{
-		AnimalData& a = pair.second;
 		if ((a.id == animalID) && animalType == (a.type))
 		{
 			a.growStep += 1;
@@ -321,10 +325,8 @@ void AnimalManager::animalUpdate(float deltaTime)
 {
 	EnterCriticalSection(&cs_animals);
 
-	for (auto& pair : animals)
+	for (auto& animal : animals)
 	{
-		AnimalData& animal = pair.second;
-
 		animal.moveTimer += deltaTime;
 		if (animal.moveTimer > animal.nextMoveTime)
 		{
@@ -361,9 +363,8 @@ void AnimalManager::broadcastMovement()
 	EnterCriticalSection(&cs_animals);
 	EnterCriticalSection(&cs_connections);
 
-	for (auto& pair : animals)
+	for (auto& a : animals)
 	{
-		AnimalData& a = pair.second;
 
 		float dist = sqrt(pow(a.x - a.lastSentX, 2) + pow(a.y - a.lastSentY, 2));
 
